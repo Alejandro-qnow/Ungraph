@@ -278,6 +278,21 @@ class Neo4jSearchService(SearchService):
             "parent_child_retriever": GraphRAGSearchPatterns.parent_child_retriever,  # Alias
         }
         
+        # Patrones avanzados (requieren módulos opcionales)
+        try:
+            from .advanced_search_patterns import AdvancedSearchPatterns
+            pattern_map.update({
+                "graph_enhanced": AdvancedSearchPatterns.graph_enhanced_vector_search,
+                "graph_enhanced_vector": AdvancedSearchPatterns.graph_enhanced_vector_search,
+                "local": AdvancedSearchPatterns.local_retriever,
+                "local_retriever": AdvancedSearchPatterns.local_retriever,
+                "community_summary": AdvancedSearchPatterns.community_summary_retriever_gds,
+                "community_summary_gds": AdvancedSearchPatterns.community_summary_retriever_gds,
+            })
+        except ImportError:
+            # Módulos avanzados no disponibles, solo patrones básicos
+            pass
+        
         pattern_method = pattern_map.get(pattern_type)
         if not pattern_method:
             raise ValueError(
@@ -286,6 +301,17 @@ class Neo4jSearchService(SearchService):
             )
         
         # Generar query y parámetros
+        # Para graph_enhanced, necesita query_vector que debe generarse
+        if pattern_type in ["graph_enhanced", "graph_enhanced_vector"]:
+            if "query_vector" not in kwargs:
+                # Generar embedding si no se proporciona
+                from infrastructure.services.huggingface_embedding_service import HuggingFaceEmbeddingService
+                from core.configuration import get_settings
+                settings = get_settings()
+                embedding_service = HuggingFaceEmbeddingService(model_name=settings.embedding_model)
+                embedding = embedding_service.generate_embedding(query_text)
+                kwargs["query_vector"] = embedding.vector
+        
         query, params = pattern_method(query_text, limit=limit, **kwargs)
         
         # Ejecutar query
@@ -327,6 +353,53 @@ class Neo4jSearchService(SearchService):
                             chunk_id=result_data["parent_chunk_id"],
                             chunk_id_consecutive=0,  # No aplica para parent
                             next_chunk_content=" ".join(children_content)  # Concatenar hijos como contexto
+                        )
+                        results.append(result)
+                    
+                    elif pattern_type in ["graph_enhanced", "graph_enhanced_vector"]:
+                        # Graph-Enhanced retorna estructura compleja
+                        result_data = record["result"]
+                        central = result_data["central_chunk"]
+                        related_text = " ".join([
+                            ctx.get("chunk", {}).get("content", "") 
+                            for ctx in result_data.get("related_chunks", [])
+                        ])
+                        neighbor_text = " ".join([
+                            n.get("content", "") 
+                            for n in result_data.get("neighbor_chunks", [])
+                        ])
+                        full_context = f"{related_text} {neighbor_text}".strip()
+                        
+                        result = SearchResult(
+                            content=central["content"],
+                            score=float(central["score"]),
+                            chunk_id=central["chunk_id"],
+                            chunk_id_consecutive=0,
+                            next_chunk_content=full_context if full_context else None
+                        )
+                        results.append(result)
+                    
+                    elif pattern_type in ["local", "local_retriever"]:
+                        # Local retriever retorna estructura con comunidad
+                        result_data = record["result"]
+                        result = SearchResult(
+                            content=result_data["central_content"],
+                            score=float(result_data["central_score"]),
+                            chunk_id=result_data["central_chunk_id"],
+                            chunk_id_consecutive=0,
+                            next_chunk_content=result_data.get("community_summary", "")
+                        )
+                        results.append(result)
+                    
+                    elif pattern_type in ["community_summary", "community_summary_gds"]:
+                        # Community Summary retorna estructura con resumen
+                        result_data = record["result"]
+                        result = SearchResult(
+                            content=result_data["central_content"],
+                            score=float(result_data["central_score"]),
+                            chunk_id=result_data["central_chunk_id"],
+                            chunk_id_consecutive=0,
+                            next_chunk_content=result_data.get("community_summary", "")
                         )
                         results.append(result)
                     

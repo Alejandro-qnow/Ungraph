@@ -1,6 +1,6 @@
 # Resultados de Validación - Queries Cypher
 
-**Fecha**: 2024-01-01
+**Fecha**: 2025-01-XX
 **Base de datos**: Neo4j
 **Patrones validados**: 4 patrones principales + 3 patrones de búsqueda GraphRAG
 

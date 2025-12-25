@@ -241,25 +241,35 @@ LIMIT $top_k
 
 ---
 
-## Patrones Adicionales (Futuro)
+## Patrones Avanzados (Implementados en v0.1.0)
 
 ### Community Summary Retriever
 
-**Estado**: ⏸️ Documentado pero no implementado
+**Estado**: ✅ Implementado (requiere `ungraph[gds]`)
 
 **Referencia**: [GraphRAG Community Summary Retriever](https://graphrag.com/reference/graphrag/community-summary-retriever/)
 
-**Notas**: Requiere detección de comunidades y generación de resúmenes con LLM.
+**Notas**: Implementado usando Neo4j GDS para detección de comunidades. Ver [documentación de patrones avanzados](../../api/advanced-search-patterns.md).
 
 ---
 
 ### Graph-Enhanced Vector Search
 
-**Estado**: ⏸️ Documentado pero no implementado
+**Estado**: ✅ Implementado (requiere `ungraph[gds]`)
 
 **Referencia**: [GraphRAG Graph-Enhanced Vector Search](https://graphrag.com/reference/graphrag/graph-enhanced-vector-search/)
 
-**Notas**: Requiere combinación avanzada de señales del grafo.
+**Notas**: Implementado combinando búsqueda vectorial con traversal del grafo. Ver [documentación de patrones avanzados](../../api/advanced-search-patterns.md).
+
+---
+
+### Local Retriever
+
+**Estado**: ✅ Implementado (requiere `ungraph[gds]`)
+
+**Referencia**: [GraphRAG Local Retriever](https://graphrag.com/reference/graphrag/local-retriever/)
+
+**Notas**: Implementado para búsqueda en comunidades pequeñas. Ver [documentación de patrones avanzados](../../api/advanced-search-patterns.md).
 
 ---
 
@@ -272,10 +282,13 @@ LIMIT $top_k
 | Metadata Filtering | Search Pattern | ✅ Implementado | ✅ |
 | Parent-Child Retriever | Search Pattern | ✅ Implementado | ✅ |
 | Hybrid Search | Search Pattern | ✅ Implementado | ✅ |
-| Community Summary | Search Pattern | ⏸️ Futuro | N/A |
-| Graph-Enhanced Vector | Search Pattern | ⏸️ Futuro | N/A |
+| Community Summary | Search Pattern | ✅ Implementado* | ✅ |
+| Graph-Enhanced Vector | Search Pattern | ✅ Implementado* | ✅ |
+| Local Retriever | Search Pattern | ✅ Implementado* | ✅ |
 
-**Cumplimiento General**: ✅ **5/5 patrones implementados cumplen con GraphRAG**
+*Requiere `pip install ungraph[gds]`
+
+**Cumplimiento General**: ✅ **8/8 patrones implementados cumplen con GraphRAG**
 
 ---
 

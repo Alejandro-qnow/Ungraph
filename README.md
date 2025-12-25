@@ -20,7 +20,34 @@ Ungraph es una librería Python que convierte datos no estructurados en **Lexica
 
 - **Python**: 3.12 o superior
 - **Neo4j**: 5.x o superior (debe estar corriendo y accesible)
-- **Dependencias**: Se instalan automáticamente con pip
+- **Dependencias básicas**: Se instalan automáticamente con pip
+
+### Instalación Básica
+
+```bash
+pip install ungraph
+```
+
+### Módulos Opcionales
+
+Para funcionalidades avanzadas, instala módulos opcionales:
+
+```bash
+# Graph Data Science - Para patrones avanzados de búsqueda
+pip install ungraph[gds]
+
+# Visualización de grafos en Jupyter
+pip install ungraph[ynet]
+
+# Herramientas de desarrollo
+pip install ungraph[dev]
+
+# Experimentos y evaluación
+pip install ungraph[experiments]
+
+# Todas las extensiones
+pip install ungraph[all]
+```
 
 ### Instalación de Neo4j
 
@@ -141,6 +168,30 @@ for result in results:
         print(f"Contexto siguiente: {result.next_chunk_content}")
 ```
 
+### Búsqueda con Patrones Avanzados (requiere ungraph[gds])
+
+```python
+import ungraph
+
+# Graph-Enhanced Vector Search: Encuentra contexto relacionado a través de entidades
+results = ungraph.search_with_pattern(
+    "machine learning",
+    pattern_type="graph_enhanced",
+    limit=5,
+    max_traversal_depth=2
+)
+
+# Local Retriever: Búsqueda en comunidades pequeñas
+results = ungraph.search_with_pattern(
+    "neural networks",
+    pattern_type="local",
+    limit=5,
+    community_threshold=3
+)
+```
+
+Ver [Patrones Avanzados de Búsqueda](docs/api/advanced-search-patterns.md) para más detalles.
+
 ## ⚙️ Configuración
 
 ### Variables de Entorno
@@ -187,7 +238,8 @@ La documentación completa está disponible en la carpeta [`docs/`](docs/README.
 
 ### Guías de Uso
 - [Guía de Inicio Rápido](docs/guides/quickstart.md) - Primeros pasos
-- [Patrones de Búsqueda GraphRAG](docs/api/search-patterns.md) - Referencia completa
+- [Patrones de Búsqueda GraphRAG](docs/api/search-patterns.md) - Referencia completa (básicos)
+- [Patrones Avanzados de Búsqueda](docs/api/advanced-search-patterns.md) - Patrones avanzados (requieren módulos opcionales)
 - [Lexical Graphs](docs/concepts/lexical-graphs.md) - Conceptos fundamentales
 
 ### Ejemplos Prácticos
@@ -253,7 +305,11 @@ pytest tests/test_use_case_integration.py -v -m integration
 - ✅ Búsqueda por texto (full-text search)
 - ✅ Búsqueda vectorial (similarity search)
 - ✅ Búsqueda híbrida (combinación de ambas)
-- ✅ Patrones GraphRAG (en desarrollo)
+- ✅ Patrones GraphRAG básicos (Basic Retriever, Parent-Child, Metadata Filtering)
+- 🔧 Patrones GraphRAG avanzados (requieren módulos opcionales):
+  - Graph-Enhanced Vector Search (ungraph[gds])
+  - Local Retriever (ungraph[gds])
+  - Community Summary Retriever (ungraph[gds])
 
 ### Arquitectura y Calidad
 - ✅ Clean Architecture para mantenibilidad

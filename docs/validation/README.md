@@ -100,7 +100,7 @@ validate_query = FILE_PAGE_CHUNK_PATTERN["validate"]
 1. **Ejecutar validación con MCP Neo4j**: Conectar script de validación con MCP real
 2. **Tests automatizados**: Crear tests unitarios para cada query
 3. **Performance testing**: Validar performance de queries con datos reales
-4. **Documentación de patrones futuros**: Community Summary, Graph-Enhanced Vector
+4. **Documentación de patrones avanzados**: Community Summary, Graph-Enhanced Vector, Local Retriever (implementados en v0.1.0, requieren `ungraph[gds]`)
 
 ## Referencias
 

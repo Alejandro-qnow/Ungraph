@@ -26,18 +26,41 @@ dependencies = [
     "langchain-text-splitters>=1.1.0",
     "langgraph>=1.0.5",
     "markdown>=3.10",
-    "matplotlib>=3.10.8",
-    "mypy>=1.19.1",
     "neo4j>=5.28.2",
-    "opik>=1.9.66",
-    "pip>=25.3",
     "pydantic>=2.12.5",
     "pydantic-settings>=2.12.0",
     "python-dotenv>=1.2.1",
-    "ruff>=0.14.10",
     "sentence-transformers>=5.2.0",
     "unstructured>=0.18.21",
+]
+
+[project.optional-dependencies]
+# Graph Data Science - Para funcionalidades avanzadas de análisis de grafos
+gds = [
+    "graphdatascience>=1.18",
+]
+
+# Visualización de grafos en Jupyter
+ynet = [
     "yfiles-jupyter-graphs-for-neo4j>=1.7.0",
+]
+
+# Herramientas de desarrollo
+dev = [
+    "mypy>=1.19.1",
+    "ruff>=0.14.10",
+    "matplotlib>=3.10.8",
+    "pip>=25.3",
+]
+
+# Experimentos y evaluación
+experiments = [
+    "opik>=1.9.66",
+]
+
+# Todas las extensiones
+all = [
+    "ungraph[gds,ynet,dev,experiments]",
 ]
 
 [build-system]

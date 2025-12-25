@@ -319,20 +319,30 @@ def search_with_pattern(
     pattern_type: str,
     limit: int = 5,
     database: Optional[str] = None,
+    embedding_model: Optional[str] = None,
     **kwargs
 ) -> List[SearchResult]:
     """
     Búsqueda usando un patrón GraphRAG específico.
     
-    Soporta patrones avanzados de búsqueda basados en GraphRAG:
-    - metadata_filtering: Búsqueda con filtros por metadatos
-    - parent_child: Busca en nodos padre y expande a hijos
+    Soporta patrones básicos y avanzados de búsqueda basados en GraphRAG:
+    
+    **Patrones básicos** (siempre disponibles):
+    - `basic` o `basic_retriever`: Búsqueda full-text simple
+    - `metadata_filtering`: Búsqueda con filtros por metadatos
+    - `parent_child` o `parent_child_retriever`: Busca en nodos padre y expande a hijos
+    
+    **Patrones avanzados** (requieren módulos opcionales):
+    - `local` o `local_retriever`: Búsqueda en comunidades pequeñas (requiere ungraph[gds])
+    - `graph_enhanced` o `graph_enhanced_vector`: Búsqueda vectorial mejorada con traversal (requiere ungraph[gds])
+    - `community_summary` o `community_summary_gds`: Resúmenes de comunidades (requiere ungraph[gds])
     
     Args:
         query_text: Texto a buscar
-        pattern_type: Tipo de patrón ("metadata_filtering", "parent_child_retriever")
+        pattern_type: Tipo de patrón
         limit: Número máximo de resultados (default: 5)
         database: Nombre de la base de datos Neo4j (default: desde configuración global)
+        embedding_model: Modelo de embeddings para patrones que lo requieren (default: desde configuración)
         **kwargs: Parámetros específicos del patrón
     
     Returns:
@@ -341,9 +351,17 @@ def search_with_pattern(
     Raises:
         ValueError: Si el query_text está vacío o pattern_type es inválido
         RuntimeError: Si hay un error al conectarse a Neo4j
+        ImportError: Si se requiere un módulo opcional no instalado
     
     Example:
         >>> import ungraph
+        >>> 
+        >>> # Búsqueda básica
+        >>> results = ungraph.search_with_pattern(
+        ...     "machine learning",
+        ...     pattern_type="basic",
+        ...     limit=5
+        ... )
         >>> 
         >>> # Búsqueda con filtros de metadatos
         >>> results = ungraph.search_with_pattern(
@@ -360,6 +378,23 @@ def search_with_pattern(
         ...     parent_label="Page",
         ...     child_label="Chunk",
         ...     limit=5
+        ... )
+        >>> 
+        >>> # Búsqueda avanzada: Graph-Enhanced (requiere ungraph[gds])
+        >>> results = ungraph.search_with_pattern(
+        ...     "machine learning",
+        ...     pattern_type="graph_enhanced",
+        ...     limit=5,
+        ...     max_traversal_depth=2
+        ... )
+        >>> 
+        >>> # Búsqueda avanzada: Local Retriever (requiere ungraph[gds])
+        >>> results = ungraph.search_with_pattern(
+        ...     "neural networks",
+        ...     pattern_type="local",
+        ...     limit=5,
+        ...     community_threshold=3,
+        ...     max_depth=1
         ... )
     """
     if not query_text:

@@ -32,7 +32,7 @@ Documentación completa de la librería Ungraph para construcción de grafos de 
 
 ---
 
-**Última actualización:** 2024
+**Última actualización:** 2025
 
 
 

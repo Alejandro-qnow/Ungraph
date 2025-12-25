@@ -59,9 +59,11 @@
   - Convertir críticos en issues
   - Eliminar innecesarios
 
-- [ ] **Actualizar fechas en documentación**
-  - `docs/validation/validation_summary.md` tiene fecha "2024-01-01"
-  - Revisar todas las fechas en documentación
+- [x] **Actualizar fechas en documentación**
+  - `docs/validation/validation_summary.md` actualizado a "2025-01-XX"
+  - `docs/validation/validation_results.md` actualizado
+  - `docs/validation/problems_resolved.md` actualizado
+  - `docs/README.md` actualizado a "2025"
 
 - [ ] **Agregar guía de troubleshooting**
   - Documentar errores comunes
@@ -100,21 +102,20 @@ Todos los problemas críticos identificados en la revisión han sido resueltos:
 
 Basado en `docs/GRAPHRAG_AVANZADO.md`:
 
-1. **Graph-Enhanced Vector Search** (v0.2.0)
-   - Extracción de entidades (NER)
-   - Relaciones MENTIONS en el grafo
-   - Traversal del grafo en búsqueda
+**Nota**: Los patrones avanzados (Graph-Enhanced Vector Search, Local Retriever, Community Summary Retriever) ya están implementados en v0.1.0 como módulos opcionales. Las siguientes mejoras son adicionales:
 
-2. **Local Retriever** (v0.2.0)
-   - Búsqueda en subgrafos relacionados
-
-3. **Hypothetical Question Retriever** (v0.3.0)
+1. **Hypothetical Question Retriever** (v0.2.0)
    - Generación de preguntas durante ingesta
    - Búsqueda en preguntas generadas
 
-4. **Community Summary Retriever** (v0.4.0)
-   - Detección de comunidades (Neo4j GDS)
-   - Generación de resúmenes con LLM
+2. **Mejoras a patrones existentes** (v0.2.0+)
+   - Extracción automática de entidades (NER) durante ingesta
+   - Generación automática de relaciones MENTIONS
+   - Mejoras en detección de comunidades
+
+3. **Text2Cypher** (v0.3.0)
+   - Conversión de preguntas naturales a queries Cypher
+   - Generación dinámica de queries con LLM
 
 ---
 

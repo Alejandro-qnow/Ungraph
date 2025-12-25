@@ -1,6 +1,6 @@
 # Resumen de Validación - Queries Cypher Ungraph
 
-**Fecha de ejecución**: 2024-01-01  
+**Fecha de ejecución**: 2025-01-XX  
 **Método**: Ejecución directa usando MCP Neo4j  
 **Estado**: ✅ **VALIDACIÓN COMPLETADA**
 

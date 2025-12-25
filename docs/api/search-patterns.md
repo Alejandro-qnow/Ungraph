@@ -163,11 +163,13 @@ LIMIT $limit
 
 ---
 
-### ⏸️ 4. Community Summary Retriever (Global) (FUTURO)
+### ✅ 4. Community Summary Retriever (GDS) (IMPLEMENTADO - Requiere ungraph[gds])
 
-Encuentra comunidades de nodos relacionados y genera resúmenes.
+Encuentra comunidades de nodos relacionados y genera resúmenes usando Graph Data Science.
 
-**Estado:** ⏸️ **DOCUMENTADO PERO NO IMPLEMENTADO - FUTURO**
+**Estado:** ✅ **IMPLEMENTADO Y DISPONIBLE** (requiere `pip install ungraph[gds]` y Neo4j GDS plugin)
+
+**Ver documentación completa**: [Patrones Avanzados de Búsqueda](../api/advanced-search-patterns.md)
 
 **Cuándo usar:**
 - Necesitas contexto amplio sobre un tema
@@ -220,11 +222,13 @@ LIMIT $limit
 
 ---
 
-### ⏸️ 5. Local Retriever (FUTURO)
+### ✅ 5. Local Retriever (IMPLEMENTADO - Requiere ungraph[gds])
 
 Similar a Community Summary pero optimizado para comunidades pequeñas.
 
-**Estado:** ⏸️ **DOCUMENTADO PERO NO IMPLEMENTADO - FUTURO**
+**Estado:** ✅ **IMPLEMENTADO Y DISPONIBLE** (requiere `pip install ungraph[gds]`)
+
+**Ver documentación completa**: [Patrones Avanzados de Búsqueda](../api/advanced-search-patterns.md)
 
 **Cuándo usar:**
 - Exploración de conocimiento específico
@@ -244,11 +248,13 @@ results = ungraph.search_with_pattern(
 
 ---
 
-### ⏸️ 6. Graph-Enhanced Vector Search (FUTURO)
+### ✅ 6. Graph-Enhanced Vector Search (IMPLEMENTADO - Requiere ungraph[gds])
 
 Combina búsqueda vectorial (semántica) con estructura del grafo.
 
-**Estado:** ⏸️ **DOCUMENTADO PERO NO IMPLEMENTADO - FUTURO**
+**Estado:** ✅ **IMPLEMENTADO Y DISPONIBLE** (requiere `pip install ungraph[gds]`)
+
+**Ver documentación completa**: [Patrones Avanzados de Búsqueda](../api/advanced-search-patterns.md)
 
 **Cuándo usar:**
 - Necesitas similitud semántica Y contexto estructural
@@ -314,15 +320,17 @@ LIMIT $limit
 | Basic | ✅ Implementado | ⚡⚡⚡ | ⭐⭐ | ⭐ | Búsquedas simples |
 | Metadata Filtering | ✅ Implementado | ⚡⚡⚡ | ⭐⭐⭐ | ⭐ | Búsquedas filtradas |
 | Parent-Child | ✅ Implementado | ⚡⚡ | ⭐⭐⭐ | ⭐⭐⭐ | Contexto jerárquico |
-| Community Summary | ⏸️ Futuro | ⚡ | ⭐⭐ | ⭐⭐⭐⭐ | Resúmenes amplios |
-| Local | ⏸️ Futuro | ⚡⚡ | ⭐⭐⭐ | ⭐⭐⭐ | Exploración focalizada |
-| Graph-Enhanced Vector | ⏸️ Futuro | ⚡ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Búsquedas avanzadas |
+| Community Summary | ✅ Implementado* | ⚡ | ⭐⭐ | ⭐⭐⭐⭐ | Resúmenes amplios |
+| Local | ✅ Implementado* | ⚡⚡ | ⭐⭐⭐ | ⭐⭐⭐ | Exploración focalizada |
+| Graph-Enhanced Vector | ✅ Implementado* | ⚡ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Búsquedas avanzadas |
+
+*Requiere `pip install ungraph[gds]`. Ver [Patrones Avanzados](../api/advanced-search-patterns.md)
 
 ## Mejores Prácticas
 
 1. **Empezar simple**: Usa `basic` o `metadata_filtering` primero (✅ Disponibles)
 2. **Ajustar según necesidad**: Si necesitas más contexto, usa `parent_child` (✅ Disponible)
-3. **Considerar performance**: Los patrones avanzados (`community`, `graph_enhanced_vector`) son más lentos (⏸️ Futuro)
+3. **Considerar performance**: Los patrones avanzados (`community`, `graph_enhanced_vector`) son más lentos pero proporcionan mejor contexto (✅ Disponibles con `ungraph[gds]`)
 4. **Filtrar cuando sea posible**: Usa `metadata_filtering` para reducir espacio de búsqueda (✅ Disponible)
 5. **Combinar patrones**: Puedes ejecutar múltiples búsquedas y combinar resultados
 
@@ -332,7 +340,7 @@ LIMIT $limit
 - `chunk_content`: Índice full-text para búsqueda de texto completo
   - Se crea automáticamente con `ungraph.ingest_document()` o `index_service.setup_all_indexes()`
 
-**Nota:** Los patrones implementados (✅) están listos para usar. Los patrones futuros (⏸️) están documentados pero requieren implementación adicional.
+**Nota:** Los patrones básicos (✅) están siempre disponibles. Los patrones avanzados (✅*) requieren `pip install ungraph[gds]` y están documentados en [Patrones Avanzados de Búsqueda](../api/advanced-search-patterns.md).
 
 ## Referencias
 
