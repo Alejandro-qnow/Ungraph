@@ -14,6 +14,8 @@ from domain.repositories.chunk_repository import ChunkRepository
 from domain.entities.chunk import Chunk
 from domain.value_objects.graph_pattern import GraphPattern
 
+logger = logging.getLogger(__name__)
+
 # Importar funciones de graph_operations de manera lazy para evitar importaciones circulares
 # Estas funciones se importan solo cuando se necesitan, no al nivel del módulo
 try:
@@ -21,8 +23,6 @@ try:
 except ImportError as e:
     logger.error("Cannot import graph_operations. Ensure the package is installed or PYTHONPATH includes project root. Original error: %s", e)
     raise
-
-logger = logging.getLogger(__name__)
 
 
 class Neo4jChunkRepository(ChunkRepository):

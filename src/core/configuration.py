@@ -149,8 +149,6 @@ def configure(**kwargs: Any) -> None:
         ...     neo4j_database="my_database"
         ... )
     """
-    global _settings_instance
-    
     # Get current settings or create new
     current_settings = get_settings()
     

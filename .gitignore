@@ -6,6 +6,11 @@ __pycache__/
 # C extensions
 *.so
 
+#article/notebooks/
+#article/experiments/
+
+
+
 lab/*
 lab
 .cursor/
