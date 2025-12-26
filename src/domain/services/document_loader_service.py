@@ -16,10 +16,10 @@ class DocumentLoaderService(ABC):
     Interfaz que define las operaciones para cargar documentos desde archivos.
     
     Las implementaciones pueden cargar diferentes tipos de archivos:
-    - Markdown (.md)
+    - Markdown (.md, .markdown)
     - Texto plano (.txt)
     - Word (.doc, .docx)
-    - PDF (futuro)
+    - PDF (.pdf) usando langchain-docling (IBM Docling)
     - Audio (.mp3, .wav, .ogg) (futuro - lejano)
     - Video (.mp4, .avi, .mkv) (futuro - lejano)
     - Imagen (.jpg, .png, .gif) (futuro)

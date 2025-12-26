@@ -20,13 +20,13 @@ Para uso avanzado, puedes acceder a los componentes internos:
     >>> from ungraph.application.dependencies import create_ingest_document_use_case
 """
 
-# API pública de alto nivel
+# High-level public API
 from pathlib import Path
 from typing import List, Optional, Tuple, Dict, Any
 from dataclasses import dataclass
 import os
 
-# Importar configuración global
+# Import global configuration
 try:
     from .core.configuration import get_settings, configure, reset_configuration
 except ImportError:
@@ -34,9 +34,10 @@ except ImportError:
 
 # Importar componentes internos para uso avanzado
 # Usar imports relativos desde src/ para que funcionen cuando se instale el paquete
+# NOTA: create_ingest_document_use_case se importa de forma lazy en ingest_document()
+# para evitar import circular con application.dependencies
 try:
     # Cuando se instala como paquete, los imports deben ser relativos a src/
-    from .application.dependencies import create_ingest_document_use_case
     from .application.use_cases.ingest_document import IngestDocumentUseCase
     from .domain.entities.chunk import Chunk
     from .domain.services.search_service import SearchResult
@@ -45,7 +46,6 @@ try:
     from .infrastructure.services.huggingface_embedding_service import HuggingFaceEmbeddingService
 except ImportError:
     # Fallback para desarrollo local
-    from application.dependencies import create_ingest_document_use_case
     from application.use_cases.ingest_document import IngestDocumentUseCase
     from domain.entities.chunk import Chunk
     from domain.services.search_service import SearchResult
@@ -63,7 +63,7 @@ except ImportError:
 
 __version__ = "0.1.0"
 __all__ = [
-    # Funciones de configuración
+    # Configuration functions
     "configure",
     "reset_configuration",
     
@@ -105,56 +105,56 @@ def ingest_document(
     pattern: Optional["GraphPattern"] = None
 ) -> List[Chunk]:
     """
-    Ingiere un documento al grafo de conocimiento.
+    Ingest a document into the knowledge graph.
     
-    Esta es la función principal de alto nivel para usar la librería.
-    Carga el documento, lo divide en chunks, genera embeddings y lo persiste en Neo4j.
+    This is the main high-level function for using the library.
+    Loads the document, splits it into chunks, generates embeddings and persists it in Neo4j.
     
-    Usa configuración global si no se especifican parámetros. La configuración puede
-    establecerse mediante variables de entorno o programáticamente con configure().
+    Uses global configuration if parameters are not specified. Configuration can be
+    set using environment variables or programmatically with configure().
     
     Args:
-        file_path: Ruta al archivo a ingerir (Markdown, TXT, Word)
-        chunk_size: Tamaño de cada chunk en caracteres (default: 1000)
-        chunk_overlap: Overlap entre chunks en caracteres (default: 200)
-        clean_text: Si True, limpia el texto antes de procesar (default: True)
-        database: Nombre de la base de datos Neo4j (default: desde configuración global)
-        embedding_model: Modelo de embeddings a usar (default: desde configuración global)
-        pattern: Patrón de grafo opcional. Si es None, usa FILE_PAGE_CHUNK (default: None)
+        file_path: Path to the file to ingest (Markdown, TXT, Word, PDF)
+        chunk_size: Size of each chunk in characters (default: 1000)
+        chunk_overlap: Overlap between chunks in characters (default: 200)
+        clean_text: If True, cleans the text before processing (default: True)
+        database: Neo4j database name (default: from global configuration)
+        embedding_model: Embedding model to use (default: from global configuration)
+        pattern: Optional graph pattern. If None, uses FILE_PAGE_CHUNK (default: None)
     
     Returns:
-        Lista de Chunks creados
+        List of created Chunks
     
     Raises:
-        FileNotFoundError: Si el archivo no existe
-        ValueError: Si el archivo no puede ser procesado
-        RuntimeError: Si hay un error al conectarse a Neo4j
+        FileNotFoundError: If the file doesn't exist
+        ValueError: If the file can't be processed
+        RuntimeError: If there's an error connecting to Neo4j
     
     Example:
         >>> import ungraph
         >>> 
-        >>> # Configurar (opcional, también puede usar variables de entorno)
+        >>> # Configure (optional, can also use environment variables)
         >>> ungraph.configure(
         ...     neo4j_uri="bolt://localhost:7687",
         ...     neo4j_password="password"
         ... )
         >>> 
-        >>> # Ingerir un documento (usa FILE_PAGE_CHUNK por defecto)
-        >>> chunks = ungraph.ingest_document("mi_documento.md")
-        >>> print(f"✅ {len(chunks)} chunks creados")
+        >>> # Ingest a document (uses FILE_PAGE_CHUNK by default)
+        >>> chunks = ungraph.ingest_document("my_document.md")
+        >>> print(f"✅ {len(chunks)} chunks created")
         >>>
-        >>> # Con parámetros personalizados
+        >>> # With custom parameters
         >>> chunks = ungraph.ingest_document(
-        ...     "documento.txt",
+        ...     "document.txt",
         ...     chunk_size=500,
         ...     chunk_overlap=100
         ... )
         >>>
-        >>> # Con patrón personalizado
+        >>> # With custom pattern
         >>> from ungraph.domain.value_objects.graph_pattern import GraphPattern, NodeDefinition
         >>> simple_pattern = GraphPattern(
         ...     name="SIMPLE_CHUNK",
-        ...     description="Solo chunks",
+        ...     description="Chunks only",
         ...     node_definitions=[
         ...         NodeDefinition(
         ...             label="Chunk",
@@ -168,16 +168,22 @@ def ingest_document(
     file_path = Path(file_path)
     
     if not file_path.exists():
-        raise FileNotFoundError(f"El archivo no existe: {file_path}")
+        raise FileNotFoundError(f"File does not exist: {file_path}")
     
-    # Obtener configuración global
+    # Get global configuration
     settings = get_settings()
     
-    # Usar parámetros proporcionados o configuración global
+    # Use provided parameters or global configuration
     db_name = database or settings.neo4j_database
     emb_model = embedding_model or settings.embedding_model
     
     # Crear caso de uso usando el Composition Root
+    # Import here to avoid circular import with application.dependencies
+    try:
+        from .application.dependencies import create_ingest_document_use_case
+    except ImportError:
+        from application.dependencies import create_ingest_document_use_case
+    
     use_case = create_ingest_document_use_case(
         database=db_name,
         embedding_model=emb_model
@@ -207,28 +213,28 @@ def search(
     database: Optional[str] = None
 ) -> List[SearchResult]:
     """
-    Busca en el grafo de conocimiento usando búsqueda por texto.
+    Search the knowledge graph using text search.
     
     Args:
-        query_text: Texto a buscar
-        limit: Número máximo de resultados (default: 5)
-        database: Nombre de la base de datos Neo4j (default: desde configuración global)
+        query_text: Text to search for
+        limit: Maximum number of results (default: 5)
+        database: Neo4j database name (default: from global configuration)
     
     Returns:
-        Lista de SearchResult ordenados por score descendente
+        List of SearchResults sorted by score in descending order
     
     Raises:
-        ValueError: Si el query_text está vacío
-        RuntimeError: Si hay un error al conectarse a Neo4j
+        ValueError: If query_text is empty
+        RuntimeError: If there's an error connecting to Neo4j
     
     Example:
         >>> import ungraph
         >>> 
-        >>> # Buscar en el grafo
-        >>> results = ungraph.search("computación cuántica")
+        >>> # Search the graph
+        >>> results = ungraph.search("quantum computing")
         >>> for result in results:
         ...     print(f"Score: {result.score:.3f}")
-        ...     print(f"Contenido: {result.content[:200]}...")
+        ...     print(f"Content: {result.content[:200]}...")
         ...     print("---")
     """
     if not query_text:
@@ -255,37 +261,37 @@ def hybrid_search(
     embedding_model: Optional[str] = None
 ) -> List[SearchResult]:
     """
-    Búsqueda híbrida combinando texto y similitud vectorial.
+    Hybrid search combining text and vector similarity.
     
-    Esta función combina búsqueda por texto (full-text) y búsqueda vectorial
-    para obtener mejores resultados.
+    This function combines full-text search and vector search
+    to get better results.
     
     Args:
-        query_text: Texto a buscar
-        limit: Número máximo de resultados (default: 5)
-        weights: Pesos para combinar scores (text_weight, vector_weight) (default: (0.3, 0.7))
-        database: Nombre de la base de datos Neo4j (default: desde configuración global)
-        embedding_model: Modelo de embeddings a usar (default: desde configuración global)
+        query_text: Text to search for
+        limit: Maximum number of results (default: 5)
+        weights: Weights to combine scores (text_weight, vector_weight) (default: (0.3, 0.7))
+        database: Neo4j database name (default: from global configuration)
+        embedding_model: Embedding model to use (default: from global configuration)
     
     Returns:
-        Lista de SearchResult ordenados por score combinado descendente
+        List of SearchResults sorted by combined score in descending order
     
     Raises:
-        ValueError: Si el query_text está vacío
-        RuntimeError: Si hay un error al conectarse a Neo4j
+        ValueError: If query_text is empty
+        RuntimeError: If there's an error connecting to Neo4j
     
     Example:
         >>> import ungraph
         >>> 
-        >>> # Búsqueda híbrida
+        >>> # Hybrid search
         >>> results = ungraph.hybrid_search(
-        ...     "inteligencia artificial",
+        ...     "artificial intelligence",
         ...     limit=10,
-        ...     weights=(0.4, 0.6)  # Más peso a búsqueda vectorial
+        ...     weights=(0.4, 0.6)  # More weight to vector search
         ... )
         >>> for result in results:
         ...     print(f"Score: {result.score:.3f}")
-        ...     print(f"Contenido: {result.content[:200]}...")
+        ...     print(f"Content: {result.content[:200]}...")
     """
     if not query_text:
         raise ValueError("Query text cannot be empty")
@@ -299,7 +305,7 @@ def hybrid_search(
     embedding_service = HuggingFaceEmbeddingService(model_name=emb_model)
     query_embedding = embedding_service.generate_embedding(query_text)
     
-    # Realizar búsqueda híbrida
+    # Perform hybrid search
     search_service = Neo4jSearchService(database=db_name)
     
     try:
@@ -323,47 +329,47 @@ def search_with_pattern(
     **kwargs
 ) -> List[SearchResult]:
     """
-    Búsqueda usando un patrón GraphRAG específico.
+    Search using a specific GraphRAG pattern.
     
-    Soporta patrones básicos y avanzados de búsqueda basados en GraphRAG:
+    Supports basic and advanced GraphRAG-based search patterns:
     
-    **Patrones básicos** (siempre disponibles):
-    - `basic` o `basic_retriever`: Búsqueda full-text simple
-    - `metadata_filtering`: Búsqueda con filtros por metadatos
-    - `parent_child` o `parent_child_retriever`: Busca en nodos padre y expande a hijos
+    **Basic patterns** (always available):
+    - `basic` or `basic_retriever`: Simple full-text search
+    - `metadata_filtering`: Search with metadata filters
+    - `parent_child` or `parent_child_retriever`: Search in parent nodes and expand to children
     
-    **Patrones avanzados** (requieren módulos opcionales):
-    - `local` o `local_retriever`: Búsqueda en comunidades pequeñas (requiere ungraph[gds])
-    - `graph_enhanced` o `graph_enhanced_vector`: Búsqueda vectorial mejorada con traversal (requiere ungraph[gds])
-    - `community_summary` o `community_summary_gds`: Resúmenes de comunidades (requiere ungraph[gds])
+    **Advanced patterns** (require optional modules):
+    - `local` or `local_retriever`: Search in small communities (requires ungraph[gds])
+    - `graph_enhanced` or `graph_enhanced_vector`: Vector search enhanced with traversal (requires ungraph[gds])
+    - `community_summary` or `community_summary_gds`: Community summaries (requires ungraph[gds])
     
     Args:
-        query_text: Texto a buscar
-        pattern_type: Tipo de patrón
-        limit: Número máximo de resultados (default: 5)
-        database: Nombre de la base de datos Neo4j (default: desde configuración global)
-        embedding_model: Modelo de embeddings para patrones que lo requieren (default: desde configuración)
-        **kwargs: Parámetros específicos del patrón
+        query_text: Text to search for
+        pattern_type: Pattern type
+        limit: Maximum number of results (default: 5)
+        database: Neo4j database name (default: from global configuration)
+        embedding_model: Embedding model for patterns that require it (default: from configuration)
+        **kwargs: Pattern-specific parameters
     
     Returns:
-        Lista de SearchResult ordenados por score descendente
+        List of SearchResults sorted by score in descending order
     
     Raises:
-        ValueError: Si el query_text está vacío o pattern_type es inválido
-        RuntimeError: Si hay un error al conectarse a Neo4j
-        ImportError: Si se requiere un módulo opcional no instalado
+        ValueError: If query_text is empty or pattern_type is invalid
+        RuntimeError: If there's an error connecting to Neo4j
+        ImportError: If a required optional module is not installed
     
     Example:
         >>> import ungraph
         >>> 
-        >>> # Búsqueda básica
+        >>> # Basic search
         >>> results = ungraph.search_with_pattern(
         ...     "machine learning",
         ...     pattern_type="basic",
         ...     limit=5
         ... )
         >>> 
-        >>> # Búsqueda con filtros de metadatos
+        >>> # Search with metadata filters
         >>> results = ungraph.search_with_pattern(
         ...     "machine learning",
         ...     pattern_type="metadata_filtering",
@@ -371,16 +377,16 @@ def search_with_pattern(
         ...     limit=10
         ... )
         >>> 
-        >>> # Búsqueda parent-child
+        >>> # Parent-child search
         >>> results = ungraph.search_with_pattern(
-        ...     "inteligencia artificial",
+        ...     "artificial intelligence",
         ...     pattern_type="parent_child_retriever",
         ...     parent_label="Page",
         ...     child_label="Chunk",
         ...     limit=5
         ... )
         >>> 
-        >>> # Búsqueda avanzada: Graph-Enhanced (requiere ungraph[gds])
+        >>> # Advanced search: Graph-Enhanced (requires ungraph[gds])
         >>> results = ungraph.search_with_pattern(
         ...     "machine learning",
         ...     pattern_type="graph_enhanced",
@@ -388,7 +394,7 @@ def search_with_pattern(
         ...     max_traversal_depth=2
         ... )
         >>> 
-        >>> # Búsqueda avanzada: Local Retriever (requiere ungraph[gds])
+        >>> # Advanced search: Local Retriever (requires ungraph[gds])
         >>> results = ungraph.search_with_pattern(
         ...     "neural networks",
         ...     pattern_type="local",
@@ -425,41 +431,41 @@ def suggest_chunking_strategy(
     evaluate_all: bool = False
 ) -> ChunkingRecommendation:
     """
-    Sugiere la mejor estrategia de chunking para un documento con explicación.
+    Suggest the best chunking strategy for a document with explanation.
     
-    Analiza el documento y recomienda la estrategia de chunking más adecuada
-    basándose en su estructura, tipo y características.
+    Analyzes the document and recommends the most appropriate chunking strategy
+    based on its structure, type, and characteristics.
     
     Args:
-        file_path: Ruta al archivo a analizar
-        chunk_size: Tamaño de chunk deseado (opcional, se calcula automáticamente)
-        chunk_overlap: Overlap deseado (opcional, se calcula automáticamente)
-        evaluate_all: Si True, evalúa todas las estrategias candidatas (default: False)
+        file_path: Path to the file to analyze
+        chunk_size: Desired chunk size (optional, calculated automatically)
+        chunk_overlap: Desired overlap (optional, calculated automatically)
+        evaluate_all: If True, evaluates all candidate strategies (default: False)
     
     Returns:
-        ChunkingRecommendation con estrategia recomendada, explicación y alternativas
+        ChunkingRecommendation with recommended strategy, explanation and alternatives
     
     Raises:
-        FileNotFoundError: Si el archivo no existe
-        ValueError: Si el archivo no puede ser procesado
+        FileNotFoundError: If the file doesn't exist
+        ValueError: If the file can't be processed
     
     Example:
         >>> import ungraph
         >>> 
-        >>> # Obtener recomendación
-        >>> recommendation = ungraph.suggest_chunking_strategy("documento.md")
-        >>> print(f"Estrategia recomendada: {recommendation.strategy}")
-        >>> print(f"Explicación: {recommendation.explanation}")
+        >>> # Get recommendation
+        >>> recommendation = ungraph.suggest_chunking_strategy("document.md")
+        >>> print(f"Recommended strategy: {recommendation.strategy}")
+        >>> print(f"Explanation: {recommendation.explanation}")
         >>> print(f"Chunk size: {recommendation.chunk_size}")
         >>> print(f"Quality score: {recommendation.quality_score:.2f}")
         >>> 
-        >>> # Ver alternativas evaluadas
+        >>> # View evaluated alternatives
         >>> for alt in recommendation.alternatives:
         ...     print(f"  - {alt['strategy']}: score {alt['score']:.2f}")
         >>> 
-        >>> # Usar la recomendación
+        >>> # Use the recommendation
         >>> chunks = ungraph.ingest_document(
-        ...     "documento.md",
+        ...     "document.md",
         ...     chunk_size=recommendation.chunk_size,
         ...     chunk_overlap=recommendation.chunk_overlap
         ... )
@@ -467,7 +473,7 @@ def suggest_chunking_strategy(
     file_path = Path(file_path)
     
     if not file_path.exists():
-        raise FileNotFoundError(f"El archivo no existe: {file_path}")
+        raise FileNotFoundError(f"File does not exist: {file_path}")
     
     # Cargar documento usando el loader
     try:
@@ -480,21 +486,21 @@ def suggest_chunking_strategy(
     text_cleaning_service = SimpleTextCleaningService()
     loader_service = LangChainDocumentLoaderService(text_cleaning_service=text_cleaning_service)
     
-    # Cargar documento
+    # Load document
     domain_documents = loader_service.load(file_path, clean=False)
     if not domain_documents:
-        raise ValueError(f"No se pudo cargar el documento: {file_path}")
+        raise ValueError(f"Could not load document: {file_path}")
     
-    # Convertir a LangChain Document
+    # Convert to LangChain Document
     lc_document = LangChainDocument(
         page_content=domain_documents[0].content,
         metadata=domain_documents[0].metadata
     )
     
-    # Crear ChunkingMaster
+    # Create ChunkingMaster
     master = ChunkingMaster()
     
-    # Encontrar mejor estrategia
+    # Find best strategy
     result: ChunkingResult = master.find_best_chunking_strategy(
         documents=[lc_document],
         file_path=file_path,
@@ -503,15 +509,15 @@ def suggest_chunking_strategy(
         evaluate_all=evaluate_all
     )
     
-    # Generar explicación
+    # Generate explanation
     explanation = _generate_chunking_explanation(result, master)
     
-    # Obtener alternativas (si se evaluaron múltiples)
+    # Get alternatives (if multiple were evaluated)
     alternatives = []
     if evaluate_all:
-        # Si evaluate_all=True, ChunkingMaster ya evaluó múltiples estrategias
-        # Por ahora, solo incluimos la mejor. En una implementación completa,
-        # podríamos almacenar todas las evaluaciones
+        # If evaluate_all=True, ChunkingMaster already evaluated multiple strategies
+        # For now, we only include the best one. In a complete implementation,
+        # we could store all evaluations
         alternatives.append({
             "strategy": result.strategy.value,
             "score": master.evaluator.score_strategy(result.metrics),
@@ -538,49 +544,47 @@ def suggest_chunking_strategy(
 
 
 def _generate_chunking_explanation(result: ChunkingResult, master: ChunkingMaster) -> str:
-    """Genera una explicación legible de por qué se eligió esta estrategia."""
+    """Generate a readable explanation of why this strategy was chosen."""
     strategy_name = result.strategy.value
     doc_type = result.config.get('doc_type', 'unknown')
     structure = result.config.get('structure', {})
     metrics = result.metrics
     
     explanation_parts = [
-        f"Se recomienda la estrategia '{strategy_name}' porque:"
+        f"The strategy '{strategy_name}' is recommended because:"
     ]
     
-    # Explicación basada en tipo de documento
+    # Explanation based on document type
     if doc_type == 'markdown':
-        explanation_parts.append("- El documento es Markdown con estructura de headers")
+        explanation_parts.append("- The document is Markdown with header structure")
         if strategy_name == 'markdown_header':
-            explanation_parts.append("- La estrategia preserva la jerarquía de headers")
+            explanation_parts.append("- The strategy preserves header hierarchy")
     elif doc_type == 'python':
-        explanation_parts.append("- El documento contiene código Python")
+        explanation_parts.append("- The document contains Python code")
         if strategy_name == 'language_specific':
-            explanation_parts.append("- La estrategia respeta la sintaxis del lenguaje")
+            explanation_parts.append("- The strategy respects language syntax")
     else:
-        explanation_parts.append(f"- El documento es de tipo '{doc_type}'")
+        explanation_parts.append(f"- The document is of type '{doc_type}'")
     
-    # Explicación basada en métricas
+    # Explanation based on metrics
     if metrics.avg_sentence_completeness > 0.9:
-        explanation_parts.append("- Alta preservación de oraciones completas (>90%)")
+        explanation_parts.append("- High preservation of complete sentences (>90%)")
     if metrics.avg_paragraph_preservation > 0.8:
-        explanation_parts.append("- Buena preservación de párrafos (>80%)")
+        explanation_parts.append("- Good paragraph preservation (>80%)")
     
-    # Explicación basada en estructura
+    # Explanation based on structure
     if structure.get('headers', 0) > 0:
-        explanation_parts.append(f"- El documento tiene {structure['headers']} headers")
+        explanation_parts.append(f"- The document has {structure['headers']} headers")
     if structure.get('paragraphs', 0) > 0:
-        explanation_parts.append(f"- El documento tiene {structure['paragraphs']} párrafos")
+        explanation_parts.append(f"- The document has {structure['paragraphs']} paragraphs")
     
-    explanation_parts.append(f"- Generará aproximadamente {metrics.num_chunks} chunks")
-    explanation_parts.append(f"- Tamaño promedio de chunk: {metrics.avg_chunk_size:.0f} caracteres")
-    explanation_parts.append(f"- Score de calidad: {master.evaluator.score_strategy(metrics):.2f}/1.0")
+    explanation_parts.append(f"- Will generate approximately {metrics.num_chunks} chunks")
+    explanation_parts.append(f"- Average chunk size: {metrics.avg_chunk_size:.0f} characters")
+    explanation_parts.append(f"- Quality score: {master.evaluator.score_strategy(metrics):.2f}/1.0")
     
     return "\n".join(explanation_parts)
 
 
-# Exportar clases para uso avanzado
-__all__.extend([
-    "create_ingest_document_use_case",  # Para usuarios avanzados
-])
-
+# Export classes for advanced use
+# create_ingest_document_use_case can be imported directly from application.dependencies
+# to avoid circular import

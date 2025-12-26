@@ -1,7 +1,13 @@
 # Ungraph — Investigación técnico-científica
 
 **Resumen:**
-Este documento (`article/ungraph.md`) será el repositorio central del trabajo de investigación técnico-científica que respalda la librería Ungraph. Su propósito es articular la motivación, la metodología experimental, los resultados y las referencias bibliográficas completas que justifican el diseño (ingestión, chunking, patrones GraphRAG, evaluación y ontologías).
+Las arquitecturas modernas de Retrieval-Augmented Generation (RAG) enfrentan desafíos en la construcción de grafos de conocimiento confiables y trazables. Este trabajo propone el patrón Extract-Transform-Inference (ETI) como evolución del tradicional ETL, añadiendo una fase explícita de inferencia que genera hechos normalizados con trazabilidad PROV-O. 
+
+Presentamos una implementación parcial de ETI en la librería Ungraph, que construye Lexical Graphs sobre Neo4j integrando chunking estratégico, embeddings vectoriales y patrones GraphRAG básicos. La implementación actual cubre las fases Extract y Transform; la fase Inference se implementa mediante extracción transductiva básica de entidades nombradas (NER) usando spaCy, generando facts simples de mención y relaciones de co-ocurrencia.
+
+El diseño experimental propone evaluar la efectividad mediante experimentos reproducibles en cuatro dominios (financiero, biomédico, científico y general), comparando pipelines control (ET) versus ETI en métricas de recuperación (recall@k, MRR), calidad de QA (F1), precisión de inferencia y tasa de hallucination. Los resultados experimentales completos están pendientes de ejecución.
+
+El patrón ETI proporciona un marco coherente para construir sistemas de conocimiento confiables, integrando principios de ingeniería del conocimiento, Web semántica (ontologías, PROV) y neuro-symbolic computing.
 
 ## Objetivo
 Formalizar y documentar, con rigor científico y reproducible, los experimentos y resultados que soportan las decisiones de diseño de Ungraph (estrategias de chunking, pipelines híbridos de recuperación, uso de Neo4j como almacén vectorial vs alternativas, y la ontología propuesta para `File`/`Page`/`Chunk`).
@@ -18,6 +24,28 @@ Formalizar y documentar, con rigor científico y reproducible, los experimentos 
 2. Implementación de variantes (chunkers, retrievers, pattern execution).  
 3. Ejecución de experimentos E1–E4 con harness Opik y registro de métricas (recall@k, MRR, QA-F1, inference accuracy, hallucination rate, latency).  
 4. Análisis estadístico y reporte reproducible (notebooks, tablas y gráficos).
+
+## Research Questions e Hipótesis
+
+### Research Questions
+
+**RQ1: Efectividad de la Fase de Inferencia**
+¿Añadir una fase explícita de inferencia (I) mejora la calidad de recuperación y respuesta de preguntas comparado con pipelines que solo realizan extracción y transformación (ET)?
+
+**RQ2: Tipos de Inferencia por Dominio**
+¿Qué tipo de inferencia (LM-only, symbolic-only, neuro-symbolic) es más efectiva para diferentes dominios de conocimiento (financiero, biomédico, científico, general)?
+
+**RQ3: Trade-off Trazabilidad vs Performance**
+¿La trazabilidad completa con PROV-O mejora la confianza y explicabilidad del sistema sin sacrificar significativamente el rendimiento (latencia, throughput)?
+
+**Nota**: Estas research questions guiarán los experimentos futuros una vez completada la implementación de la fase Inference. Para v0.1.0, se implementa solo extracción transductiva básica (NER con spaCy); las capacidades avanzadas de inferencia están planificadas para v0.2+.
+
+### Hipótesis Experimentales
+
+- **H1**: ETI (con Inference) > ET (sin Inference) en recall@k y QA-F1
+- **H2**: Semantic chunking > Recursive chunking para dominios técnicos
+- **H3**: Parent-Child retrieval > Basic retrieval para preguntas que requieren contexto
+- **H4**: [Futuro] Hybrid inference > LM-only para precisión de facts extraídos
 
 ### Metodología experimental — Protocolo reproducible 🧪
 
@@ -99,13 +127,54 @@ output:
 Esta tarea final está registrada en el checklist maestro `_NET_STEPS.md` (ver `project/Instructions/_NET_STEPS.md`) como la tarea de documentación técnico-científica que culmina el ciclo de investigación y desarrollo. Debe incluir todas las referencias y evidencia recogida en la fase de evaluación.
 
 ## Referencias (iniciales)
-- Lewis et al. [1]
-- Peng et al. [2]
-- GraphRAG Patterns Catalog (Neo4j) [2]
-- Miller 1956 [9]; Thalmann et al. 2019 [10] (chunking)
-- Surveys de construcción de KG [4]
+- Lewis et al. [1] - RAG (Retrieval-Augmented Generation)
+- Peng et al. [2] - GraphRAG Survey
+- Neo4j GraphRAG Patterns Catalog [3]
+- W3C PROV [4] - Provenance y trazabilidad
+- Zhong et al. [5] - Surveys de construcción de KG
+- d'Avila Garcez et al. [6] - Neuro-Symbolic Computing
+- Rowley [7], Ackoff [8], Zins [9] - DIKW Hierarchy
+- Miller 1956 [10]; Thalmann et al. 2019 [11] (chunking)
 
 ## Patrón: Extracción — Transformación — Inferencia (ETI)
+
+### Definición Formal del Patrón ETI
+
+**Definición 1 (Pipeline ETI):**
+Un pipeline ETI es una tupla P = (E, T, I, O, M) donde:
+
+- **E (Extractors)**: Conjunto de extractores {e₁, e₂, ..., eₙ} donde cada 
+  eᵢ: Sources → Documents produce documentos estructurados con metadatos.
+
+- **T (Transformers)**: Conjunto de transformadores {t₁, t₂, ..., tₘ} donde cada 
+  tⱼ: Documents → Chunks produce chunks con embeddings y anotaciones semánticas.
+
+- **I (Inference)**: Conjunto de modelos de inferencia {i₁, i₂, ..., iₖ} donde cada 
+  iₖ: Chunks → (Facts ∪ Relations ∪ Explanations) genera artefactos de conocimiento 
+  con señales de confianza y trazabilidad.
+
+- **O (Ontology)**: Esquema formal que define tipos de entidades, relaciones permitidas, 
+  constraints y mapeos a vocabularios estándar (schema.org, PROV-O).
+
+- **M (Metadata)**: Estructura PROV-O que registra provenance de cada artefacto, 
+  incluyendo: entidades derivadas, actividades ejecutadas, agentes responsables y timestamps.
+
+**Propiedades del Pipeline ETI:**
+1. **Trazabilidad**: Todo fact f ∈ Facts tiene prov:wasDerivedFrom apuntando a su chunk fuente
+2. **Validabilidad**: Todo fact f puede ser verificado contra source s mediante provenance chain
+3. **Composabilidad**: Pipelines ETI pueden encadenarse (salida de Iₖ → entrada de Eᵢ₊₁)
+4. **Reproducibilidad**: Dado mismo input + config + seed → mismo output
+
+### Comparación ETL vs ETI
+
+| Aspecto | ETL (Tradicional) | ETI (Propuesto) |
+|---------|-------------------|-----------------|
+| **Fases** | Extract, Transform, Load | Extract, Transform, **Infer** |
+| **Objetivo** | Preparar datos para almacenamiento | Construir conocimiento trazable |
+| **Artefactos** | Datos estructurados | Facts, relaciones, explicaciones |
+| **Trazabilidad** | Limitada (metadatos básicos) | Completa (PROV-O) |
+| **Validación** | Verificación de formato | Validación de conocimiento |
+| **Razonamiento** | No incluye | Incluye inferencia explícita |
 
 **Descripción:**
 El patrón *Extracción — Transformación — Inferencia* (ETI) se propone como la evolución natural del clásico ETL en el contexto de la ingeniería del conocimiento y de las arquitecturas GraphRAG. ETI articula tres fases obligatorias en pipelines de conocimiento: 1) **Extracción** de fuentes crudas y metadatos; 2) **Transformación** mediante chunking, normalización, enriquecimiento semántico y linking; 3) **Inferencia** donde modelos (LM/ML/razonadores simbólicos) generan hechos, relaciones, deducciones y explicaciones que alimentan los grafos y los índices vectoriales.
@@ -118,10 +187,27 @@ Esta hipótesis es central para la investigación: defendemos que añadir una fa
 - Transformación: chunkers (fixed, lexical, hierarchical, semantic), normalizadores, detectores de idioma, y generadores de embeddings; salida: `Chunk` con anotaciones semánticas.  
 - Inferencia: modelos que extraen relaciones/facts, resuelven ambigüedad, hacen mapping a la ontología (`File`/`Page`/`Chunk`), y generan aristas y propiedades para el grafo; salida: nodos, aristas, tripletas RDF/JSON-LD y señales de confianza.
 
+**Estado de Implementación (v0.1.0):**
+La implementación actual de Ungraph incluye una fase de inferencia básica que realiza extracción transductiva de entidades nombradas (NER) mediante spaCy. Esta fase genera facts simples de mención `(chunk_id, "MENTIONS", entity_name)` y relaciones básicas de co-ocurrencia. **Nota importante**: Esta implementación es un primer paso hacia inferencia no transductiva completa. Las capacidades avanzadas de inferencia (resolución de ambigüedad, normalización de entidades, relaciones semánticas complejas, razonamiento sobre el grafo) están planificadas para versiones futuras (v0.2+) y serán validadas experimentalmente como parte de la investigación propuesta.
+
 **Ejemplo (finanzas):**
 1. Extracción: descarga y parseo de 10‑K/EDGAR.  
 2. Transformación: chunking por secciones y extracción de tablas, embeddings por chunk.  
 3. Inferencia: LM que extrae hechos financieros (ingresos, activos) y relaciones (empresa‑subsidiaria), normaliza entidades y crea/actualiza nodos y relaciones en el grafo.
+
+**Clarificación: Extracción vs Inferencia**
+
+Es importante distinguir entre extracción transductiva e inferencia no transductiva:
+
+- **Extracción transductiva** (implementada en v0.1.0): Identifica entidades explícitas en el texto mediante NER. Ejemplo: "Apple Inc." aparece en texto → Entity "Apple Inc." con tipo ORGANIZATION. Esta es una operación de reconocimiento de patrones que no genera conocimiento nuevo.
+
+- **Inferencia no transductiva** (planificada para v0.2+): Deduce relaciones implícitas, resuelve ambigüedad mediante contexto, normaliza variantes de entidades, y genera conocimiento nuevo mediante razonamiento. Ejemplos:
+  - Resolución de ambigüedad: "Apple" en contexto financiero → ORGANIZATION (no FRUIT)
+  - Normalización: "Apple Inc.", "Apple", "AAPL" → misma entidad normalizada
+  - Relaciones semánticas: "Tim Cook lidera Apple" → WORKS_FOR(Tim Cook, Apple), CEO_OF(Tim Cook, Apple)
+  - Razonamiento transitivo: Si A → B y B → C, entonces A → C
+
+La implementación actual (v0.1.0) realiza extracción transductiva básica. La inferencia no transductiva completa será implementada y validada experimentalmente en versiones futuras.
 
 **Medición y evaluación experimental:**
 Evaluaremos ETI mediante métricas clásicas y específicas: recall@k y MRR en tareas de recuperación, QA‑F1 en pipelines RAG, *inference accuracy* (precisión/recall sobre hechos extraídos), tasa de *hallucination*, coherencia de grafo y coste/latencia. Proponemos estudios de ablation (sin inferencia vs con inferencia) para cuantificar su impacto en las tareas downstream.
@@ -132,14 +218,14 @@ ETI conecta directamente con: estrategias de chunking (fase Transformación), pa
 ## Filosofía y justificación epistemológica del ETI
 
 **Resumen filosófico:**
-ETI toma como punto de partida clásicas reflexiones sobre la transición *data → information → knowledge* (DIKW; Ackoff [7]; Rowley [6]; Zins [8]) y propone transformar los pipelines de preparación de datos en procesos que explícitamente construyen artefactos justificables y utilizables para razonamiento automático (con fiabilidad y trazabilidad). En términos epistemológicos, ETI busca convertir información estructurada (estructuras y anotaciones) en *creencias justificadas* (hechos, relaciones y reglas) que puedan sostener inferencias y decisiones automatizadas.
+ETI toma como punto de partida clásicas reflexiones sobre la transición *data → information → knowledge* (DIKW; Ackoff [8]; Rowley [7]; Zins [9]) y propone transformar los pipelines de preparación de datos en procesos que explícitamente construyen artefactos justificables y utilizables para razonamiento automático (con fiabilidad y trazabilidad). En términos epistemológicos, ETI busca convertir información estructurada (estructuras y anotaciones) en *creencias justificadas* (hechos, relaciones y reglas) que puedan sostener inferencias y decisiones automatizadas.
 
 **Apoyos bibliográficos clave:**
-- DIKW y los debates sobre la naturaleza de conocimiento (Ackoff; Rowley; Zins) muestran la necesidad de procesos que no sólo estructuren datos sino que produzcan conocimiento justificable (ver discusión DIKW y críticas). (véase: DIKW reviews, 1989–2007).  
-- Provenance y trazabilidad (W3C PROV) [3] son esenciales para que las inferencias sean evaluables, reproducibles y confiables; PROV formaliza cómo representar entidades, actividades y agentes involucrados en la construcción de hechos (W3C PROV, 2013).
-- Workflows de construcción de Knowledge Graphs muestran que la comunidad distingue etapas (IE → KBC → KG refinement) y discute la integración de extracción y razonamiento [4].
+- DIKW y los debates sobre la naturaleza de conocimiento (Ackoff [8]; Rowley [7]; Zins [9]) muestran la necesidad de procesos que no sólo estructuren datos sino que produzcan conocimiento justificable (ver discusión DIKW y críticas). (véase: DIKW reviews, 1989–2007).  
+- Provenance y trazabilidad (W3C PROV [4]) son esenciales para que las inferencias sean evaluables, reproducibles y confiables; PROV formaliza cómo representar entidades, actividades y agentes involucrados en la construcción de hechos (W3C PROV, 2013).
+- Workflows de construcción de Knowledge Graphs muestran que la comunidad distingue etapas (IE → KBC → KG refinement) y discute la integración de extracción y razonamiento [5].
 - RAG [1] y GraphRAG [2] muestran que integrar memoria no‑paramétrica y grafos mejora el grounding factual y reduce la tasa de hallucination; ETI extiende estos enfoques al incorporar una fase explícita de inferencia que genera relaciones verificadas y trazables.
-- Neuro‑symbolic surveys [5] justifican el valor de combinar modelos estadísticos (LMs) con razonamiento simbólico para obtener explicabilidad y control sobre inferencias.
+- Neuro‑symbolic surveys [6] justifican el valor de combinar modelos estadísticos (LMs) con razonamiento simbólico para obtener explicabilidad y control sobre inferencias.
 
 **Argumento metodológico y experimental (resumen):**
 1. Hipótesis: añadir una fase de inferencia que produzca hechos normalizados y con trazabilidad mejora la utilidad de los artefactos de conocimiento (mayor precision/recall en QA y recuperación, menor tasa de hallucination y mayor coherencia de grafo).  
@@ -165,7 +251,39 @@ Para que este documento mantenga un estilo y rigor académico (tipo paper cient�
 2. Estado del arte — revisión de RAG/GraphRAG, DIKW, provenance y técnicas de construcción de KGs (referencias a continuación).  
 3. Diseño del patrón ETI — definición formal, arquitectura, artefactos y casos de uso (sección ETI).  
 4. Metodología experimental — datasets (EDGAR/10‑K, BioASQ/PubMedQA, arXiv subsets, SOPs), configuraciones (Opik), pipelines (ET, ETI, variantes neuro‑simbólicas), métricas y criterios de evaluación.  
-   - *Placeholders:* tablas con descripción de datasets y configuraciones de experimentos (TBD).  
+   - *Placeholders:* tablas con descripción de datasets y configuraciones de experimentos (TBD).
+
+### Diseño Experimental: Matriz de Componentes
+
+Para evaluar el patrón ETI, diseñamos un espacio experimental multidimensional que combina diferentes componentes disponibles en Ungraph:
+
+**Componentes del Espacio Experimental:**
+
+- **Chunking**: {recursive, semantic, lexical, hierarchical}
+- **Embedding**: {all-MiniLM-L6-v2, otros modelos HuggingFace}
+- **Retrieval**: {basic, parent_child, hybrid, graph_enhanced_vector}
+- **Inference**: {none, ner-only} (v0.1.0 implementa solo ner-only con spaCy)
+- **Domain**: {finance, biomedical, scientific, general}
+
+**Matriz de Experimentos Prioritarios:**
+
+| ID | Chunking | Embedding | Retrieval | Inference | Domain | Prioridad |
+|----|----------|-----------|-----------|-----------|--------|-----------|
+| E1 | `recursive` | `all-MiniLM-L6-v2` | `basic` | `ner-only` | `finance` | 🔴 Alta |
+| E2 | `recursive` | `all-MiniLM-L6-v2` | `parent_child` | `ner-only` | `finance` | 🔴 Alta |
+| E3 | `semantic` | `all-MiniLM-L6-v2` | `hybrid` | `ner-only` | `biomedical` | 🟡 Media |
+| E4 | `lexical` | `all-MiniLM-L6-v2` | `graph_enhanced_vector` | `ner-only` | `scientific` | 🟡 Media |
+| E5 | `hierarchical` | `all-MiniLM-L6-v2` | `community_summary` | `ner-only` | `general` | 🟢 Baja |
+
+**Ablation Studies (Control vs ETI):**
+
+| Baseline | Variante | Diferencia | Objetivo |
+|----------|----------|------------|----------|
+| ET (sin I) | ETI (con I) | Fase Inference | Medir impacto de inferencia |
+| `basic` retrieval | `parent_child` | Patrón retrieval | Medir impacto de contexto |
+| `recursive` chunking | `semantic` chunking | Estrategia chunking | Medir impacto de chunking |
+
+**Nota**: Para release v0.1.0, solo se implementa `ner-only` (spaCy). Implementaciones LLM (`lm-only`, `hybrid`) están documentadas como alternativas futuras (v0.2+) y serán validadas experimentalmente.  
 5. Experimentos y resultados — comparativas control/ETI y ablations (LM‑only, symbolic‑only, neuro‑symbolic).  
    - *Resultados (placeholder):* (i) inference accuracy — TBD; (ii) QA‑F1 y recall@k — TBD; (iii) tasas de hallucination y coste/latencia — TBD.  
 6. Discusión y limitaciones — análisis cualitativo de errores, impacto de trazabilidad (PROV) y consideraciones éticas.  
@@ -179,35 +297,38 @@ Para que este documento mantenga un estilo y rigor académico (tipo paper cient�
 
 2. Peng, B., Zhu, Y., Liu, Y., Bo, X., Shi, H., Hong, C., & Tang, S. (2024). Graph Retrieval‑Augmented Generation: A Survey. arXiv:2408.08921. https://arxiv.org/abs/2408.08921
 
-3. W3C Provenance Working Group. (2013). PROV‑Overview. W3C Note. https://www.w3.org/TR/prov-overview/
+3. Neo4j, Inc. (2024). GraphRAG Patterns Catalog. https://graphrag.com/reference/
 
-4. Zhong, L., Wu, J., Li, Q., & Peng, H. (2023). A Comprehensive Survey on Automatic Knowledge Graph Construction. arXiv:2302.05019. https://arxiv.org/abs/2302.05019
+4. W3C Provenance Working Group. (2013). PROV‑Overview. W3C Note. https://www.w3.org/TR/prov-overview/
 
-5. d'Avila Garcez, A., Gori, M., Lamb, L. C., Serafini, L., Spranger, M., & Tran, S. N. (2019). Neural‑Symbolic Computing: An Effective Methodology for Principled Integration of Machine Learning and Reasoning. arXiv:1905.06088. https://arxiv.org/abs/1905.06088
+5. Zhong, L., Wu, J., Li, Q., & Peng, H. (2023). A Comprehensive Survey on Automatic Knowledge Graph Construction. arXiv:2302.05019. https://arxiv.org/abs/2302.05019
 
-6. Rowley, J. (2007). The Wisdom Hierarchy: Representations of the DIKW Hierarchy. Journal of Information & Communication Science. https://doi.org/10.1177/0165551506070706
+6. d'Avila Garcez, A., Gori, M., Lamb, L. C., Serafini, L., Spranger, M., & Tran, S. N. (2019). Neural‑Symbolic Computing: An Effective Methodology for Principled Integration of Machine Learning and Reasoning. arXiv:1905.06088. https://arxiv.org/abs/1905.06088
 
-7. Ackoff, R. (1989). From Data to Wisdom. Journal of Applied Systems Analysis.
+7. Rowley, J. (2007). The Wisdom Hierarchy: Representations of the DIKW Hierarchy. Journal of Information & Communication Science. https://doi.org/10.1177/0165551506070706
 
-8. Zins, C. (2007). Conceptual Approaches for Defining Data, Information, and Knowledge. Journal of the American Society for Information Science and Technology, 58(4), 479–493. https://doi.org/10.1002/asi.20508
+8. Ackoff, R. (1989). From Data to Wisdom. Journal of Applied Systems Analysis.
 
-9. Miller, G. A. (1956). The Magical Number Seven, Plus or Minus Two: Some Limits on Our Capacity for Processing Information. Psychological Review, 63(2), 81–97. https://doi.org/10.1037/h0043158
+9. Zins, C. (2007). Conceptual Approaches for Defining Data, Information, and Knowledge. Journal of the American Society for Information Science and Technology, 58(4), 479–493. https://doi.org/10.1002/asi.20508
 
-10. Thalmann, M., Souza, A. S., & Oberauer, K. (2019). How does chunking help working memory? Journal of Experimental Psychology. https://psycnet.apa.org/record/2018-18179-001
+10. Miller, G. A. (1956). The Magical Number Seven, Plus or Minus Two: Some Limits on Our Capacity for Processing Information. Psychological Review, 63(2), 81–97. https://doi.org/10.1037/h0043158
+
+11. Thalmann, M., Souza, A. S., & Oberauer, K. (2019). How does chunking help working memory? Journal of Experimental Psychology. https://psycnet.apa.org/record/2018-18179-001
 
 **BibTeX:** `article/references.bib` contiene las entradas BibTeX para las referencias listadas.
 
 **Notas (enlaces directos):**
 [1]: https://arxiv.org/abs/2005.11401
 [2]: https://arxiv.org/abs/2408.08921
-[3]: https://www.w3.org/TR/prov-overview/
-[4]: https://arxiv.org/abs/2302.05019
-[5]: https://arxiv.org/abs/1905.06088
-[6]: https://doi.org/10.1177/0165551506070706
-[7]: (Ackoff 1989)
-[8]: https://doi.org/10.1002/asi.20508
-[9]: https://doi.org/10.1037/h0043158
-[10]: https://psycnet.apa.org/record/2018-18179-001
+[3]: https://graphrag.com/reference/
+[4]: https://www.w3.org/TR/prov-overview/
+[5]: https://arxiv.org/abs/2302.05019
+[6]: https://arxiv.org/abs/1905.06088
+[7]: https://doi.org/10.1177/0165551506070706
+[8]: (Ackoff 1989)
+[9]: https://doi.org/10.1002/asi.20508
+[10]: https://doi.org/10.1037/h0043158
+[11]: https://psycnet.apa.org/record/2018-18179-001
 
 ---
 

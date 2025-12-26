@@ -12,6 +12,8 @@ import logging
 
 from domain.repositories.chunk_repository import ChunkRepository
 from domain.entities.chunk import Chunk
+from domain.entities.fact import Fact
+from domain.entities.entity import Entity
 from domain.value_objects.graph_pattern import GraphPattern
 
 logger = logging.getLogger(__name__)
@@ -309,6 +311,92 @@ class Neo4jChunkRepository(ChunkRepository):
         except Exception as e:
             logger.error(f"Error creating chunk relationships: {e}", exc_info=True)
             raise
+    
+    def save_facts(self, facts: List[Fact]) -> None:
+        """
+        Guarda facts en Neo4j creando nodos Fact y relaciones DERIVED_FROM.
+        
+        Para cada fact:
+        - Crea un nodo Fact con propiedades: id, subject, predicate, object, confidence
+        - Crea relación DERIVED_FROM desde Fact hacia Chunk (provenance)
+        - Si el object es una entidad mencionada, crea nodo Entity y relación MENTIONS
+        
+        Args:
+            facts: Lista de facts a persistir
+        
+        Raises:
+            ClientError: Si hay un error al guardar en Neo4j
+        """
+        if not facts:
+            return
+        
+        driver = self._get_driver()
+        
+        try:
+            with driver.session(database=self.database) as session:
+                session.execute_write(
+                    self._save_facts_query,
+                    facts=facts
+                )
+            logger.info(f"Successfully saved {len(facts)} facts to Neo4j")
+        except ClientError as e:
+            logger.error(f"Error saving facts to Neo4j: {e}", exc_info=True)
+            raise
+    
+    def _save_facts_query(self, tx, facts: List[Fact]):
+        """
+        Query helper para guardar facts en Neo4j.
+        
+        Crea nodos Fact y relaciones DERIVED_FROM hacia Chunks.
+        También crea nodos Entity para objetos que son entidades nombradas.
+        """
+        query = """
+        UNWIND $facts AS fact_data
+        MATCH (chunk:Chunk {chunk_id: fact_data.provenance_ref})
+        
+        // Crear o actualizar nodo Fact
+        MERGE (fact:Fact {fact_id: fact_data.id})
+        SET fact.subject = fact_data.subject,
+            fact.predicate = fact_data.predicate,
+            fact.object = fact_data.object,
+            fact.confidence = fact_data.confidence,
+            fact.provenance_ref = fact_data.provenance_ref
+        
+        // Crear relación DERIVED_FROM (provenance)
+        MERGE (fact)-[:DERIVED_FROM]->(chunk)
+        
+        WITH fact, fact_data, chunk
+        
+        // Si el object NO es un chunk_id existente, crear nodo Entity
+        // y relación MENTIONS desde chunk hacia entity
+        WHERE NOT EXISTS {
+            MATCH (c:Chunk {chunk_id: fact_data.object})
+        }
+        
+        MERGE (entity:Entity {name: fact_data.object})
+        ON CREATE SET entity.entity_id = fact_data.object + '_entity',
+                      entity.type = 'UNKNOWN'
+        
+        MERGE (chunk)-[:MENTIONS]->(entity)
+        
+        RETURN count(fact) as facts_created
+        """
+        
+        # Preparar datos para la query
+        facts_data = [
+            {
+                "id": fact.id,
+                "subject": fact.subject,
+                "predicate": fact.predicate,
+                "object": fact.object,
+                "confidence": fact.confidence,
+                "provenance_ref": fact.provenance_ref
+            }
+            for fact in facts
+        ]
+        
+        result = tx.run(query, facts=facts_data)
+        return list(result)
     
     def close(self) -> None:
         """Cierra la conexión a Neo4j."""

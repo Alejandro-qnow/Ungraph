@@ -1,3 +1,14 @@
+# Documento Movido / Document Moved
+
+⚠️ **Este documento ha sido reemplazado por versiones bilingües:**
+
+📄 **Español**: [sp-clean-architecture.md](sp-clean-architecture.md)  
+📄 **English**: [en-clean-architecture.md](en-clean-architecture.md)
+
+Por favor, consulte la versión en su idioma preferido.
+
+---
+
 # Clean Architecture
 
 ## Principios Fundamentales
@@ -71,6 +82,7 @@ class Neo4jChunkRepository(ChunkRepository):  # Implementa interfaz del dominio
 
 - [Clean Architecture by Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 - [The Clean Architecture Book](https://www.amazon.com/Clean-Architecture-Craftsmans-Software-Structure/dp/0134494164)
+
 
 
 

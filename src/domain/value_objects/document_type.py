@@ -14,6 +14,7 @@ class DocumentType(Enum):
     TXT = "txt"
     WORD = "word"
     DOCX = "docx"
+    PDF = "pdf"
     
     @classmethod
     def from_filename(cls, filename: str) -> "DocumentType":
@@ -37,6 +38,8 @@ class DocumentType(Enum):
             return cls.TXT
         elif filename_lower.endswith(('.doc', '.docx')):
             return cls.DOCX if filename_lower.endswith('.docx') else cls.WORD
+        elif filename_lower.endswith('.pdf'):
+            return cls.PDF
         else:
             raise ValueError(f"Tipo de archivo no reconocido: {filename}")
 

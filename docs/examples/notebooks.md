@@ -1,6 +1,13 @@
-# Notebooks de Ejemplo
+> Documento movido / Document moved
 
-Jupyter notebooks disponibles para aprender y probar Ungraph.
+Este documento ahora está disponible en versiones bilingües:
+
+- Español: [sp-notebooks.md](sp-notebooks.md)
+- English: [en-notebooks.md](en-notebooks.md)
+
+Por favor actualiza tus enlaces y marcadores a una de las versiones anteriores.
+
+Please update your links/bookmarks to one of the above versions.
 
 ## Notebooks Disponibles
 
@@ -11,7 +18,7 @@ Jupyter notebooks disponibles para aprender y probar Ungraph.
 **Contenido:**
 - Configuración de Neo4j
 - Obtención de recomendaciones de chunking
-- Ingesta de documentos (Markdown, TXT, Word)
+- Ingesta de documentos (Markdown, TXT, Word, PDF)
 - Búsqueda por texto
 - Búsqueda híbrida
 - Pipeline completo end-to-end
@@ -60,7 +67,7 @@ En Jupyter:
 
 ## Referencias
 
-- [Guía de Inicio Rápido](../guides/quickstart.md)
+- [Guía de Inicio Rápido](../guides/sp-quickstart.md)
 - [Documentación Completa](../README.md)
 
 

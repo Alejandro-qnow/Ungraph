@@ -1,6 +1,13 @@
-# Configuración de Ungraph
+> Documento movido / Document moved
 
-Guía completa de configuración de Ungraph.
+Este documento ahora está disponible en versiones bilingües:
+
+- Español: [sp-configuration.md](sp-configuration.md)
+- English: [en-configuration.md](en-configuration.md)
+
+Por favor actualiza tus enlaces y marcadores a una de las versiones anteriores.
+
+Please update your links/bookmarks to one of the above versions.
 
 ## Métodos de Configuración
 
@@ -31,6 +38,7 @@ UNGRAPH_NEO4J_PASSWORD=...
 | `UNGRAPH_NEO4J_DATABASE` | Nombre de la base de datos | `neo4j` |
 | `UNGRAPH_EMBEDDING_MODEL` | Modelo de embedding | `sentence-transformers/all-MiniLM-L6-v2` |
 | `UNGRAPH_STORAGE_PROVIDER` | Proveedor de almacenamiento | `neo4j` |
+| `UNGRAPH_INFERENCE_MODE` | Modo de inferencia (`ner` | `llm` | `hybrid`) | `ner` |
 
 ### Ejemplo: Archivo `.env`
 
@@ -40,6 +48,7 @@ UNGRAPH_NEO4J_USER=neo4j
 UNGRAPH_NEO4J_PASSWORD=mi_contraseña_segura
 UNGRAPH_NEO4J_DATABASE=neo4j
 UNGRAPH_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
+UNGRAPH_INFERENCE_MODE=ner
 ```
 
 ### Ejemplo: Variables de Entorno en Shell
@@ -63,7 +72,8 @@ ungraph.configure(
     neo4j_user="neo4j",
     neo4j_password="mi_contraseña",
     neo4j_database="neo4j",
-    embedding_model="sentence-transformers/all-MiniLM-L6-v2"
+    embedding_model="sentence-transformers/all-MiniLM-L6-v2",
+    inference_mode="ner"  # valores: 'ner' | 'llm' | 'hybrid'
 )
 ```
 
@@ -78,6 +88,7 @@ print(f"URI: {settings.neo4j_uri}")
 print(f"User: {settings.neo4j_user}")
 print(f"Database: {settings.neo4j_database}")
 print(f"Embedding Model: {settings.embedding_model}")
+print(f"Inference Mode: {settings.inference_mode}")
 ```
 
 ## Prioridad de Configuración
@@ -97,7 +108,8 @@ import ungraph
 
 ungraph.configure(
     neo4j_uri="bolt://localhost:7687",
-    neo4j_password="dev_password"
+    neo4j_password="dev_password",
+    inference_mode="ner"  # baseline v0.1.0
 )
 ```
 
@@ -107,6 +119,7 @@ ungraph.configure(
 # En tu servidor o contenedor
 export UNGRAPH_NEO4J_URI="bolt://neo4j.production:7687"
 export UNGRAPH_NEO4J_PASSWORD="production_password"
+export UNGRAPH_INFERENCE_MODE="llm"  # activar inferencia semántica (v0.2+)
 ```
 
 ### Múltiples Bases de Datos
@@ -180,10 +193,19 @@ print(f"User: {settings.neo4j_user}")
 # La contraseña no se muestra por seguridad
 ```
 
+## Notas sobre `inference_mode`
+
+- `ner` (default): usa spaCy NER para extracción de entidades y facts básicos de mención. Recomendado en v0.1.0.
+- `llm`: activa la inferencia semántica (relaciones tipadas) con LLMs. Disponible a partir de v0.2.0.
+- `hybrid`: combina NER + LLM con estrategias de coste/latencia. Disponible a partir de v0.2.0.
+
+Si se establece `llm` o `hybrid` antes de que los servicios correspondientes estén disponibles, las funciones de inferencia devolverán un error de configuración o caerán al modo `ner` (según la implementación).
+
 ## Referencias
 
-- [Guía de Inicio Rápido](../guides/quickstart.md)
+- [Guía de Inicio Rápido](../guides/sp-quickstart.md)
 - [API Pública](public-api.md)
+
 
 
 

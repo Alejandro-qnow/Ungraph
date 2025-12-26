@@ -1,10 +1,15 @@
-# Introducción a Ungraph
+> Documento movido / Document moved
 
-## ¿Qué es Ungraph?
+Este documento ahora está disponible en versiones bilingües:
 
-Ungraph es una librería Python para convertir datos no estructurados en grafos de conocimiento usando Neo4j. Proporciona un pipeline completo para:
+- Español: [sp-introduction.md](sp-introduction.md)
+- English: [en-introduction.md](en-introduction.md)
 
-1. **Cargar documentos** (Markdown, TXT, Word)
+Por favor actualiza tus enlaces y marcadores a una de las versiones anteriores.
+
+Please update your links/bookmarks to one of the above versions.
+
+1. **Cargar documentos** (Markdown, TXT, Word, PDF)
 2. **Dividirlos en chunks inteligentes** con recomendaciones automáticas
 3. **Generar embeddings** usando modelos de HuggingFace
 4. **Persistirlos en un grafo de conocimiento** (Neo4j)
@@ -30,7 +35,7 @@ Ver [Lexical Graphs](./lexical-graphs.md) para más detalles.
 ## Características Principales
 
 ### ✅ Pipeline Completo
-- Carga de múltiples formatos (Markdown, TXT, Word)
+- Carga de múltiples formatos (Markdown, TXT, Word, PDF)
 - Detección automática de encoding
 - Limpieza de texto
 - Chunking inteligente con recomendaciones
@@ -112,7 +117,7 @@ results = ungraph.hybrid_search(
 ## Referencias
 
 - [README Principal](../../README.md)
-- [Guía de Inicio Rápido](../guides/quickstart.md)
+- [Guía de Inicio Rápido](../guides/sp-quickstart.md)
 - [Arquitectura del Sistema](architecture.md)
 
 

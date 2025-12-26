@@ -1,6 +1,11 @@
-# Guía de Patrones Personalizados
+# Documento movido / Moved document
 
-Esta guía explica cómo crear y usar patrones de grafo personalizados en Ungraph.
+Este documento fue dividido en versiones bilingües y movido.
+
+- Versión en español: [sp-custom-patterns.md](sp-custom-patterns.md)
+- English version: [en-custom-patterns.md](en-custom-patterns.md)
+
+Por favor, usa las nuevas rutas según el idioma deseado.
 
 ## ¿Qué son los Patrones?
 
@@ -204,6 +209,7 @@ document_pattern = GraphPattern(
 - [Documentación de Patrones](../concepts/graph-patterns.md)
 - [Plan de Patrones](../../_PLAN_PATRONES_GRAFO.md)
 - [GraphRAG Pattern Catalog](https://graphrag.com/reference/)
+
 
 
 

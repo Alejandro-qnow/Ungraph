@@ -1,8 +1,13 @@
-# Patrones de Grafo
+> Documento movido / Document moved
 
-## Introducción
+Este documento ahora está disponible en versiones bilingües:
 
-Los patrones de grafo permiten definir estructuras de conocimiento de manera declarativa y reutilizable. En lugar de tener código hardcodeado para cada estructura, puedes definir patrones que describen cómo deben organizarse los nodos y relaciones en el grafo.
+- Español: [sp-graph-patterns.md](sp-graph-patterns.md)
+- English: [en-graph-patterns.md](en-graph-patterns.md)
+
+Por favor actualiza tus enlaces y marcadores a una de las versiones anteriores.
+
+Please update your links/bookmarks to one of the above versions.
 
 ## Lexical Graphs vs Knowledge Graphs
 

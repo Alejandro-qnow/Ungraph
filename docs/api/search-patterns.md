@@ -1,4 +1,13 @@
-# Patrones de Búsqueda GraphRAG
+> Documento movido / Document moved
+
+Este documento ahora está disponible en versiones bilingües:
+
+- Español: [sp-search-patterns.md](sp-search-patterns.md)
+- English: [en-search-patterns.md](en-search-patterns.md)
+
+Por favor actualiza tus enlaces y marcadores a una de las versiones anteriores.
+
+Please update your links/bookmarks to one of the above versions.
 
 ## Introducción
 

@@ -1,8 +1,13 @@
-# Lexical Graphs (Grafos Léxicos)
+> Documento movido / Document moved
 
-## ¿Qué es un Lexical Graph según GraphRAG?
+Este documento ahora está disponible en versiones bilingües:
 
-Un **Lexical Graph** (según la definición de GraphRAG) es una estructura de datos que organiza **texto en chunks** con relaciones `PART_OF`. Se usa para búsqueda semántica básica en sistemas GraphRAG.
+- Español: [sp-lexical-graphs.md](sp-lexical-graphs.md)
+- English: [en-lexical-graphs.md](en-lexical-graphs.md)
+
+Por favor actualiza tus enlaces y marcadores a una de las versiones anteriores.
+
+Please update your links/bookmarks to one of the above versions.
 
 **Importante**: No debe confundirse con "grafos léxicos lingüísticos" que representan relaciones entre palabras (sinónimos, antónimos, etc.). Un Lexical Graph de GraphRAG es una estructura de chunks de texto, no de palabras individuales.
 
@@ -190,7 +195,7 @@ LIMIT 20
 
 - [GraphRAG - Lexical Graphs](https://graphrag.com/reference/knowledge-graph/lexical-graph/)
 - [Patrones de Grafo en Ungraph](./graph-patterns.md)
-- [Patrones de Búsqueda GraphRAG](../api/search-patterns.md)
+- [Patrones de Búsqueda GraphRAG](../api/sp-search-patterns.md)
 - [Grafo Léxico - Conceptos](../../src/notebooks/Grafo%20Léxico.md)
 
 

@@ -1,6 +1,13 @@
-# API Pública de Ungraph
+> Documento movido / Document moved
 
-Referencia completa de la API pública de Ungraph.
+Este documento ahora está disponible en versiones bilingües:
+
+- Español: [sp-public-api.md](sp-public-api.md)
+- English: [en-public-api.md](en-public-api.md)
+
+Por favor actualiza tus enlaces y marcadores a una de las versiones anteriores.
+
+Please update your links/bookmarks to one of the above versions.
 
 ## Funciones Principales
 
@@ -260,9 +267,10 @@ from infrastructure.services.neo4j_search_service import Neo4jSearchService
 
 ## Referencias
 
-- [Guía de Inicio Rápido](../guides/quickstart.md)
-- [Guía de Ingesta](../guides/ingestion.md)
+- [Guía de Inicio Rápido](../guides/sp-quickstart.md)
+- [Guía de Ingesta](../guides/sp-ingestion.md)
 - [Guía de Búsqueda](../guides/search.md)
+
 
 
 

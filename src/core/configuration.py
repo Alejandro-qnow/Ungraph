@@ -113,6 +113,12 @@ class Settings(BaseSettings):
         description="Default embedding model"
     )
 
+    # Inference Configuration
+    inference_mode: str = Field(
+        default="ner",
+        description="Inference mode: 'ner' (spaCy NER baseline), 'llm' (semantic relations with LLM), or 'hybrid'"
+    )
+
 
 # Global settings instance
 _settings_instance: Optional[Settings] = None

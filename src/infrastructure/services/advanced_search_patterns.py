@@ -292,3 +292,4 @@ class AdvancedSearchPatterns:
             "min_community_size": min_community_size
         }
 
+

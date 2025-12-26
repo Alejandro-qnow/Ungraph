@@ -1,3 +1,14 @@
+# Documento Movido / Document Moved
+
+⚠️ **Este documento ha sido reemplazado por versiones bilingües:**
+
+📄 **Español**: [sp-neo4j.md](sp-neo4j.md)  
+📄 **English**: [en-neo4j.md](en-neo4j.md)
+
+Por favor, consulte la versión en su idioma preferido.
+
+---
+
 # Neo4j y Cypher
 
 ## Introducción a Neo4j
@@ -114,6 +125,7 @@ ORDER BY score DESC
 - [Neo4j Full-Text Search](https://neo4j.com/docs/cypher-manual/current/indexes-for-full-text-search/)
 - [Neo4j Vector Search](https://neo4j.com/docs/cypher-manual/current/indexes-for-vector-search/)
 - [Neo4j Graph Data Science](https://neo4j.com/docs/graph-data-science/current/)
+
 
 
 

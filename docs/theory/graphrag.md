@@ -1,3 +1,14 @@
+# Documento Movido / Document Moved
+
+⚠️ **Este documento ha sido reemplazado por versiones bilingües:**
+
+📄 **Español**: [sp-graphrag.md](sp-graphrag.md)  
+📄 **English**: [en-graphrag.md](en-graphrag.md)
+
+Por favor, consulte la versión en su idioma preferido.
+
+---
+
 # GraphRAG: Fundamentos Teóricos
 
 ## ¿Qué es GraphRAG?

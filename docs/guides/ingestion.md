@@ -1,6 +1,11 @@
-# Guía de Ingesta de Documentos
+# Documento movido / Moved document
 
-Esta guía explica cómo ingerir documentos en el grafo de conocimiento usando Ungraph.
+Este documento fue dividido en versiones bilingües y movido.
+
+- Versión en español: [sp-ingestion.md](sp-ingestion.md)
+- English version: [en-ingestion.md](en-ingestion.md)
+
+Por favor, usa las nuevas rutas según el idioma deseado.
 
 ## Conceptos Básicos
 
@@ -88,6 +93,14 @@ El sistema detecta automáticamente el encoding del archivo (UTF-8, Windows-1252
 chunks = ungraph.ingest_document("documento.docx")
 ```
 
+### PDF (.pdf)
+
+```python
+chunks = ungraph.ingest_document("documento.pdf")
+```
+
+El sistema usa `langchain-docling` (IBM Docling) para extraer texto y metadatos de PDFs, incluyendo información sobre estructura del documento, tablas e imágenes.
+
 ## Ejemplo Completo
 
 ```python
@@ -130,7 +143,8 @@ from pathlib import Path
 archivos = [
     "doc1.md",
     "doc2.txt",
-    "doc3.docx"
+    "doc3.docx",
+    "doc4.pdf"
 ]
 
 for archivo in archivos:
@@ -194,7 +208,7 @@ print(f"User: {settings.neo4j_user}")
 ## Referencias
 
 - [Guía de Inicio Rápido](quickstart.md)
-- [API Pública](../api/public-api.md)
+- [API Pública](../api/sp-public-api.md)
 - [Patrones de Grafo](../concepts/graph-patterns.md)
 
 

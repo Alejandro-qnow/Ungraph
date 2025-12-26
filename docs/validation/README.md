@@ -1,3 +1,14 @@
+# Documento Movido / Document Moved
+
+⚠️ **Este documento ha sido reemplazado por versiones bilingües:**
+
+📄 **Español**: [sp-README.md](sp-README.md)  
+📄 **English**: [en-README.md](en-README.md)
+
+Por favor, consulte la versión en su idioma preferido.
+
+---
+
 # Validación de Queries Cypher - Ungraph
 
 Este directorio contiene la documentación y scripts para validar todos los queries Cypher utilizados en Ungraph.

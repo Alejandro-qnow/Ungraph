@@ -20,6 +20,13 @@ from langchain_community.document_loaders import (
     TextLoader
 )
 
+# Importar Docling para PDFs (opcional, puede no estar instalado)
+try:
+    from langchain_docling import DoclingLoader
+    DOCLING_AVAILABLE = True
+except ImportError:
+    DOCLING_AVAILABLE = False
+
 # Importar función de detección de encoding
 from src.utils.handlers import detect_encoding
 
@@ -34,6 +41,7 @@ class LangChainDocumentLoaderService(DocumentLoaderService):
     - Markdown (.md, .markdown)
     - Texto plano (.txt)
     - Word (.doc, .docx)
+    - PDF (.pdf) usando langchain-docling (IBM Docling)
     """
     
     def __init__(self, text_cleaning_service=None):
@@ -48,7 +56,10 @@ class LangChainDocumentLoaderService(DocumentLoaderService):
     def supports(self, file_path: Path) -> bool:
         """Verifica si puede cargar el tipo de archivo."""
         suffix = file_path.suffix.lower()
-        return suffix in ['.md', '.markdown', '.txt', '.doc', '.docx']
+        supported = ['.md', '.markdown', '.txt', '.doc', '.docx']
+        if DOCLING_AVAILABLE:
+            supported.append('.pdf')
+        return suffix in supported
     
     def load(self, file_path: Path, clean: bool = True) -> List[Document]:
         """
@@ -68,6 +79,8 @@ class LangChainDocumentLoaderService(DocumentLoaderService):
             return self._load_txt(file_path, clean)
         elif suffix in ['.doc', '.docx']:
             return self._load_word(file_path, clean)
+        elif suffix == '.pdf':
+            return self._load_pdf(file_path, clean)
         else:
             raise ValueError(f"Tipo de archivo no soportado: {suffix}")
     
@@ -206,4 +219,75 @@ class LangChainDocumentLoaderService(DocumentLoaderService):
         
         logger.info(f"Archivo cargado exitosamente. Documentos generados: {len(documents)}")
         return documents
+    
+    def _load_pdf(self, file_path: Path, clean: bool) -> List[Document]:
+        """
+        Carga un archivo PDF usando langchain-docling (IBM Docling).
+        
+        Docling proporciona mejor extracción de texto y metadatos que otros loaders,
+        incluyendo información sobre estructura del documento, tablas, imágenes, etc.
+        
+        Args:
+            file_path: Ruta al archivo PDF
+            clean: Si True, limpia el texto antes de procesar
+        
+        Returns:
+            Lista de Document entities
+        
+        Raises:
+            ImportError: Si langchain-docling no está instalado
+            RuntimeError: Si hay un error al cargar el PDF
+        """
+        if not DOCLING_AVAILABLE:
+            raise ImportError(
+                "langchain-docling no está instalado. "
+                "Instala con: pip install langchain-docling"
+            )
+        
+        logger.info(f"Cargando archivo PDF con Docling: {file_path}")
+        
+        try:
+            # DoclingLoader puede tomar parámetros opcionales para configuración
+            loader = DoclingLoader(str(file_path))
+            langchain_docs = loader.load()
+            
+            documents = []
+            for lc_doc in langchain_docs:
+                content = lc_doc.page_content
+                
+                # Limpiar si está habilitado
+                if clean and self.text_cleaning_service:
+                    content = self.text_cleaning_service.clean(content)
+                
+                # Extraer metadatos de Docling (puede incluir información de estructura)
+                metadata = {
+                    'file_path': str(file_path),
+                    'file_type': 'pdf',
+                    **lc_doc.metadata
+                }
+                
+                # Docling puede proporcionar metadatos adicionales como:
+                # - page_number: número de página
+                # - document_structure: información sobre estructura del documento
+                # - tables: información sobre tablas extraídas
+                # - images: información sobre imágenes
+                
+                # Crear entidad Document del dominio
+                doc = Document.create(
+                    content=content,
+                    filename=file_path.name,
+                    file_type=DocumentType.PDF.value,
+                    metadata=metadata
+                )
+                documents.append(doc)
+            
+            logger.info(
+                f"PDF cargado exitosamente con Docling. "
+                f"Documentos generados: {len(documents)}"
+            )
+            return documents
+            
+        except Exception as e:
+            logger.error(f"Error al cargar PDF con Docling: {e}", exc_info=True)
+            raise RuntimeError(f"Error al cargar PDF {file_path}: {e}") from e
 

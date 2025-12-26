@@ -1,20 +1,13 @@
-# Patrones Avanzados de Búsqueda GraphRAG
+> Documento movido / Document moved
 
-## Introducción
+Este documento ahora está disponible en versiones bilingües:
 
-Los patrones avanzados de búsqueda requieren módulos opcionales y proporcionan capacidades más sofisticadas para recuperar información del grafo.
+- Español: [sp-advanced-search-patterns.md](sp-advanced-search-patterns.md)
+- English: [en-advanced-search-patterns.md](en-advanced-search-patterns.md)
 
-**Instalación**:
-```bash
-# Para patrones avanzados con Graph Data Science
-pip install ungraph[gds]
+Por favor actualiza tus enlaces y marcadores a una de las versiones anteriores.
 
-# Para visualización de grafos
-pip install ungraph[ynet]
-
-# Para todas las extensiones
-pip install ungraph[all]
-```
+Please update your links/bookmarks to one of the above versions.
 
 ## Patrones Avanzados Disponibles
 
@@ -207,4 +200,5 @@ for result in results:
 - [Community Summary Retriever](https://graphrag.com/reference/graphrag/global-community-summary-retriever/)
 - [Neo4j Graph Data Science](https://neo4j.com/docs/graph-data-science/)
 - [GraphRAG Advanced Patterns](../GRAPHRAG_AVANZADO.md)
+
 

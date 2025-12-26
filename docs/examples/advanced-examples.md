@@ -1,6 +1,13 @@
-# Ejemplos Avanzados
+> Documento movido / Document moved
 
-Ejemplos avanzados de uso de Ungraph.
+Este documento ahora está disponible en versiones bilingües:
+
+- Español: [sp-advanced-examples.md](sp-advanced-examples.md)
+- English: [en-advanced-examples.md](en-advanced-examples.md)
+
+Por favor actualiza tus enlaces y marcadores a una de las versiones anteriores.
+
+Please update your links/bookmarks to one of the above versions.
 
 ## Ejemplo 1: Ingerir Múltiples Documentos
 
@@ -125,10 +132,142 @@ for r in hybrid_2[:3]:
     print(f"  Score: {r.score:.3f}")
 ```
 
+## Ejemplo 6: Parent-Child Retriever
+
+El Parent-Child Retriever mejora la calidad de los resultados cuando necesitas contexto completo. Busca en chunks pequeños (hijos) y recupera el chunk padre (contexto completo).
+
+```python
+import ungraph
+from ungraph.infrastructure.services.neo4j_search_service import Neo4jSearchService
+
+# 1. Crear estructura padre-hijo (ingerir documento)
+print("📄 Ingiriendo documento largo...")
+chunks = ungraph.ingest_document(
+    "documento_tecnico.md",
+    chunk_size=500,  # Chunks pequeños para mejor matching
+    chunk_overlap=100
+)
+print(f"✅ {len(chunks)} chunks creados\n")
+
+# 2. Buscar usando Parent-Child Retriever
+query = "arquitectura de redes neuronales profundas"
+print(f"🔍 Buscando: '{query}'\n")
+
+search_service = Neo4jSearchService()
+results = search_service.search_with_pattern(
+    query_text=query,
+    pattern_type="parent_child",
+    parent_label="Page",
+    child_label="Chunk",
+    relationship_type="HAS_CHUNK",
+    limit=3
+)
+
+# 3. Mostrar resultados con contexto completo
+print(f"📊 Encontrados {len(results)} resultados:\n")
+for i, result in enumerate(results, 1):
+    print(f"{'='*80}")
+    print(f"Resultado {i}")
+    print(f"{'='*80}")
+    print(f"📄 Page (Padre) - Score: {result.parent_score:.4f}")
+    print(f"\n{result.parent_content[:400]}...")
+    print(f"\n📦 Chunks relacionados: {len(result.children)}")
+    
+    # Mostrar primeros 3 hijos
+    for j, child in enumerate(result.children[:3], 1):
+        print(f"\n  Chunk {j}:")
+        print(f"  {child['content'][:250]}...")
+    
+    print(f"\n{'='*80}\n")
+
+search_service.close()
+```
+
+**Cuándo usar Parent-Child Retriever:**
+- ✅ Muchos temas en un chunk afectan negativamente la calidad de los vectores
+- ✅ Necesitas contexto completo de una sección para generar respuestas
+- ✅ Los chunks pequeños tienen mejor representación vectorial pero falta contexto
+
+## Ejemplo 7: Patrones de Búsqueda GraphRAG (Metadata Filtering)
+
+Búsqueda con filtros por metadatos. Útil para buscar solo en documentos específicos.
+
+```python
+import ungraph
+
+# Buscar solo en un archivo específico
+results = ungraph.search_with_pattern(
+    "machine learning",
+    pattern_type="metadata_filtering",
+    metadata_filters={
+        "filename": "ai_paper.md"
+    },
+    limit=10
+)
+
+# Buscar en una página específica
+results = ungraph.search_with_pattern(
+    "deep learning",
+    pattern_type="metadata_filtering",
+    metadata_filters={
+        "filename": "ai_paper.md",
+        "page_number": 1
+    },
+    limit=5
+)
+
+# Procesar resultados
+for result in results:
+    print(f"Score: {result.score:.3f}")
+    print(f"Contenido: {result.content[:200]}...")
+    print("---")
+```
+
+## Ejemplo 8: Comparación de Patrones de Búsqueda
+
+```python
+import ungraph
+
+query = "computación cuántica"
+
+# Búsqueda normal (sin filtros)
+results_normal = ungraph.search(query, limit=5)
+print(f"Búsqueda normal: {len(results_normal)} resultados")
+
+# Búsqueda con filtro de metadatos
+results_filtered = ungraph.search_with_pattern(
+    query,
+    pattern_type="metadata_filtering",
+    metadata_filters={"filename": "quantum_computing.md"},
+    limit=5
+)
+print(f"Búsqueda filtrada: {len(results_filtered)} resultados")
+
+# Comparación: Basic vs Parent-Child
+print("\n--- Basic Retriever ---")
+basic_results = ungraph.search(query, limit=3)
+for r in basic_results:
+    print(f"Score: {r.score:.3f} - Solo chunk")
+
+print("\n--- Parent-Child Retriever ---")
+search_service = Neo4jSearchService()
+parent_child_results = search_service.search_with_pattern(
+    query,
+    pattern_type="parent_child",
+    parent_label="Page",
+    child_label="Chunk",
+    limit=3
+)
+for r in parent_child_results:
+    print(f"Score: {r.parent_score:.3f} - Page + {len(r.children)} chunks hijos")
+search_service.close()
+```
+
 ## Referencias
 
-- [Guía de Patrones Personalizados](../guides/custom-patterns.md)
-- [Patrones de Búsqueda GraphRAG](../api/search-patterns.md)
+- [Guía de Patrones Personalizados](../guides/sp-custom-patterns.md)
+- [Patrones de Búsqueda GraphRAG](../api/sp-search-patterns.md)
+- [Lexical Graphs](../concepts/lexical-graphs.md)
 
 
 

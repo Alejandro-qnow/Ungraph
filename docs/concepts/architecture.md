@@ -1,8 +1,13 @@
-# Arquitectura del Sistema
+> Documento movido / Document moved
 
-## Visión General
+Este documento ahora está disponible en versiones bilingües:
 
-Ungraph sigue los principios de **Clean Architecture** y **Domain-Driven Design (DDD)** para garantizar mantenibilidad, testabilidad y extensibilidad.
+- Español: [sp-architecture.md](sp-architecture.md)
+- English: [en-architecture.md](en-architecture.md)
+
+Por favor actualiza tus enlaces y marcadores a una de las versiones anteriores.
+
+Please update your links/bookmarks to one of the above versions.
 
 ## Estructura de Capas
 
@@ -208,6 +213,7 @@ def create_ingest_document_use_case() -> IngestDocumentUseCase:
 - [Clean Architecture by Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
 - [Domain-Driven Design by Eric Evans](https://www.domainlanguage.com/ddd/)
 - [SOLID Principles](https://en.wikipedia.org/wiki/SOLID)
+
 
 
 

@@ -1,6 +1,11 @@
-# Guía de Inicio Rápido
+# Documento movido / Moved document
 
-Esta guía te ayudará a empezar con Ungraph en minutos.
+Este documento fue dividido en versiones bilingües y movido.
+
+- Versión en español: [sp-quickstart.md](sp-quickstart.md)
+- English version: [en-quickstart.md](en-quickstart.md)
+
+Por favor, usa las nuevas rutas según el idioma deseado.
 
 ## Instalación
 
@@ -180,8 +185,9 @@ print(f"User: {settings.neo4j_user}")
 ## Referencias
 
 - [README Principal](../../README.md)
-- [Documentación de API](../api/public-api.md)
-- [Configuración](../api/configuration.md)
+- [Documentación de API](../api/sp-public-api.md)
+- [Configuración](../api/sp-configuration.md)
+
 
 
 

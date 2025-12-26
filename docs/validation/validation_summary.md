@@ -1,3 +1,14 @@
+# Documento Movido / Document Moved
+
+⚠️ **Este documento ha sido reemplazado por versiones bilingües:**
+
+📄 **Español**: [sp-validation_summary.md](sp-validation_summary.md)  
+📄 **English**: [en-validation_summary.md](en-validation_summary.md)
+
+Por favor, consulte la versión en su idioma preferido.
+
+---
+
 # Resumen de Validación - Queries Cypher Ungraph
 
 **Fecha de ejecución**: 2025-01-XX  
@@ -181,4 +192,57 @@
 **Estado Final**: ✅ **VALIDACIÓN EXITOSA**
 
 Todos los patrones principales están funcionando correctamente. Los queries GraphRAG tienen sintaxis correcta y el Basic Retriever está completamente funcional.
+
+---
+
+## 📚 Información Adicional Consolidada
+
+### Catálogo de Queries Cypher
+
+Para referencia completa de queries utilizados en Ungraph, ver documentación técnica en código fuente:
+- **Queries de Ingesta**: `src/utils/graph_operations.py`
+- **Queries de Búsqueda GraphRAG**: `src/infrastructure/services/neo4j_search_service.py`
+- **Queries de Configuración**: Índices y setup en `src/infrastructure/services/index_service.py`
+
+### Plan de Validación
+
+La validación siguió un plan estructurado que cubrió:
+1. ✅ Patrones de ingesta (FILE_PAGE_CHUNK, SEQUENTIAL_CHUNKS, SIMPLE_CHUNK, LEXICAL_GRAPH)
+2. ✅ Patrones de búsqueda GraphRAG (Basic Retriever, Metadata Filtering, Parent-Child Retriever)
+3. ✅ Configuración de índices (full-text, vectorial)
+4. ✅ Validaciones de seguridad (uso de parámetros, prevención de inyección)
+
+### Cumplimiento GraphRAG
+
+Ungraph cumple con las especificaciones de GraphRAG:
+- ✅ **Lexical Graph**: Implementado con patrón FILE_PAGE_CHUNK
+- ✅ **Basic Retriever**: Completamente funcional con índice full-text
+- ✅ **Metadata Filtering**: Funcional con propiedades filename y page_number
+- ✅ **Parent-Child Retriever**: Implementado y validado con estructura Page-Chunk
+
+Referencias:
+- [GraphRAG Pattern Catalog](https://graphrag.com/reference/)
+- [Neo4j GraphRAG Guide](https://go.neo4j.com/rs/710-RRC-335/images/Developers-Guide-GraphRAG.pdf)
+
+### Problemas Resueltos Durante Validación
+
+#### ✅ Índice Full-Text `chunk_content`
+- **Problema**: Índice no estaba configurado inicialmente
+- **Solución**: Creación de índice full-text con configuración estándar
+- **Resultado**: Índice ONLINE, 100% poblado, Basic Retriever funcionando perfectamente
+
+#### ✅ Metadata Filtering - Propiedades Faltantes
+- **Problema**: Chunks no tenían propiedades `filename` y `page_number` directamente
+- **Solución**: Agregar propiedades desde relaciones File y Page
+- **Resultado**: Metadata Filtering funciona correctamente con filtros WHERE
+
+#### ✅ Parent-Child Retriever - Estructura Mejorada
+- **Problema**: Query no devolvía hijos correctamente
+- **Solución**: Ajustar query para buscar Page relacionada primero, luego expandir a hijos
+- **Resultado**: Estructura padre-hijo correcta con resultados válidos
+
+#### ⚠️ Índice Vectorial (Pendiente, No Crítico)
+- **Estado**: Requiere Neo4j 5.x+ o plugin adicional
+- **Impacto**: Hybrid Search limitado (solo full-text disponible)
+- **Nota**: No bloquea validación principal, Basic Retriever funciona sin él
 

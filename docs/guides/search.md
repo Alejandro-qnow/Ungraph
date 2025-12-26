@@ -176,7 +176,7 @@ En desarrollo: patrones avanzados de búsqueda basados en GraphRAG:
 - **Graph-Enhanced Vector Search**: Combina vectorial con estructura del grafo
 - **Metadata Filtering**: Filtra por metadatos específicos
 
-Ver [documentación de patrones GraphRAG](../api/search-patterns.md) para más detalles.
+Ver [documentación de patrones GraphRAG](../api/sp-search-patterns.md) para más detalles.
 
 ## Mejores Prácticas
 
@@ -188,9 +188,10 @@ Ver [documentación de patrones GraphRAG](../api/search-patterns.md) para más d
 
 ## Referencias
 
-- [Guía de Inicio Rápido](quickstart.md)
-- [Patrones de Búsqueda GraphRAG](../api/search-patterns.md)
-- [API Pública](../api/public-api.md)
+- [Guía de Inicio Rápido](sp-quickstart.md)
+- [Patrones de Búsqueda GraphRAG](../api/sp-search-patterns.md)
+- [API Pública](../api/sp-public-api.md)
+
 
 
 

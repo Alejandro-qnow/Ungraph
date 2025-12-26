@@ -6,7 +6,7 @@ Python package for Knowledge graph construction using Neo4j and GraphRAG pattern
 
 Ungraph es una librería Python que convierte datos no estructurados en **Lexical Graphs** usando Neo4j, implementando patrones de **GraphRAG** para búsqueda y recuperación mejorada. Proporciona un pipeline completo para:
 
-1. **Cargar documentos** (Markdown, TXT, Word) con detección automática de encoding
+1. **Cargar documentos** (Markdown, TXT, Word, PDF) con detección automática de encoding
 2. **Dividirlos en chunks inteligentes** con recomendaciones automáticas de estrategia
 3. **Generar embeddings** usando modelos de HuggingFace
 4. **Persistirlos en un Lexical Graph** (Neo4j) con estructura configurable
@@ -33,6 +33,13 @@ pip install ungraph
 Para funcionalidades avanzadas, instala módulos opcionales:
 
 ```bash
+# Inference - Para fase de inferencia con spaCy NER (extracción de entidades y facts)
+pip install ungraph[infer]
+# Luego descarga el modelo de idioma:
+python -m spacy download en_core_web_sm  # Para inglés
+# o
+python -m spacy download es_core_news_sm  # Para español
+
 # Graph Data Science - Para patrones avanzados de búsqueda
 pip install ungraph[gds]
 
@@ -287,7 +294,7 @@ pytest tests/test_use_case_integration.py -v -m integration
 ## 📋 Características Principales
 
 ### Pipeline de Ingesta
-- ✅ Soporte para múltiples formatos (Markdown, TXT, Word)
+- ✅ Soporte para múltiples formatos (Markdown, TXT, Word, PDF)
 - ✅ Detección automática de encoding
 - ✅ Limpieza de texto configurable
 - ✅ Chunking inteligente con recomendaciones automáticas
