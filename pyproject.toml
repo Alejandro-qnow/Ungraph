@@ -1,6 +1,6 @@
 [project]
 name = "ungraph"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python package for Knowledge graph construction in the Graph Query Language Standard"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -109,6 +109,7 @@ packages = [
 [[tool.uv.index]]
 name = "testpypi"
 url = "https://test.pypi.org/simple"
+publish-url = "https://test.pypi.org/legacy/"
 explicit = true
 default = false
 
@@ -116,6 +117,7 @@ default = false
 [[tool.uv.index]]
 name = "pypi"
 url = "https://pypi.org/simple"
+publish-url = "https://upload.pypi.org/legacy/"
 explicit = false
 default = true
 

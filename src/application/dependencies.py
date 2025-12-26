@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Optional
 
 from application.use_cases.ingest_document import IngestDocumentUseCase
+from core.configuration import Settings
 
 # Domain - Interfaces
 from domain.services.inference_service import InferenceService
@@ -24,72 +25,140 @@ from infrastructure.services.spacy_inference_service import SpacyInferenceServic
 
 
 def create_inference_service(
-    model_name: str = "en_core_web_sm",
-    enable_inference: bool = True,
-    language: str = "en"
+    settings: Optional[Settings] = None,
+    language: str = "en",
 ) -> Optional[InferenceService]:
     """
     Factory: crea y configura el servicio de inferencia.
     
-    Para el release v0.1.0, solo se implementa SpacyInferenceService.
-    Implementaciones LLM pueden añadirse en futuras versiones.
+    Creates appropriate inference service based on configuration:
+    - inference_mode="ner": SpacyInferenceService (NER-based, default)
+    - inference_mode="llm": LLMInferenceService (LLM-based, experimental)
+    - inference_mode="hybrid": NotImplementedError (planned for v0.2.0)
     
     Args:
-        model_name: Nombre del modelo de spaCy (default: en_core_web_sm)
-        enable_inference: Si False, retorna None (deshabilita fase Inference)
-        language: Idioma para inferencia ('en' para inglés, 'es' para español)
-                 Si se proporciona, sobrescribe model_name con el modelo apropiado
-    
+        settings: Configuration settings. If None, loads from environment.
+        language: Language code for spaCy models ("en" or "es"). Only used for NER mode.
+        
     Returns:
-        InferenceService configurado o None si está deshabilitado
-    
+        InferenceService implementation or None if inference disabled
+        
     Raises:
-        ImportError: Si spaCy no está instalado y enable_inference=True
-        OSError: Si el modelo de spaCy no está disponible
-    
-    Note:
-        Modelos de spaCy recomendados:
-        - Inglés: en_core_web_sm (instalar con: python -m spacy download en_core_web_sm)
-        - Español: es_core_news_sm (instalar con: python -m spacy download es_core_news_sm)
+        ImportError: If required dependencies not installed
+        NotImplementedError: If inference_mode="hybrid"
+        ValueError: If inference_mode invalid
+        
+    Example:
+        >>> settings = Settings(inference_mode="llm", ollama_base_url="http://localhost:11434")
+        >>> service = create_inference_service(settings)
+        >>> type(service).__name__
+        'LLMInferenceService'
     """
-    if not enable_inference:
-        return None
+    if settings is None:
+        settings = Settings()
     
-    # Seleccionar modelo según idioma si se especifica
-    if language == "es":
-        model_name = "es_core_news_sm"
-    elif language == "en":
-        model_name = "en_core_web_sm"
-    # Si language no es 'en' ni 'es', usar model_name proporcionado
+    inference_mode = settings.inference_mode.lower()
     
-    try:
-        return SpacyInferenceService(model_name=model_name)
-    except ImportError as e:
-        # Si spaCy no está instalado, retornar None en lugar de fallar
-        # Esto permite usar el pipeline ET sin Inference
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.warning(
-            f"spaCy no está disponible. Fase Inference deshabilitada. "
-            f"Instala con: pip install ungraph[infer] && python -m spacy download {model_name}"
+    # NER mode (default, existing implementation)
+    if inference_mode == "ner":
+        # Seleccionar modelo según idioma
+        model_name = "en_core_web_sm" if language == "en" else "es_core_news_sm"
+        
+        try:
+            return SpacyInferenceService(model_name=model_name)
+        except ImportError as e:
+            # Si spaCy no está instalado, retornar None
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(
+                f"spaCy no está disponible. Fase Inference deshabilitada. "
+                f"Instala con: pip install ungraph[infer] && python -m spacy download {model_name}"
+            )
+            return None
+        except OSError as e:
+            # Si el modelo no está disponible, sugerir instalación
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(
+                f"Modelo spaCy '{model_name}' no encontrado. "
+                f"Instala con: python -m spacy download {model_name}"
+            )
+            return None
+    
+    # LLM mode (new, experimental)
+    elif inference_mode == "llm":
+        try:
+            from langchain_community.chat_models import ChatOllama
+            from infrastructure.services.llm_inference_service import LLMInferenceService
+        except ImportError as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(
+                f"Cannot load LLMInferenceService: {e}. "
+                "Ensure langchain-experimental and langchain-community are installed."
+            )
+            return None
+        
+        # Validate Ollama configuration
+        if not settings.ollama_model:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(
+                "LLM inference mode requires UNGRAPH_OLLAMA_MODEL to be set. "
+                "Example: export UNGRAPH_OLLAMA_MODEL=llama3.2"
+            )
+            return None
+        
+        # Create LLM instance (Ollama default for v0.1.0)
+        llm = ChatOllama(
+            model=settings.ollama_model,
+            base_url=settings.ollama_base_url,
+            temperature=0,  # Deterministic for entity extraction
         )
-        return None
-    except OSError as e:
-        # Si el modelo no está disponible, sugerir instalación
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.warning(
-            f"Modelo spaCy '{model_name}' no encontrado. "
-            f"Instala con: python -m spacy download {model_name}"
+        
+        # Default schema (general-purpose)
+        allowed_nodes = [
+            "Person",
+            "Organization",
+            "Location",
+            "Product",
+            "Event",
+            "Concept",
+        ]
+        allowed_relationships = [
+            "WORKS_FOR",
+            "LOCATED_IN",
+            "PART_OF",
+            "RELATED_TO",
+            "PRODUCED_BY",
+        ]
+        
+        return LLMInferenceService(
+            llm=llm,
+            allowed_nodes=allowed_nodes,
+            allowed_relationships=allowed_relationships,
+            strict_mode=True,
         )
-        return None
+    
+    # Hybrid mode (planned for v0.2.0)
+    elif inference_mode == "hybrid":
+        raise NotImplementedError(
+            "Hybrid inference mode (NER + LLM) is planned for v0.2.0. "
+            "Use 'ner' or 'llm' mode for now."
+        )
+    
+    # Invalid mode
+    else:
+        raise ValueError(
+            f"Invalid inference_mode: '{inference_mode}'. "
+            "Valid options: 'ner', 'llm', 'hybrid'"
+        )
 
 
 def create_ingest_document_use_case(
+    settings: Optional[Settings] = None,
     database: str = "neo4j",
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2",
-    enable_inference: bool = True,
-    inference_model: str = "en_core_web_sm",
     inference_language: str = "en"
 ) -> IngestDocumentUseCase:
     """
@@ -101,25 +170,27 @@ def create_ingest_document_use_case(
     - Retorna el caso de uso listo para usar
     
     Args:
+        settings: Configuration settings. If None, loads from environment.
         database: Nombre de la base de datos Neo4j (default: "neo4j")
         embedding_model: Modelo de embeddings a usar (default: all-MiniLM-L6-v2)
-        enable_inference: Si True, habilita fase Inference del patrón ETI (default: True)
-        inference_model: Modelo de spaCy para inferencia (default: en_core_web_sm)
         inference_language: Idioma para inferencia ('en' para inglés, 'es' para español) (default: "en")
     
     Note:
-        Para usar inferencia en español:
-        - Instalar: pip install ungraph[infer-es]
-        - Descargar modelo: python -m spacy download es_core_news_sm
-        - Usar: create_ingest_document_use_case(inference_language="es")
+        Inference mode is determined by settings.inference_mode:
+        - "ner": SpaCy NER-based (default)
+        - "llm": LLM-based (experimental, requires Ollama)
+        - "hybrid": Planned for v0.2.0
     
     Returns:
         IngestDocumentUseCase configurado y listo para usar
     
     Note:
-        Si enable_inference=True pero spaCy no está instalado, el pipeline
-        funcionará sin fase Inference (solo ET).
+        Si inference service no puede crearse (dependencias faltantes),
+        el pipeline funcionará sin fase Inference (solo ET).
     """
+    if settings is None:
+        settings = Settings()
+    
     # Crear servicios de infraestructura
     text_cleaning_service = SimpleTextCleaningService()
     
@@ -138,10 +209,9 @@ def create_ingest_document_use_case(
     # Crear repositorio
     chunk_repository = Neo4jChunkRepository(database=database)
     
-    # Crear servicio de inferencia (opcional)
+    # Crear servicio de inferencia basado en settings
     inference_service = create_inference_service(
-        model_name=inference_model,
-        enable_inference=enable_inference,
+        settings=settings,
         language=inference_language
     )
     

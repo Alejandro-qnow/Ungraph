@@ -92,3 +92,5 @@ class Entity:
         return self.type.upper() in ("ORGANIZATION", "ORG")
 
 
+
+

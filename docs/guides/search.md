@@ -196,3 +196,5 @@ Ver [documentación de patrones GraphRAG](../api/sp-search-patterns.md) para má
 
 
 
+
+

@@ -11,6 +11,7 @@
 **Implementación:**
 - Pipeline ETI completo (Extract + Transform + Inference)
 - `SpacyInferenceService` implementado (NER básico)
+- `LLMInferenceService` implementado (LLM-based, experimental)
 - Persistencia de facts en Neo4j
 - Trazabilidad básica PROV-O (wasDerivedFrom)
 - Código siguiendo Clean Architecture estricta
@@ -27,6 +28,55 @@
 - ✅ Tests básicos funcionan
 - ✅ Imports básicos verificados
 - ⏳ Pendiente: Build completo, instalación desde wheel, TestPyPI
+
+### 🧪 Experimental Features (v0.1.0)
+
+#### LLMInferenceService (Experimental Preview)
+
+Added LLM-based entity and relationship extraction as alternative to NER-based
+extraction. This feature is experimental and serves as foundation for v0.2.0.
+
+**Configuration:**
+```bash
+# In .env file
+UNGRAPH_INFERENCE_MODE=llm
+UNGRAPH_OLLAMA_MODEL=llama3.2
+UNGRAPH_OLLAMA_BASE_URL=http://localhost:11434
+```
+
+**Usage:**
+```python
+from src.core.configuration import Settings
+from src.application.dependencies import create_inference_service
+
+# Configure for LLM mode
+settings = Settings(inference_mode="llm")
+service = create_inference_service(settings)
+
+# Extract entities and relations
+entities = service.extract_entities(chunk)
+relations = service.extract_relations(chunk, entities)
+facts = service.infer_facts(chunk)
+```
+
+**Supported Modes:**
+- `inference_mode="ner"`: SpaCy NER-based (default, stable)
+- `inference_mode="llm"`: LLM-based with Ollama (experimental)
+- `inference_mode="hybrid"`: Planned for v0.2.0
+
+**Default Schema (LLM mode):**
+- Entity types: Person, Organization, Location, Product, Event, Concept
+- Relationship types: WORKS_FOR, LOCATED_IN, PART_OF, RELATED_TO, PRODUCED_BY
+
+**Limitations:**
+- Basic extraction only (no dynamic examples, confidence scoring, or evaluation)
+- Higher latency than NER (~2-5s per chunk)
+- Requires Ollama or compatible LLM endpoint
+- Not recommended for production without evaluation
+
+**Roadmap:**
+- v0.2.0: Opik evaluation, confidence scoring, dynamic example selection
+- v0.3.0: Hybrid mode (NER + LLM), auto-schema detection
 
 ### ⏳ Pendiente para Release
 

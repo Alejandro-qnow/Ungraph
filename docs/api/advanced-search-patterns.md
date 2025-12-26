@@ -202,3 +202,5 @@ for result in results:
 - [GraphRAG Advanced Patterns](../GRAPHRAG_AVANZADO.md)
 
 
+
+

@@ -88,3 +88,5 @@ facts = service_es.infer_facts(chunk)
 - Si spaCy no está instalado, el pipeline funcionará sin fase Inference (solo ET)
 
 
+
+
