@@ -1,7 +1,7 @@
 [project]
 name = "ungraph"
-version = "0.1.1"
-description = "Python package for Knowledge graph construction in the Graph Query Language Standard"
+version = "0.1.4"
+description = "Python framework for building Knowledge Graphs from unstructured text using Neo4j (Cypher), aligned with property-graph standards"
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [
@@ -93,17 +93,17 @@ all = [
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-# Configurar para que los paquetes en src/ se incluyan correctamente
+# Configurar para empaquetar ungraph/ como el paquete ungraph
 [tool.hatch.build.targets.wheel]
-packages = [
-    "src/domain",
-    "src/application", 
-    "src/infrastructure",
-    "src/core",
-    "src/utils"
+packages = ["ungraph"]
+# Excluir directorios que no deben estar en el paquete instalable
+exclude = [
+    "ungraph/notebooks",
+    "ungraph/pipelines",
+    "ungraph/data",
+    "ungraph/scripts",
+    "ungraph/main.py"
 ]
-# Nota: src/notebooks y src/pipelines no se incluyen en el paquete instalable
-# Los notebooks están en el repo para documentación pero no se instalan
 
 # Configuración para TestPyPI
 [[tool.uv.index]]

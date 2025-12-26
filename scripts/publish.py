@@ -9,7 +9,10 @@ Variables de entorno:
 Uso:
     python scripts/publish.py build                    # Solo build
     python scripts/publish.py publish --test            # Publicar en TestPyPI
-    python scripts/publish.py publish --prod           # Publicar en PyPI oficial
+    python scripts/publish.py publish --prod           # Publicar en PyPI oficial (incrementa patch automáticamente)
+    python scripts/publish.py publish --prod --patch   # Incrementa patch version
+    python scripts/publish.py publish --prod --minor   # Incrementa minor version
+    python scripts/publish.py publish --prod --major   # Incrementa major version
     python scripts/publish.py validate                 # Validar configuración
 """
 
@@ -74,6 +77,72 @@ def read_pyproject() -> dict:
         'content': content,
         'path': pyproject_path
     }
+
+def increment_version(bump_type: Literal["patch", "minor", "major"] = "patch") -> Optional[str]:
+    """Incrementa la versión en pyproject.toml y ungraph/__init__.py.
+    
+    Args:
+        bump_type: Tipo de incremento ("patch", "minor", "major")
+    
+    Returns:
+        Nueva versión o None si hay error
+    """
+    pyproject = read_pyproject()
+    current_version = pyproject['version']
+    
+    if not current_version:
+        print(f"{Colors.ERROR} No se pudo determinar la versión actual")
+        return None
+    
+    # Parsear versión (formato: X.Y.Z)
+    try:
+        parts = current_version.split('.')
+        if len(parts) != 3:
+            print(f"{Colors.ERROR} Formato de versión no soportado: {current_version}")
+            return None
+        
+        major, minor, patch = map(int, parts)
+        
+        # Incrementar según el tipo
+        if bump_type == "major":
+            major += 1
+            minor = 0
+            patch = 0
+        elif bump_type == "minor":
+            minor += 1
+            patch = 0
+        else:  # patch
+            patch += 1
+        
+        new_version = f"{major}.{minor}.{patch}"
+        
+    except ValueError as e:
+        print(f"{Colors.ERROR} Error al parsear versión: {e}")
+        return None
+    
+    # Actualizar pyproject.toml
+    content = pyproject['content']
+    # Reemplazar versión en pyproject.toml
+    version_pattern = re.compile(r'^version\s*=\s*["\']([^"\']+)["\']', re.MULTILINE)
+    new_content = version_pattern.sub(f'version = "{new_version}"', content)
+    
+    pyproject['path'].write_text(new_content, encoding='utf-8')
+    print(f"{Colors.OK} Versión actualizada en pyproject.toml: {current_version} -> {new_version}")
+    
+    # Actualizar ungraph/__init__.py si existe
+    init_file = get_project_root() / "ungraph" / "__init__.py"
+    if init_file.exists():
+        init_content = init_file.read_text(encoding='utf-8')
+        # Buscar __version__ = "X.Y.Z"
+        version_pattern_init = re.compile(r'__version__\s*=\s*["\']([^"\']+)["\']')
+        if version_pattern_init.search(init_content):
+            init_content = version_pattern_init.sub(f'__version__ = "{new_version}"', init_content)
+            init_file.write_text(init_content, encoding='utf-8')
+            print(f"{Colors.OK} Versión actualizada en ungraph/__init__.py: {current_version} -> {new_version}")
+        else:
+            print(f"{Colors.WARNING} No se encontró __version__ en ungraph/__init__.py")
+    
+    return new_version
 
 def update_package_name(name: str) -> bool:
     """Actualiza el nombre del paquete en pyproject.toml.
@@ -218,7 +287,7 @@ def validate_configuration(target: Literal["test", "prod"] = "prod") -> bool:
         return True
 
 def run_build() -> bool:
-    """Ejecuta uv build, limpiando dist/ primero."""
+    """Ejecuta uv build, eliminando completamente dist/ primero para un build limpio."""
     print("=" * 60)
     print("BUILD DEL PAQUETE")
     print("=" * 60)
@@ -226,13 +295,22 @@ def run_build() -> bool:
     project_root = get_project_root()
     dist_path = project_root / "dist"
     
-    # Limpiar dist/ antes de build
+    # Eliminar completamente dist/ antes de build para asegurar un build limpio
     if dist_path.exists():
         import shutil
-        for file in dist_path.glob("*"):
-            if file.is_file() and file.name != ".gitignore":
-                file.unlink()
-        print(f"{Colors.INFO} Directorio dist/ limpiado")
+        try:
+            shutil.rmtree(dist_path)
+            print(f"{Colors.INFO} Directorio dist/ eliminado completamente")
+        except Exception as e:
+            print(f"{Colors.WARNING} No se pudo eliminar dist/ completamente: {e}")
+            # Fallback: intentar limpiar archivos individuales
+            for file in dist_path.glob("*"):
+                if file.is_file() and file.name != ".gitignore":
+                    try:
+                        file.unlink()
+                    except Exception:
+                        pass
+            print(f"{Colors.INFO} Archivos en dist/ limpiados (fallback)")
     
     result = subprocess.run(
         ["uv", "build"],
@@ -339,6 +417,21 @@ def main():
             print(f"{Colors.INFO} Configurando para PyPI oficial (nombre: ungraph)...")
             if not update_package_name("ungraph"):
                 sys.exit(1)
+            
+            # Determinar tipo de bump desde argumentos opcionales
+            bump_type = "patch"  # Por defecto patch
+            if len(sys.argv) >= 4:
+                bump_arg = sys.argv[3]
+                if bump_arg in ["--patch", "--minor", "--major"]:
+                    bump_type = bump_arg[2:]  # Remover "--"
+            
+            # Incrementar versión automáticamente antes de publicar
+            print(f"\n{Colors.INFO} Incrementando versión ({bump_type})...")
+            new_version = increment_version(bump_type)
+            if not new_version:
+                print(f"{Colors.ERROR} Error al incrementar versión")
+                sys.exit(1)
+            
             if not run_build():
                 sys.exit(1)
             success = publish("prod")

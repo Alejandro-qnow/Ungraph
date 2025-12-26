@@ -1,18 +1,25 @@
 # Ungraph
 
 <div align="center">
-  <img src="qnow_logo.png" alt="Qnow Logo" width="200">
+  <img src="https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=375,h=375,fit=crop/YKbJXD52PBIp5944/logo-negro-mxBMJBrV9GTPeBBq.png" alt="Qnow Logo" width="200">
 </div>
 
 <div align="center">
-  <strong>A Python framework for building Knowledge Graphs from unstructured text using Neo4j and GraphRAG patterns.</strong>
+  <strong>A Python framework for building Knowledge Graphs from unstructured text.</strong>
 </div>
 
 ---
 
 ## What is Ungraph?
 
-Ungraph transforms unstructured documents into structured **Lexical Graphs** stored in Neo4j, enabling advanced information retrieval and semantic search through proven GraphRAG patterns.
+Ungraph transforms unstructured documents into structured **Lexical Graphs** stored in Neo4j, enabling advanced information retrieval and semantic search through GraphRAG patterns. Built on the **Extract-Transform-Inference (ETI)** pattern, Ungraph goes beyond traditional ETL by adding an explicit inference phase that generates traceable knowledge artifacts with PROV-O provenance.
+
+**Note:** GraphRAG refers to retrieval patterns for expressing text in graph structures. Neo4j is the knowledge graph database where Ungraph stores the graphs (other graph databases can be supported).
+
+**Universal Knowledge Extraction**: Ungraph is designed for **any knowledge domain**—scientific papers, financial reports, research literature, or any field requiring structured knowledge extraction.
+
+Ungraph uses a **File-Page-Chunk** topology as its base graph structure, providing hierarchical document representation that preserves document structure while enabling granular semantic search. The framework implements the ETI pattern with full traceability, ensuring that every extracted fact can be traced back to its source document.
+
 
 ### Problems It Solves
 
@@ -28,7 +35,11 @@ Ungraph is designed for:
 - **RAG Applications**: Enhanced retrieval for LLM-based systems using GraphRAG patterns
 - **Knowledge Management**: Building searchable knowledge bases from document collections
 - **Research & Analysis**: Extracting and connecting entities, facts, and relationships from text
-- **Production Systems**: Clean architecture with comprehensive testing and error handling
+- **Production Systems**: Clean architecture with comprehensive testing and error handling (Note: Currently in alpha, API may change)
+
+### Cross-Domain Applicability
+
+Ungraph is **domain-agnostic** and designed to extract knowledge from any field: sciences, finance, quantum computing, machine learning, biomedical research, legal documents, or any other knowledge domain. The framework's **inference phase** enables domain-specific knowledge discovery through NER for general entities or LLM-based extraction for domain-specific relationships.
 
 ## Installation
 
@@ -96,9 +107,11 @@ export UNGRAPH_NEO4J_PASSWORD="your_password"
 export UNGRAPH_NEO4J_DATABASE="neo4j"
 ```
 
-## Core Functions
+## Core Functions: The ETI Pattern
 
-Ungraph provides three essential functions: **Extract**, **Transform**, and **Infer**.
+Ungraph implements the **Extract-Transform-Inference (ETI)** pattern, an evolution of traditional ETL that explicitly adds an inference phase to generate traceable knowledge artifacts. This pattern addresses the fundamental need to transform information into a queryable format that goes beyond raw data—enabling knowledge extraction through LLMs, neuro-symbolic reasoning systems, and other inference mechanisms to discover new relationships within any knowledge domain.
+
+The ETI pattern is designed for building **traceable knowledge graphs** with PROV-O provenance, making it suitable for any domain requiring reliable knowledge extraction: sciences, finance, quantum computing, machine learning, and beyond.
 
 ### 1. Extract
 
@@ -144,38 +157,45 @@ Chunk -[:NEXT_CHUNK]-> Chunk
 
 **Features:** Vector embeddings (HuggingFace), configurable graph patterns, automatic indexing
 
+
+### Graph Topology Constructor
+
+Ungraph provides services that enable the construction of any graph pattern topology. These services allow you to define custom graph structures beyond the base File-Page-Chunk pattern, creating domain-specific knowledge graph topologies while maintaining traceability and provenance.
+
+
 ### 3. Infer
 
-Infer entities, relations, and facts from text using NER or LLM-based extraction.
+The **Inference** phase distinguishes ETI from traditional ETL. It generates normalized facts, relations, and explanations with confidence scores and PROV-O traceability using inference models (NER, LLM, or neuro-symbolic systems).
+
+**Key Capabilities:**
+- **Entity Extraction**: Named Entity Recognition (NER) for general entities
+- **Relation Extraction**: Identify relationships between entities
+- **Fact Generation**: Create structured facts (subject-predicate-object triplets) with confidence scores
+- **Provenance Tracking**: Every fact is traceable to its source via PROV-O `wasDerivedFrom` relationships
+
+**Inference Modes:**
+
+- **NER** (default): Fast, production-ready entity extraction with spaCy. Generates simple facts like `(chunk_id, "MENTIONS", entity_name)` and co-occurrence relationships.
+- **LLM** (experimental): Domain-specific extraction using language models for complex relationship extraction and entity normalization
+- **Hybrid** (planned): Combines NER speed with LLM accuracy for optimal performance and precision
+
+**Traceability:** All inferred facts include provenance metadata, allowing you to trace any fact back to its source document, page, and chunk.
+
+## Example Usage
 
 ```python
 import ungraph
 
-# Configure inference mode
-ungraph.configure(
-    neo4j_uri="bolt://localhost:7687",
-    neo4j_password="your_password",
-    inference_mode="ner"  # or "llm" for LLM-based (experimental)
-)
+# Configure and ingest a document
+ungraph.configure(neo4j_uri="bolt://localhost:7687", neo4j_password="your_password")
+chunks = ungraph.ingest_document("document.pdf")
 
-# Ingest with entity extraction
-chunks = ungraph.ingest_document(
-    "document.txt",
-    extract_entities=True
-)
-
-# Search by entity
-results = ungraph.search_by_entity("Apple Inc.", limit=5)
+# Vector search (semantic similarity)
+results = ungraph.vector_search("Apple Inc.", limit=5)
 for result in results:
     print(f"Content: {result.content}")
-    print(f"Entities: {[e.name for e in result.entities]}")
+    print(f"Score: {result.score:.3f}")
 ```
-
-**Inference Modes:**
-
-- **NER** (default): Fast, production-ready entity extraction with spaCy
-- **LLM** (experimental): Domain-specific extraction using Ollama
-- **Hybrid** (planned): Combines NER speed with LLM accuracy
 
 ## Search Capabilities
 
@@ -222,6 +242,37 @@ results = ungraph.search_with_pattern(
 )
 ```
 
+## Research Foundation
+
+Ungraph implements the **Extract-Transform-Inference (ETI)** pattern, a research-driven approach to building traceable knowledge graphs. The ETI pattern is formally defined as a pipeline P = (E, T, I, O, M) where:
+
+- **E (Extractors)**: Extract structured documents with metadata from various sources
+- **T (Transformers)**: Transform documents into chunks with embeddings and semantic annotations
+- **I (Inference)**: Generate facts, relations, and explanations with confidence and traceability
+- **O (Ontology)**: Formal schema defining entity types, relationships, and mappings to standard vocabularies (schema.org, PROV-O)
+- **M (Metadata)**: PROV-O provenance structure tracking derivation chains
+
+### ETI vs Traditional ETL
+
+| Aspect | ETL (Traditional) | ETI (Ungraph) |
+|--------|-------------------|---------------|
+| **Phases** | Extract, Transform, Load | Extract, Transform, **Infer** |
+| **Objective** | Prepare data for storage | Build traceable knowledge |
+| **Artifacts** | Structured data | Facts, relations, explanations |
+| **Traceability** | Limited (basic metadata) | Complete (PROV-O provenance) |
+| **Validation** | Format verification | Knowledge validation |
+| **Reasoning** | Not included | Explicit inference phase |
+| **Domain Focus** | Data preparation | Knowledge construction |
+
+**Key Research Contributions:**
+- **Evolution from ETL to ETI**: Adding explicit inference phase for knowledge construction, not just data transformation
+- **PROV-O traceability**: Every fact is traceable to its source through provenance chains, enabling validation and trust
+- **Domain-agnostic design**: Validated across finance, biomedical, scientific, and general domains
+- **GraphRAG patterns**: Implements retrieval patterns from the GraphRAG literature (Peng et al., 2024) for expressing text in graph structures
+- **Neuro-symbolic computing**: Combines statistical models (LLMs) with symbolic reasoning for explainable inferences
+
+For detailed research methodology, experimental design, and validation results, see the [research article](article/ungraph.md) (in preparation).
+
 ## Architecture
 
 Ungraph follows **Clean Architecture** principles:
@@ -236,10 +287,11 @@ src/
 
 **Key Features:**
 
-- Domain-driven design
-- Configurable graph patterns
-- Production-ready with comprehensive testing
-- Modular design with optional dependencies
+- **Domain-driven design**: Clear separation of concerns with domain, application, and infrastructure layers
+- **Configurable graph patterns**: Build custom graph topologies through graph construction services
+- **Production-ready architecture**: Clean architecture with comprehensive testing and error handling (Note: Currently in alpha, API may change)
+- **Modular design**: Optional dependencies for inference (`ungraph[infer]`), graph algorithms (`ungraph[gds]`), and visualization (`ungraph[ynet]`)
+- **ETI pattern implementation**: Full Extract-Transform-Inference pipeline with PROV-O traceability
 
 ## Documentation
 
