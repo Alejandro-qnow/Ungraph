@@ -41,6 +41,10 @@ jobs:
       run: |
         uv pip install dist/*.whl
     
+    - name: Run critical packaging test
+      run: |
+        python -c "import ungraph; print('configure:', ungraph.configure)"
+    
     - name: Run installation smoke test
       run: |
         python scripts/smoke_test_installation.py

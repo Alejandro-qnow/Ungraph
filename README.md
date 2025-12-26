@@ -12,7 +12,7 @@
 
 ## What is Ungraph?
 
-Ungraph transforms unstructured documents into structured **Lexical Graphs** stored in Neo4j, enabling advanced information retrieval and semantic search through GraphRAG patterns. Built on the **Extract-Transform-Inference (ETI)** pattern, Ungraph goes beyond traditional ETL by adding an explicit inference phase that generates traceable knowledge artifacts with PROV-O provenance.
+Ungraph transforms unstructured documents into structured **Lexical Graphs** stored in Neo4j, enabling advanced information retrieval and semantic search through GraphRAG patterns. Built on the **Extract-Transform-Inference (ETI)** pattern, Ungraph goes beyond traditional ETL by adding an explicit inference phase (experimental) that generates traceable knowledge artifacts with PROV-O provenance.
 
 **Note:** GraphRAG refers to retrieval patterns for expressing text in graph structures. Neo4j is the knowledge graph database where Ungraph stores the graphs (other graph databases can be supported).
 
@@ -167,7 +167,9 @@ Ungraph provides services that enable the construction of any graph pattern topo
 
 The **Inference** phase distinguishes ETI from traditional ETL. It generates normalized facts, relations, and explanations with confidence scores and PROV-O traceability using inference models (NER, LLM, or neuro-symbolic systems).
 
-**Key Capabilities:**
+**Current Status:** The inference phase is **experimental** and available through internal APIs. The public API currently focuses on Extract and Transform phases, with inference capabilities being refined for future stable releases.
+
+**Key Capabilities (when inference is enabled):**
 - **Entity Extraction**: Named Entity Recognition (NER) for general entities
 - **Relation Extraction**: Identify relationships between entities
 - **Fact Generation**: Create structured facts (subject-predicate-object triplets) with confidence scores
@@ -175,11 +177,13 @@ The **Inference** phase distinguishes ETI from traditional ETL. It generates nor
 
 **Inference Modes:**
 
-- **NER** (default): Fast, production-ready entity extraction with spaCy. Generates simple facts like `(chunk_id, "MENTIONS", entity_name)` and co-occurrence relationships.
+- **NER** (available): Fast, production-ready entity extraction with spaCy. Generates simple facts like `(chunk_id, "MENTIONS", entity_name)` and co-occurrence relationships. Requires `ungraph[infer]` extra.
 - **LLM** (experimental): Domain-specific extraction using language models for complex relationship extraction and entity normalization
 - **Hybrid** (planned): Combines NER speed with LLM accuracy for optimal performance and precision
 
 **Traceability:** All inferred facts include provenance metadata, allowing you to trace any fact back to its source document, page, and chunk.
+
+**Note:** For production use, Ungraph currently provides a robust Extract-Transform pipeline with GraphRAG retrieval patterns. The full ETI pipeline with public inference APIs is planned for future releases.
 
 ## Example Usage
 

@@ -1,7 +1,7 @@
 [project]
 name = "ungraph"
 version = "0.1.4"
-description = "Python framework for building Knowledge Graphs from unstructured text using Neo4j (Cypher), aligned with property-graph standards"
+description = "Python framework for building Knowledge Graphs from unstructured text using Neo4j Cypher (property-graph query language), with alignment toward ISO GQL standards"
 readme = "README.md"
 requires-python = ">=3.12"
 authors = [
