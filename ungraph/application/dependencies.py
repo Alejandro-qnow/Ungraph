@@ -5,9 +5,10 @@ Factory para crear y configurar todas las dependencias.
 Este es el único lugar donde se crean implementaciones concretas.
 """
 
-from typing import Any, Optional
+from __future__ import annotations
 
-from ungraph.application.use_cases.bulk_ingest_documents import BulkIngestDocumentsUseCase
+from typing import TYPE_CHECKING, Any, Optional
+
 from ungraph.application.use_cases.ingest_document import IngestDocumentUseCase
 from ungraph.application.use_cases.ingest_tabular import IngestTabularUseCase
 from ungraph.application.use_cases.knowledge_mining import KnowledgeMiningUseCase
@@ -20,10 +21,16 @@ from ungraph.core.configuration import (
 
 # Domain - Interfaces
 from ungraph.domain.services.inference_service import InferenceService
-from ungraph.domain.services.ontology_resolver import OntologyResolver
-from ungraph.domain.value_objects.ontology_profile import OntologyProfile
-from ungraph.domain.services.duplicate_guard_service import DuplicateGuardService
 from ungraph.domain.services.entity_graph_maintenance import EntityGraphMaintenanceService
+
+if TYPE_CHECKING:
+    # Solo para anotaciones de tipo (evita arrastrar el stack de ontología en import-time;
+    # los resolvers concretos y el caso de uso bulk se importan de forma perezosa).
+    from ungraph.application.use_cases.bulk_ingest_documents import (
+        BulkIngestDocumentsUseCase,
+    )
+    from ungraph.domain.services.ontology_resolver import OntologyResolver
+    from ungraph.domain.value_objects.ontology_profile import OntologyProfile
 
 # Infrastructure - Implementaciones concretas
 from ungraph.infrastructure.repositories.neo4j_catalog_repository import Neo4jCatalogRepository
@@ -489,6 +496,11 @@ def create_bulk_ingest_documents_use_case(
     inference_language: str = "en",
 ) -> BulkIngestDocumentsUseCase:
     """Factory: ingest masivo con DuplicateGuard + catálogo Neo4j."""
+    from ungraph.application.use_cases.bulk_ingest_documents import (
+        BulkIngestDocumentsUseCase,
+    )
+    from ungraph.domain.services.duplicate_guard_service import DuplicateGuardService
+
     if settings is None:
         settings = Settings()
     ingest = create_ingest_document_use_case(
