@@ -1,0 +1,11 @@
+source: flat_employees
+row_node_label: Employee
+roles:
+  employee_id: node_key
+  full_name: attribute
+  email: attribute
+  age: attribute
+  salary: attribute
+  department: dimension
+  is_active: attribute
+  hire_date: attribute

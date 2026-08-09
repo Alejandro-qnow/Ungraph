@@ -15,6 +15,9 @@ class DocumentType(Enum):
     WORD = "word"
     DOCX = "docx"
     PDF = "pdf"
+    HTML = "html"
+    CSV = "csv"
+    XLSX = "xlsx"
     
     @classmethod
     def from_filename(cls, filename: str) -> "DocumentType":
@@ -40,6 +43,17 @@ class DocumentType(Enum):
             return cls.DOCX if filename_lower.endswith('.docx') else cls.WORD
         elif filename_lower.endswith('.pdf'):
             return cls.PDF
+        elif filename_lower.endswith(('.html', '.htm')):
+            return cls.HTML
+        elif filename_lower.endswith('.csv'):
+            return cls.CSV
+        elif filename_lower.endswith(('.xlsx', '.xls')):
+            return cls.XLSX
         else:
             raise ValueError(f"Tipo de archivo no reconocido: {filename}")
+
+    @classmethod
+    def is_tabular(cls, file_type: "DocumentType") -> bool:
+        """Indica si el tipo corresponde a datos tabulares (CSV/XLSX)."""
+        return file_type in (cls.CSV, cls.XLSX)
 

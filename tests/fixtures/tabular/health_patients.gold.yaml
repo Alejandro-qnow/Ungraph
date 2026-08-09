@@ -1,0 +1,12 @@
+source: health_patients
+row_node_label: Patient
+roles:
+  patient_id: node_key
+  mrn: attribute
+  gender: dimension
+  age: attribute
+  admission_date: attribute
+  department: dimension
+  physician_id: relation_fk
+  diagnosis_code: dimension
+  blood_type: dimension

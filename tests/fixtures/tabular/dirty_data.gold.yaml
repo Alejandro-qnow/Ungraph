@@ -1,0 +1,9 @@
+source: dirty_data
+row_node_label: Cliente
+roles:
+  Id Cliente: node_key
+  Nombre Completo: attribute
+  Categoría: dimension
+  Monto (USD): attribute
+  Fecha Registro: attribute
+  país: dimension

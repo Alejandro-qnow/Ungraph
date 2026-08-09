@@ -1,0 +1,28 @@
+tables:
+- source: customers
+  row_node_label: Customer
+  roles:
+    customer_id: node_key
+    name: attribute
+    city: dimension
+    segment: dimension
+- source: products
+  row_node_label: Product
+  roles:
+    product_id: node_key
+    name: attribute
+    category: dimension
+    price: attribute
+- source: orders
+  row_node_label: Order
+  roles:
+    order_id: node_key
+    customer_id: relation_fk
+    order_date: attribute
+    total: attribute
+- source: order_items
+  row_node_label: OrderItem
+  roles:
+    order_id: relation_fk
+    product_id: relation_fk
+    quantity: attribute

@@ -1,0 +1,11 @@
+source: orders_fk
+row_node_label: Order
+roles:
+  order_id: node_key
+  customer_id: relation_fk
+  product_id: relation_fk
+  quantity: attribute
+  unit_price: attribute
+  order_date: attribute
+  status: dimension
+  region: dimension

@@ -1,6 +1,6 @@
 [project]
 name = "ungraph"
-version = "0.1.4"
+version = "0.1.5"
 description = "Python framework for building Knowledge Graphs from unstructured text using Neo4j Cypher (property-graph query language), with alignment toward ISO GQL standards"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -18,6 +18,8 @@ classifiers = [
 ]
 dependencies = [
     "chardet>=5.2.0",
+    "cssselect>=1.2.0",
+    "lxml>=5.3.0",
     "langchain>=1.2.0",
     "langchain-community>=0.4.1",
     "langchain-docling>=2.0.0",
@@ -33,7 +35,12 @@ dependencies = [
     "python-dotenv>=1.2.1",
     "sentence-transformers>=5.2.0",
     "unstructured>=0.18.21",
+    "langchain-openai>=0.3.0",
+    "tqdm>=4.67.1",
 ]
+
+[project.scripts]
+ungraph = "ungraph.cli.entrypoint:run"
 
 [project.optional-dependencies]
 # Inference - Para fase de inferencia con spaCy NER
@@ -66,6 +73,28 @@ gds = [
     "graphdatascience>=1.18",
 ]
 
+# Línea de comandos (Typer); no requerido para usar la librería como API
+cli = [
+    "typer>=0.12.0",
+]
+
+# Servidor MCP Neo4j para Cursor (stdio): mcp_servers/neo4j_ungraph/server.py
+mcp = [
+    "mcp>=1.2.0",
+]
+
+# Crawl HTTP → HTML en disco para ingesta (httpx)
+crawl = [
+    "httpx>=0.27.0",
+]
+
+# Datos tabulares/semi-estructurados (CSV/XLSX) → grafo (Schema-Guided Ingestion)
+tabular = [
+    "pandas>=2.2",
+    "openpyxl>=3.1",
+    "pyyaml>=6.0",
+]
+
 # Visualización de grafos en Jupyter
 ynet = [
     "yfiles-jupyter-graphs-for-neo4j>=1.7.0",
@@ -77,6 +106,14 @@ dev = [
     "ruff>=0.14.10",
     "matplotlib>=3.10.8",
     "pip>=25.3",
+    # pytest-xdist (often present in dev envs) requires execnet at import time
+    "execnet>=2.1.0",
+    # Tests locales y CI (unit-tests job)
+    "pytest>=8.0",
+    "iniconfig>=2.0",
+    "pytest-cov>=4.0",
+    "pytest-mock>=3.14",
+    "pytest-timeout>=2.3",
 ]
 
 # Experimentos y evaluación
@@ -86,7 +123,10 @@ experiments = [
 
 # Todas las extensiones
 all = [
-    "ungraph[gds,ynet,dev,experiments,infer-all]",
+    "ungraph[gds,ynet,dev,experiments,infer-all,cli,tabular]",
+]
+eval = [
+    "deepeval>=3.9.9",
 ]
 
 [build-system]
@@ -102,7 +142,7 @@ exclude = [
     "ungraph/pipelines",
     "ungraph/data",
     "ungraph/scripts",
-    "ungraph/main.py"
+    "ungraph/main.py",
 ]
 
 # Configuración para TestPyPI
