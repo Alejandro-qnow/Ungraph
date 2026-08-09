@@ -20,41 +20,27 @@ Para uso avanzado, puedes acceder a los componentes internos:
     >>> from ungraph.application.dependencies import create_ingest_document_use_case
 """
 
-# High-level public API
-from pathlib import Path
-from typing import List, Optional, Tuple, Dict, Any
-from dataclasses import dataclass
-import os
+from __future__ import annotations
 
-# Import global configuration
+from dataclasses import dataclass
+import importlib
+import os
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+
+if TYPE_CHECKING:
+    from ungraph.application.use_cases.ingest_document import IngestDocumentUseCase
+    from ungraph.domain.entities.chunk import Chunk
+    from ungraph.domain.services.search_service import SearchResult
+    from ungraph.domain.value_objects.graph_pattern import GraphPattern
+    from ungraph.domain.value_objects.web_document import ExtractionRecipe, WebDocument
+
 try:
     from .core.configuration import get_settings, configure, reset_configuration
 except ImportError:
-    # Fallback for development - should not be needed in installed package
     from ungraph.core.configuration import get_settings, configure, reset_configuration
 
-# Importar componentes internos para uso avanzado
-# Usar imports relativos desde src/ para que funcionen cuando se instale el paquete
-# NOTA: create_ingest_document_use_case se importa de forma lazy en ingest_document()
-# para evitar import circular con application.dependencies
-# Cuando se instala como paquete, los imports deben usar el prefijo ungraph.
-from ungraph.application.use_cases.ingest_document import IngestDocumentUseCase
-from ungraph.domain.entities.chunk import Chunk
-from ungraph.domain.services.search_service import SearchResult
-from ungraph.domain.value_objects.graph_pattern import GraphPattern
-from ungraph.infrastructure.services.neo4j_search_service import Neo4jSearchService
-from ungraph.infrastructure.services.huggingface_embedding_service import HuggingFaceEmbeddingService
-
-# Importar ChunkingMaster para sugerencias
-try:
-    from .utils.chunking_master import ChunkingMaster, ChunkingResult, ChunkingStrategy
-    from langchain_core.documents import Document as LangChainDocument
-except ImportError:
-    # Fallback for development - should not be needed in installed package
-    from ungraph.utils.chunking_master import ChunkingMaster, ChunkingResult, ChunkingStrategy
-    from langchain_core.documents import Document as LangChainDocument
-
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 __all__ = [
     # Configuration functions
     "configure",
@@ -67,13 +53,16 @@ __all__ = [
     "hybrid_search",
     "search_with_pattern",
     "suggest_chunking_strategy",
-    
+    "ingest_tabular",
+
     # Clases para uso avanzado
     "IngestDocumentUseCase",
     "Chunk",
     "SearchResult",
     "ChunkingRecommendation",
     "GraphPattern",
+    "ExtractionRecipe",
+    "WebDocument",
 ]
 
 
@@ -96,7 +85,10 @@ def ingest_document(
     clean_text: bool = True,
     database: Optional[str] = None,
     embedding_model: Optional[str] = None,
-    pattern: Optional["GraphPattern"] = None
+    pattern: Optional["GraphPattern"] = None,
+    extraction_recipe: Optional[Any] = None,
+    source_url: Optional[str] = None,
+    retrieval_optimization: bool = False,
 ) -> List[Chunk]:
     """
     Ingest a document into the knowledge graph.
@@ -115,6 +107,14 @@ def ingest_document(
         database: Neo4j database name (default: from global configuration)
         embedding_model: Embedding model to use (default: from global configuration)
         pattern: Optional graph pattern. If None, uses FILE_PAGE_CHUNK (default: None)
+        extraction_recipe: For ``.html`` / ``.htm``, optional
+            :class:`~ungraph.domain.value_objects.web_document.ExtractionRecipe` (XPath/CSS, excludes).
+        source_url: When ingesting HTML saved from a crawl, the public URL of the page
+            (provenance for chunks; ``source_id`` in metadata).
+        retrieval_optimization: If True, fills derived retrieval text on each chunk and,
+            when using the default Neo4j repository, persists ``(:RetrievalChunk)``
+            linked with ``HAS_RETRIEVAL_VIEW`` from ``(:Chunk)``. Full text remains on
+            ``Chunk.page_content``.
     
     Returns:
         List of created Chunks
@@ -180,6 +180,9 @@ def ingest_document(
         embedding_model=emb_model
     )
     
+    loader_kw: Dict[str, Any] = {}
+    if extraction_recipe is not None:
+        loader_kw["extraction_recipe"] = extraction_recipe
     try:
         # Ejecutar el caso de uso
         chunks = use_case.execute(
@@ -187,7 +190,10 @@ def ingest_document(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
             clean_text=clean_text,
-            pattern=pattern
+            pattern=pattern,
+            source_url=source_url,
+            retrieval_optimization=retrieval_optimization,
+            **loader_kw,
         )
         return chunks
     finally:
@@ -228,6 +234,8 @@ def search(
         ...     print(f"Content: {result.content[:200]}...")
         ...     print("---")
     """
+    from ungraph.infrastructure.services.neo4j_search_service import Neo4jSearchService
+
     if not query_text:
         raise ValueError("Query text cannot be empty")
     
@@ -279,6 +287,9 @@ def vector_search(
         ...     print(f"Score: {result.score:.3f}")
         ...     print(f"Content: {result.content[:200]}...")
     """
+    from ungraph.infrastructure.services.huggingface_embedding_service import HuggingFaceEmbeddingService
+    from ungraph.infrastructure.services.neo4j_search_service import Neo4jSearchService
+
     if not query_text:
         raise ValueError("Query text cannot be empty")
     
@@ -341,6 +352,9 @@ def hybrid_search(
         ...     print(f"Score: {result.score:.3f}")
         ...     print(f"Content: {result.content[:200]}...")
     """
+    from ungraph.infrastructure.services.huggingface_embedding_service import HuggingFaceEmbeddingService
+    from ungraph.infrastructure.services.neo4j_search_service import Neo4jSearchService
+
     if not query_text:
         raise ValueError("Query text cannot be empty")
     
@@ -451,6 +465,8 @@ def search_with_pattern(
         ...     max_depth=1
         ... )
     """
+    from ungraph.infrastructure.services.neo4j_search_service import Neo4jSearchService
+
     if not query_text:
         raise ValueError("Query text cannot be empty")
     
@@ -523,9 +539,14 @@ def suggest_chunking_strategy(
     if not file_path.exists():
         raise FileNotFoundError(f"File does not exist: {file_path}")
     
-    # Cargar documento usando el loader
-    from ungraph.infrastructure.services.langchain_document_loader_service import LangChainDocumentLoaderService
-    from ungraph.infrastructure.services.simple_text_cleaning_service import SimpleTextCleaningService
+    from langchain_core.documents import Document as LangChainDocument
+    from ungraph.infrastructure.services.langchain_document_loader_service import (
+        LangChainDocumentLoaderService,
+    )
+    from ungraph.infrastructure.services.simple_text_cleaning_service import (
+        SimpleTextCleaningService,
+    )
+    from ungraph.utils.chunking_master import ChunkingMaster
     
     text_cleaning_service = SimpleTextCleaningService()
     loader_service = LangChainDocumentLoaderService(text_cleaning_service=text_cleaning_service)
@@ -545,7 +566,7 @@ def suggest_chunking_strategy(
     master = ChunkingMaster()
     
     # Find best strategy
-    result: ChunkingResult = master.find_best_chunking_strategy(
+    result = master.find_best_chunking_strategy(
         documents=[lc_document],
         file_path=file_path,
         chunk_size=chunk_size,
@@ -587,7 +608,7 @@ def suggest_chunking_strategy(
     )
 
 
-def _generate_chunking_explanation(result: ChunkingResult, master: ChunkingMaster) -> str:
+def _generate_chunking_explanation(result: Any, master: Any) -> str:
     """Generate a readable explanation of why this strategy was chosen."""
     strategy_name = result.strategy.value
     doc_type = result.config.get('doc_type', 'unknown')
@@ -629,6 +650,71 @@ def _generate_chunking_explanation(result: ChunkingResult, master: ChunkingMaste
     return "\n".join(explanation_parts)
 
 
-# Export classes for advanced use
-# create_ingest_document_use_case can be imported directly from application.dependencies
-# to avoid circular import
+def ingest_tabular(
+    file_path: str | Path,
+    database: Optional[str] = None,
+    *,
+    apply: bool = False,
+    mapping: Optional[List[Dict[str, Any]]] = None,
+    use_llm: bool = True,
+    batch_size: int = 1000,
+) -> Dict[str, Any]:
+    """Ingest a tabular source (CSV/XLSX) via Schema-Guided Ingestion (SGI).
+
+    Runs alongside the text ETI pipeline: a table's structure is already explicit, so
+    instead of chunking + NLP extraction, the column→role mapping is inferred and rows
+    are materialized as nodes/relationships. Two-step flow:
+
+    - ``apply=False`` (default, dry-run): infer and return the schema proposal WITHOUT
+      writing to the graph. Review/edit it and call again.
+    - ``apply=True``: persist to the graph. If ``mapping`` (confirmed/edited proposals as
+      a list of ``TabularSchemaProposal``-shaped dicts) is given, it is used instead of
+      re-inferring.
+
+    LLM disambiguation (``use_llm``) is only used when ``OPENAI_API_KEY`` is available;
+    otherwise inference is pure heuristic (deterministic).
+
+    Returns:
+        ``{'file_path', 'persisted': bool, 'proposals': [dict...], 'stats': [dict...]}``.
+    """
+    from ungraph.reasoning import ingest_tabular as _ingest_tabular
+
+    return _ingest_tabular(
+        str(file_path),
+        database=database,
+        apply=apply,
+        mapping=mapping,
+        use_llm=use_llm,
+        batch_size=batch_size,
+    )
+
+
+_EXPORT_LAZY = {
+    "IngestDocumentUseCase": (
+        "ungraph.application.use_cases.ingest_document",
+        "IngestDocumentUseCase",
+    ),
+    "Chunk": ("ungraph.domain.entities.chunk", "Chunk"),
+    "SearchResult": ("ungraph.domain.services.search_service", "SearchResult"),
+    "GraphPattern": ("ungraph.domain.value_objects.graph_pattern", "GraphPattern"),
+    "ExtractionRecipe": (
+        "ungraph.domain.value_objects.web_document",
+        "ExtractionRecipe",
+    ),
+    "WebDocument": ("ungraph.domain.value_objects.web_document", "WebDocument"),
+}
+
+
+def __getattr__(name: str) -> Any:
+    """Load public types on first access (keeps `import ungraph` light)."""
+    if name in _EXPORT_LAZY:
+        mod_name, attr_name = _EXPORT_LAZY[name]
+        module = importlib.import_module(mod_name)
+        obj = getattr(module, attr_name)
+        globals()[name] = obj
+        return obj
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def __dir__() -> List[str]:
+    return sorted(set(__all__) | {"__version__", "get_settings"})

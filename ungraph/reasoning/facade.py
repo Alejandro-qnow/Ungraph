@@ -167,3 +167,68 @@ def infer_over_document(
         "inference_mode": settings.inference_mode,
         "inference_active": has_inference,
     }
+
+
+def ingest_tabular(
+    file_path: str,
+    database: Optional[str] = None,
+    *,
+    apply: bool = False,
+    mapping: Optional[list] = None,
+    use_llm: bool = True,
+    batch_size: int = 1000,
+) -> Dict[str, Any]:
+    """Ingesta guiada por esquema (SGI) de una fuente tabular (CSV/XLSX).
+
+    Corre en paralelo al ETI de texto: la estructura de una tabla ya es explícita,
+    así que en vez de chunkear+extraer con NLP se infiere el mapeo columna→rol y se
+    materializan las filas como nodos/relaciones. Flujo de dos pasos:
+
+    - ``apply=False`` (default, dry-run): infiere y devuelve la propuesta de esquema
+      SIN escribir en el grafo. El llamador la revisa/edita y vuelve a llamar.
+    - ``apply=True``: persiste al grafo. Si se pasa ``mapping`` (propuestas
+      confirmadas/editadas, como lista de dicts al estilo ``TabularSchemaProposal``),
+      se usan en lugar de re-inferir.
+
+    La desambiguación LLM se activa con ``use_llm`` solo si hay ``OPENAI_API_KEY``;
+    de lo contrario, inferencia heurística pura (determinista).
+
+    Returns:
+        ``{'file_path', 'persisted': bool, 'proposals': [dict...], 'stats': [dict...]}``.
+        En dry-run ``persisted`` es False y ``stats`` está vacío.
+    """
+    from ungraph.application.dependencies import create_ingest_tabular_use_case
+    from ungraph.domain.value_objects.tabular_schema import TabularSchemaProposal
+
+    path = Path(file_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"Archivo tabular no encontrado: {file_path}")
+
+    db = _resolve_database(database)
+    settings = get_settings()
+    use_case = create_ingest_tabular_use_case(
+        settings=settings, database=db, use_llm_disambiguation=use_llm
+    )
+
+    confirmed: Optional[list] = None
+    if mapping:
+        confirmed = [TabularSchemaProposal.from_dict(m) for m in mapping]
+
+    try:
+        result = use_case.execute(
+            path, dry_run=not apply, mappings=confirmed, batch_size=batch_size
+        )
+    finally:
+        repo = getattr(use_case, "tabular_repository", None)
+        if repo is not None and hasattr(repo, "close"):
+            try:
+                repo.close()
+            except Exception:
+                pass
+
+    return {
+        "file_path": file_path,
+        "persisted": result.persisted,
+        "proposals": [p.to_dict() for p in result.proposals],
+        "stats": list(result.stats),
+    }
