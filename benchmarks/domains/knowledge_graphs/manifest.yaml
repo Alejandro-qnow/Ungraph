@@ -5,7 +5,11 @@ description: >
   (su propio dominio). Gold curable con conocimiento experto -> autovalidación.
 
 corpus:
-  - corpus/kg_survey.md
+  - corpus/kg_survey.md                          # seed gold-aligned (referencia para extracción vs gold)
+  - corpus/2404.16130_graphrag.md                # Edge et al. 2024 (GraphRAG)
+  - corpus/2003.02320_knowledge_graphs_hogan.md  # Hogan et al. 2021 (KG survey)
+  - corpus/2002.00388_kg_survey_ji.md            # Ji et al. 2021 (representation/acquisition)
+  - corpus/2306.08302_llm_kg_roadmap.md          # Pan et al. 2023 (LLM + KG roadmap)
 gold: gold.json
 
 # Espacio de arquitecturas a comparar (factores del DoE end-to-end).
