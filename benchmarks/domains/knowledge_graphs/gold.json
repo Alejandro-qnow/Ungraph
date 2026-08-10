@@ -1,0 +1,58 @@
+{
+  "domain": "knowledge_graphs",
+  "description": "Gold curado (dogfooding) para corpus/kg_survey.md. Formato compatible con reference_corpus_gold.json + expected_inferences (multi-hop) y probe answers.",
+  "entities": [
+    "Knowledge Graph",
+    "RDF",
+    "SPARQL",
+    "Property Graph",
+    "Neo4j",
+    "Cypher",
+    "Ontology",
+    "RDFS",
+    "OWL",
+    "Knowledge Graph Embedding",
+    "TransE",
+    "DistMult",
+    "Link Prediction",
+    "Graph Neural Network",
+    "Named Entity Recognition",
+    "Relation Extraction",
+    "Entity Resolution",
+    "Large Language Model",
+    "GraphRAG"
+  ],
+  "relation_pairs": [
+    {"subject": "SPARQL", "object": "RDF", "predicate_hint": "QUERIES"},
+    {"subject": "Cypher", "object": "Neo4j", "predicate_hint": "QUERY_LANGUAGE_OF"},
+    {"subject": "Neo4j", "object": "Property Graph", "predicate_hint": "IS_A"},
+    {"subject": "OWL", "object": "RDFS", "predicate_hint": "EXTENDS"},
+    {"subject": "TransE", "object": "Knowledge Graph Embedding", "predicate_hint": "IS_A"},
+    {"subject": "Knowledge Graph Embedding", "object": "Link Prediction", "predicate_hint": "ENABLES"},
+    {"subject": "Named Entity Recognition", "object": "Relation Extraction", "predicate_hint": "PRECEDES"},
+    {"subject": "Large Language Model", "object": "Relation Extraction", "predicate_hint": "USED_FOR"},
+    {"subject": "GraphRAG", "object": "Knowledge Graph", "predicate_hint": "RETRIEVES_FROM"}
+  ],
+  "graphrag_probe_queries": [
+    {"query": "Which query language is used by Neo4j?", "answer": "Cypher"},
+    {"query": "What language queries RDF data?", "answer": "SPARQL"},
+    {"query": "Which embedding model represents a relation as a translation?", "answer": "TransE"},
+    {"query": "What does GraphRAG retrieve context from?", "answer": "a Knowledge Graph"}
+  ],
+  "expected_inferences": [
+    {
+      "subject": "Cypher",
+      "object": "Property Graph",
+      "predicate_hint": "QUERIES",
+      "path": ["Cypher -QUERY_LANGUAGE_OF-> Neo4j", "Neo4j -IS_A-> Property Graph"],
+      "rationale": "Cypher es el lenguaje de Neo4j, que es un property graph; luego Cypher consulta property graphs."
+    },
+    {
+      "subject": "Large Language Model",
+      "object": "Knowledge Graph",
+      "predicate_hint": "HELPS_BUILD",
+      "path": ["Large Language Model -USED_FOR-> Relation Extraction", "Relation Extraction -PART_OF-> Knowledge Graph Construction"],
+      "rationale": "Los LLM hacen extracción de relaciones, que construye el grafo."
+    }
+  ]
+}

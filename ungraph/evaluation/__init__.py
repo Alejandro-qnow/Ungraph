@@ -40,6 +40,12 @@ _EXPORTS = {
     "run_grid": "ablation_harness",
     "run_design": "ablation_harness",
     "RESPONSE_KEYS": "ablation_harness",
+    "DomainScorecard": "scorecard",
+    "build_scorecard": "scorecard",
+    "rank_scorecards": "scorecard",
+    "transform_from_benchmark": "scorecard",
+    "transform_from_structural_stats": "scorecard",
+    "reasoning_from_cognitive": "scorecard",
 }
 
 __all__ = list(_EXPORTS)
