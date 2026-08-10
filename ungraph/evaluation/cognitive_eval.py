@@ -111,6 +111,21 @@ class EvidenceIndex:
     def cooccur(self, a: str, b: str) -> bool:
         return any(_names_align(a, p) and _names_align(b, p) for p in self._passages)
 
+    def context_for(self, a: str, b: str, *, max_passages: int = 4) -> List[str]:
+        """Pasajes de evidencia relevantes (priorizando co-ocurrencia) para dar
+        contexto a un crítico. Sin duplicados, acotado a ``max_passages``."""
+        both = [p for p in self._passages if _names_align(a, p) and _names_align(b, p)]
+        either = [
+            p for p in self._passages if _names_align(a, p) or _names_align(b, p)
+        ]
+        out: List[str] = []
+        for p in both + either:
+            if p not in out:
+                out.append(p)
+            if len(out) >= max_passages:
+                break
+        return out
+
 
 # ------------------------------------------------------- verificadores (líneas base)
 Verifier = Callable[[CandidateFact, EvidenceIndex], VerificationOutcome]

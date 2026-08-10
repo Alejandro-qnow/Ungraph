@@ -23,7 +23,9 @@ from ungraph.evaluation.cognitive_eval import (
     make_candidates,
 )
 from ungraph.reasoning.agentic import (
+    FactJudgment,
     critique_fact,
+    make_llm_fact_critic,
     make_structural_verifier,
 )
 
@@ -104,3 +106,76 @@ def test_structural_verifier_is_measurable_with_cognitive_eval():
     # el verificador estructural no alucina más que el piso y rechaza distractores
     assert struct["hallucination_rate"] <= base["hallucination_rate"]
     assert struct["distractor_rejection_rate"] > 0.0
+
+
+# --------------------------------------------------------------- crítico LLM
+class _FakeLLM:
+    """Chat model falso: devuelve un JSON de faithfulness fijo."""
+
+    def __init__(self, content: str):
+        self._content = content
+        self.calls = 0
+
+    def invoke(self, prompt):
+        self.calls += 1
+
+        class _R:
+            content = self._content
+
+        return _R()
+
+
+def test_make_llm_fact_critic_parses_json():
+    llm = _FakeLLM('{"supported": false, "confidence": 0.9, "rationale": "solo co-ocurren"}')
+    critic = make_llm_fact_critic(llm)
+    j = critic(CandidateFact("Alice Chen", "Mountain View", "LOCATED_IN"), ["ctx"])
+    assert isinstance(j, FactJudgment)
+    assert j.supported is False and j.confidence == pytest.approx(0.9)
+    assert llm.calls == 1
+
+
+def test_llm_signal_appears_in_report():
+    ev = _ev()
+    critic = lambda c, passages: FactJudgment(supported=True, confidence=0.8)
+    rep = critique_fact(
+        CandidateFact("Alice Chen", "Acme Robotics", "WORKS_FOR"), ev, llm_critic=critic
+    )
+    assert any(s.name == "llm_faithfulness" for s in rep.signals)
+
+
+def test_llm_critic_failure_degrades_gracefully():
+    ev = _ev()
+
+    def _boom(c, passages):
+        raise RuntimeError("llm down")
+
+    rep = critique_fact(
+        CandidateFact("Alice Chen", "Acme Robotics", "WORKS_FOR"), ev, llm_critic=_boom
+    )
+    # sin señal LLM, pero el critique sigue produciendo un reporte determinista
+    assert not any(s.name == "llm_faithfulness" for s in rep.signals)
+    assert rep.score > 0
+
+
+def test_llm_gate_with_oracle_eliminates_residual_hallucination():
+    """Techo de la arquitectura: un crítico que juzga bien (oráculo sobre is_distractor)
+    con llm_gate lleva la alucinación a 0 sin perder recall — algo que las señales
+    léxicas no lograban (36% residual por distractores que co-ocurren)."""
+    ev = _ev()
+    gold = {
+        "entities": ["Alice Chen", "Acme Robotics", "Mountain View", "Google"],
+        "relation_pairs": [
+            {"subject": "Alice Chen", "object": "Acme Robotics", "predicate_hint": "WORKS_FOR"},
+            {"subject": "Acme Robotics", "object": "Mountain View", "predicate_hint": "LOCATED_IN"},
+            {"subject": "Alice Chen", "object": "Google", "predicate_hint": "PREVIOUS_EMPLOYMENT"},
+        ],
+    }
+    candidates = make_candidates(gold)
+
+    def oracle(c: CandidateFact, passages):
+        return FactJudgment(supported=not c.is_distractor, confidence=0.95)
+
+    verifier = make_structural_verifier(ontology=_ONTO, llm_critic=oracle, llm_gate=True)
+    m = evaluate_verifier(candidates, verifier, ev)
+    assert m["hallucination_rate"] == 0.0
+    assert m["real_recall"] == 1.0
