@@ -38,8 +38,20 @@ class KnowledgeMiningUseCase:
         self._inference = inference_service
         self._index = index_service
 
-    def execute(self, *, use_tqdm: bool = True) -> KnowledgeMiningResult:
-        ids = self._repo.list_chunk_ids_without_derived_facts()
+    def execute(self, *, use_tqdm: bool = True, force: bool = False) -> KnowledgeMiningResult:
+        """
+        Mina facts/relaciones sobre chunks.
+
+        Args:
+            force: si es ``True``, re-mina TODOS los chunks (no solo los que carecen
+                de facts derivados) borrando antes las derivaciones ``Extracted``
+                previas. Permite actualizar una extracción NER previa con LLM sin que
+                los chunks queden "congelados". Respeta lo ``Curated``/``Invalid``.
+        """
+        if force and hasattr(self._repo, "list_all_chunk_ids"):
+            ids = self._repo.list_all_chunk_ids()
+        else:
+            ids = self._repo.list_chunk_ids_without_derived_facts()
         facts_total = 0
         relations_total = 0
         errors = 0
@@ -49,7 +61,7 @@ class KnowledgeMiningUseCase:
             try:
                 from tqdm.auto import tqdm
 
-                iterator = tqdm(ids, desc="kmining", unit="chunk")
+                iterator = tqdm(ids, desc="kmining(force)" if force else "kmining", unit="chunk")
             except ImportError:
                 pass
         for cid in iterator:
@@ -57,6 +69,8 @@ class KnowledgeMiningUseCase:
             if not chunk or not (chunk.page_content or "").strip():
                 continue
             try:
+                if force and hasattr(self._repo, "delete_derived_facts_for_chunk"):
+                    self._repo.delete_derived_facts_for_chunk(cid)
                 entities = self._inference.extract_entities(chunk)
                 rels = self._inference.extract_relations(chunk, entities)
                 facts = self._inference.infer_facts(chunk, entities=entities)
