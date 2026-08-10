@@ -44,6 +44,24 @@ Estructuras que representan conocimiento factual y relaciones entre entidades de
 - Relaciones semánticas (AUTOR_DE, PARTE_DE, etc.)
 - Requieren estrategias especiales para recuperación (Templates de Cypher, Generación Dinámica)
 
+## Matriz de referencia Ungraph (patrón ↔ API ↔ prerequisitos)
+
+Tabla viva alineada con la visión del producto (GraphRAG **parcial** donde aún falta evidencia end-to-end). Los nombres `pattern_type` corresponden a `Neo4jSearchService.search_with_pattern`.
+
+| Patrón de referencia | Prerrequisitos en Neo4j | API principal | Estado en Ungraph |
+|----------------------|-------------------------|---------------|-------------------|
+| Basic / vector RAG | Nodos `Chunk` con índice vector `chunk_embeddings` (ingesta FILE_PAGE_CHUNK) | `Neo4jSearchService.vector_search`, `search_with_pattern(..., "basic")` | Implementado |
+| Full-text | Índice full-text `chunk_content` sobre `Chunk.page_content` | `Neo4jSearchService.text_search` | Implementado |
+| Híbrido texto+vector | Ambos índices anteriores | `Neo4jSearchService.hybrid_search` | Implementado |
+| Parent–child | Lexical graph: `Page`–`HAS_CHUNK`–`Chunk` (p. ej. patrón FILE_PAGE_CHUNK) | `search_with_pattern(..., "parent_child")` | Parcial (depende de grafo jerárquico real) |
+| Filtrado por metadatos | Propiedades en nodos (p. ej. `filename`, `source_document_uid`) | `search_with_pattern(..., "metadata_filtering", metadata_filters=...)` | Parcial |
+| Graph-enhanced vector | `Chunk` + vecinos en grafo; embeddings listos | `search_with_pattern(..., "graph_enhanced")` | Exploratorio / prerequisitos GDS según entorno |
+| Local (comunidad local) | Comunidades o subgrafos preparados según módulo avanzado | `search_with_pattern(..., "local")` | Exploratorio |
+| Community summary | Resúmenes de comunidad (GDS u otra preparación) | `search_with_pattern(..., "community_summary")` | Exploratorio (GDS opcional `ungraph[gds]`) |
+| Evaluación recuperación (DeepEval) | Chunks persistidos + índices usados por la búsqueda elegida | `ungraph.evaluation.retrieve_*` + `evaluate_retrieval_with_deepeval` (extra `ungraph[eval]`) | Opcional, no acoplado al núcleo |
+
+Para invariantes de topología lexical (`NEXT_CHUNK` acotado por `source_document_uid`), ver `ungraph.utils.graph_topology_validate`.
+
 ## Patrones de Búsqueda GraphRAG
 
 ### 1. Basic Retriever (Recuperación Básica)

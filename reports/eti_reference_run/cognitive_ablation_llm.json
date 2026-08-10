@@ -1,0 +1,75 @@
+{
+  "model": "gpt-4o-mini",
+  "verifiers": {
+    "accept_all (naive)": {
+      "n_candidates": 28,
+      "n_real": 3,
+      "n_distractor": 25,
+      "true_accept": 3,
+      "false_accept": 25,
+      "false_reject": 0,
+      "true_reject": 0,
+      "acceptance_precision": 0.1071,
+      "real_recall": 1.0,
+      "f1": 0.1935,
+      "distractor_rejection_rate": 0.0,
+      "hallucination_rate": 1.0
+    },
+    "grounded_cooccurrence": {
+      "n_candidates": 28,
+      "n_real": 3,
+      "n_distractor": 25,
+      "true_accept": 2,
+      "false_accept": 9,
+      "false_reject": 1,
+      "true_reject": 16,
+      "acceptance_precision": 0.1818,
+      "real_recall": 0.6667,
+      "f1": 0.2857,
+      "distractor_rejection_rate": 0.64,
+      "hallucination_rate": 0.36
+    },
+    "structural (onto)": {
+      "n_candidates": 28,
+      "n_real": 3,
+      "n_distractor": 25,
+      "true_accept": 2,
+      "false_accept": 9,
+      "false_reject": 1,
+      "true_reject": 16,
+      "acceptance_precision": 0.1818,
+      "real_recall": 0.6667,
+      "f1": 0.2857,
+      "distractor_rejection_rate": 0.64,
+      "hallucination_rate": 0.36
+    },
+    "structural+LLM (weighted)": {
+      "n_candidates": 28,
+      "n_real": 3,
+      "n_distractor": 25,
+      "true_accept": 3,
+      "false_accept": 10,
+      "false_reject": 0,
+      "true_reject": 15,
+      "acceptance_precision": 0.2308,
+      "real_recall": 1.0,
+      "f1": 0.375,
+      "distractor_rejection_rate": 0.6,
+      "hallucination_rate": 0.4
+    },
+    "structural+LLM-gate": {
+      "n_candidates": 28,
+      "n_real": 3,
+      "n_distractor": 25,
+      "true_accept": 3,
+      "false_accept": 3,
+      "false_reject": 0,
+      "true_reject": 22,
+      "acceptance_precision": 0.5,
+      "real_recall": 1.0,
+      "f1": 0.6667,
+      "distractor_rejection_rate": 0.88,
+      "hallucination_rate": 0.12
+    }
+  }
+}

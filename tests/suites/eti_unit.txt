@@ -1,0 +1,11 @@
+# ETI measurable unit suite (no Neo4j) — kept in sync with CI job eti-measurable
+tests/unit/test_experiment_run_doe_unit.py
+tests/unit/test_doe_bridge_unit.py
+tests/unit/test_probe_qa_eval_unit.py
+tests/unit/test_scorecard_unit.py
+tests/unit/test_capa0_artifact_unit.py
+tests/unit/test_family_wave_unit.py
+tests/unit/test_chunk_wave_unit.py
+tests/unit/test_neo4j_gold_metrics_unit.py
+tests/unit/test_lexical_pattern_inference_unit.py
+tests/unit/test_domain_pipeline_offline_unit.py

@@ -1,0 +1,353 @@
+{
+  "domain": "knowledge_graphs",
+  "mode": "online",
+  "hi_wave": false,
+  "wave": "h_chunk",
+  "doe_path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\doe_h_chunk.yaml",
+  "design_id": "D-optimal-b8-s1",
+  "design_meta": {
+    "design_id": "D-optimal-b8-s1",
+    "method": "D-optimal",
+    "rationale": "To identify influential factors with 3 factors with a budget of 8 runs and a 'linear' model, the best compromise under your priorities is D-optimal (7 runs).",
+    "summary": "Recommendation: D-optimal\n----------------------------------------------\nTo identify influential factors with 3 factors with a budget of 8 runs and a 'linear' model, the best compromise under your priorities is D-optimal (7 runs).\n\nEvaluated alternatives:\n        method  runs  D_eff  G_eff  SPV_mean  in_budget  supports_model\nFull factorial    16  100.0   18.6     10.54      False            True\n     D-optimal     7    NaN    NaN       NaN       True           False\n\nCaveats:\n  - No catalog design fits the budget (8) and supports the model; recommending the smallest viable option (D-optimal, 7 runs). Increase the budget or reduce the model.\n  - Recommendation is conditional on model_order='linear' (and effect_size=1.0 for power).\n  - \"Best\" is a multi-objective trade-off (runs vs precision vs prediction): adjust 'priorities' for your case.\n  - After the first experimental wave, use propose_next_runs / augment_design to choose the next batch (sequential DoE) instead of restarting from scratch.\n  - Categorical factors present: RSM designs (Box-Behnken/CCD) assume continuous factors; prefer full factorial or D-optimal.",
+    "budget": 8,
+    "seed": 1,
+    "n_runs": 7,
+    "factor_names": [
+      "chunk_size",
+      "top_k",
+      "rag"
+    ],
+    "wave": "h_chunk",
+    "doe_path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\doe_h_chunk.yaml",
+    "fixed": {
+      "inference": "ner",
+      "chunking": "recursive",
+      "chunk_overlap": 200,
+      "mode": "online"
+    },
+    "response_primary": "answer_correctness"
+  },
+  "n_runs": 7,
+  "results_csv": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\results_h_chunk.csv",
+  "hi_wave_verdict": null,
+  "ranking": [
+    {
+      "composite_score": 0.7746,
+      "run_id": "affb69f1-6eb6-4fbe-8252-be9f9020a833",
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1500,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "vector",
+        "top_k": 1,
+        "mode": "online"
+      }
+    },
+    {
+      "composite_score": 0.7746,
+      "run_id": "bb265f87-3b5b-4b4f-a3db-9e76432dbc26",
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1500,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "text",
+        "top_k": 3,
+        "mode": "online"
+      }
+    },
+    {
+      "composite_score": 0.7746,
+      "run_id": "70b17d9a-13bf-40de-ae3d-ae7c63028f71",
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 256,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "text",
+        "top_k": 3,
+        "mode": "online"
+      }
+    },
+    {
+      "composite_score": 0.7746,
+      "run_id": "c11cbfce-90ba-45ef-acc0-b5b8b4373e21",
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1500,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "text",
+        "top_k": 1,
+        "mode": "online"
+      }
+    },
+    {
+      "composite_score": 0.7746,
+      "run_id": "248d6db2-b1e2-4b86-9c5f-22b02d4d49fb",
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1500,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "vector",
+        "top_k": 3,
+        "mode": "online"
+      }
+    },
+    {
+      "composite_score": 0.7746,
+      "run_id": "a003c77e-24aa-48b8-9e2a-075b5e2aa19d",
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 256,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "vector",
+        "top_k": 3,
+        "mode": "online"
+      }
+    },
+    {
+      "composite_score": 0.759,
+      "run_id": "0b065049-fdb4-4b29-912f-2010f1495c3e",
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 256,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "vector",
+        "top_k": 1,
+        "mode": "online"
+      }
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "affb69f1-6eb6-4fbe-8252-be9f9020a833",
+      "path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\affb69f1-6eb6-4fbe-8252-be9f9020a833.json",
+      "composite_score": 0.7746,
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1500,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "vector",
+        "top_k": 1,
+        "mode": "online"
+      },
+      "transform": {
+        "entity_recall": 0.4737,
+        "n_gold_entities": 19,
+        "n_hit_entities": 9,
+        "n_graph_entities": 12,
+        "relation_pair_recall": 0.3333,
+        "n_gold_pairs": 9,
+        "n_hit_pairs": 3,
+        "evidence_coverage": 1.0,
+        "n_facts": 15,
+        "n_with_provenance": 15
+      },
+      "rag_qa": {
+        "answer_correctness": 1.0,
+        "n_probes": 8,
+        "n_correct": 8,
+        "eval_mode": "topk_retrieved"
+      }
+    },
+    {
+      "run_id": "bb265f87-3b5b-4b4f-a3db-9e76432dbc26",
+      "path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\bb265f87-3b5b-4b4f-a3db-9e76432dbc26.json",
+      "composite_score": 0.7746,
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1500,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "text",
+        "top_k": 3,
+        "mode": "online"
+      },
+      "transform": {
+        "entity_recall": 0.4737,
+        "n_gold_entities": 19,
+        "n_hit_entities": 9,
+        "n_graph_entities": 12,
+        "relation_pair_recall": 0.3333,
+        "n_gold_pairs": 9,
+        "n_hit_pairs": 3,
+        "evidence_coverage": 1.0,
+        "n_facts": 15,
+        "n_with_provenance": 15
+      },
+      "rag_qa": {
+        "answer_correctness": 1.0,
+        "n_probes": 8,
+        "n_correct": 8,
+        "eval_mode": "topk_retrieved"
+      }
+    },
+    {
+      "run_id": "70b17d9a-13bf-40de-ae3d-ae7c63028f71",
+      "path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\70b17d9a-13bf-40de-ae3d-ae7c63028f71.json",
+      "composite_score": 0.7746,
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 256,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "text",
+        "top_k": 3,
+        "mode": "online"
+      },
+      "transform": {
+        "entity_recall": 0.4737,
+        "n_gold_entities": 19,
+        "n_hit_entities": 9,
+        "n_graph_entities": 15,
+        "relation_pair_recall": 0.3333,
+        "n_gold_pairs": 9,
+        "n_hit_pairs": 3,
+        "evidence_coverage": 1.0,
+        "n_facts": 77,
+        "n_with_provenance": 77
+      },
+      "rag_qa": {
+        "answer_correctness": 1.0,
+        "n_probes": 8,
+        "n_correct": 8,
+        "eval_mode": "topk_retrieved"
+      }
+    },
+    {
+      "run_id": "c11cbfce-90ba-45ef-acc0-b5b8b4373e21",
+      "path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\c11cbfce-90ba-45ef-acc0-b5b8b4373e21.json",
+      "composite_score": 0.7746,
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1500,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "text",
+        "top_k": 1,
+        "mode": "online"
+      },
+      "transform": {
+        "entity_recall": 0.4737,
+        "n_gold_entities": 19,
+        "n_hit_entities": 9,
+        "n_graph_entities": 12,
+        "relation_pair_recall": 0.3333,
+        "n_gold_pairs": 9,
+        "n_hit_pairs": 3,
+        "evidence_coverage": 1.0,
+        "n_facts": 15,
+        "n_with_provenance": 15
+      },
+      "rag_qa": {
+        "answer_correctness": 1.0,
+        "n_probes": 8,
+        "n_correct": 8,
+        "eval_mode": "topk_retrieved"
+      }
+    },
+    {
+      "run_id": "248d6db2-b1e2-4b86-9c5f-22b02d4d49fb",
+      "path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\248d6db2-b1e2-4b86-9c5f-22b02d4d49fb.json",
+      "composite_score": 0.7746,
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1500,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "vector",
+        "top_k": 3,
+        "mode": "online"
+      },
+      "transform": {
+        "entity_recall": 0.4737,
+        "n_gold_entities": 19,
+        "n_hit_entities": 9,
+        "n_graph_entities": 12,
+        "relation_pair_recall": 0.3333,
+        "n_gold_pairs": 9,
+        "n_hit_pairs": 3,
+        "evidence_coverage": 1.0,
+        "n_facts": 15,
+        "n_with_provenance": 15
+      },
+      "rag_qa": {
+        "answer_correctness": 1.0,
+        "n_probes": 8,
+        "n_correct": 8,
+        "eval_mode": "topk_retrieved"
+      }
+    },
+    {
+      "run_id": "0b065049-fdb4-4b29-912f-2010f1495c3e",
+      "path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\0b065049-fdb4-4b29-912f-2010f1495c3e.json",
+      "composite_score": 0.759,
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 256,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "vector",
+        "top_k": 1,
+        "mode": "online"
+      },
+      "transform": {
+        "entity_recall": 0.4737,
+        "n_gold_entities": 19,
+        "n_hit_entities": 9,
+        "n_graph_entities": 15,
+        "relation_pair_recall": 0.3333,
+        "n_gold_pairs": 9,
+        "n_hit_pairs": 3,
+        "evidence_coverage": 1.0,
+        "n_facts": 77,
+        "n_with_provenance": 77
+      },
+      "rag_qa": {
+        "answer_correctness": 0.875,
+        "n_probes": 8,
+        "n_correct": 7,
+        "eval_mode": "topk_retrieved"
+      }
+    },
+    {
+      "run_id": "a003c77e-24aa-48b8-9e2a-075b5e2aa19d",
+      "path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\a003c77e-24aa-48b8-9e2a-075b5e2aa19d.json",
+      "composite_score": 0.7746,
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 256,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "vector",
+        "top_k": 3,
+        "mode": "online"
+      },
+      "transform": {
+        "entity_recall": 0.4737,
+        "n_gold_entities": 19,
+        "n_hit_entities": 9,
+        "n_graph_entities": 15,
+        "relation_pair_recall": 0.3333,
+        "n_gold_pairs": 9,
+        "n_hit_pairs": 3,
+        "evidence_coverage": 1.0,
+        "n_facts": 77,
+        "n_with_provenance": 77
+      },
+      "rag_qa": {
+        "answer_correctness": 1.0,
+        "n_probes": 8,
+        "n_correct": 8,
+        "eval_mode": "topk_retrieved"
+      }
+    }
+  ]
+}

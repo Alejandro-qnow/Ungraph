@@ -1,0 +1,52 @@
+{
+  "schema": "ungraph.capa0/v1",
+  "run_id": "68ffecb7-b7cc-46a7-8b0c-892291ae0a65",
+  "experiment_run_path": "68ffecb7-b7cc-46a7-8b0c-892291ae0a65.json",
+  "domain": "knowledge_graphs",
+  "architecture": {
+    "chunking": "recursive",
+    "chunk_size": 1000,
+    "chunk_overlap": 200,
+    "inference": "ner",
+    "rag": "text",
+    "top_k": 5,
+    "mode": "online"
+  },
+  "corpus_paths": [
+    "corpus/kg_survey.md"
+  ],
+  "gold_path": "gold.json",
+  "seed": 0,
+  "git_sha": "33af9d7",
+  "gate": {
+    "entity_recall": 0.4737,
+    "relation_pair_recall": 0.3333,
+    "evidence_coverage": 1.0,
+    "answer_correctness": 1.0,
+    "n_facts": 17,
+    "n_graph_entities": 12
+  },
+  "graph_stats": {
+    "node_counts_by_label": {
+      "File": 1,
+      "Page": 1,
+      "Chunk": 3,
+      "Fact": 17,
+      "Entity": 12,
+      "BibliographicArticle": 1
+    },
+    "relationship_counts_by_type": {
+      "CONTAINS": 1,
+      "HAS_CHUNK": 3,
+      "NEXT_CHUNK": 2,
+      "MENTIONS": 16,
+      "DERIVED_FROM": 17,
+      "CO_OCCURS_WITH": 39
+    },
+    "collected_at_utc": "2026-08-10T19:14:06Z",
+    "database": "neo4j"
+  },
+  "frozen_at_utc": "2026-08-10T19:14:06Z",
+  "reload_protocol": "wipe_reingest_pinned",
+  "notes": "Capa 0 freeze: recipe + gate Y; reload=wipe→re-ingest pinned (no Neo4j dump)."
+}

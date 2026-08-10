@@ -1,6 +1,6 @@
 {
   "domain": "knowledge_graphs",
-  "description": "Gold curado (dogfooding) para corpus/kg_survey.md. Formato compatible con reference_corpus_gold.json + expected_inferences (multi-hop) y probe answers.",
+  "description": "Gold curado (dogfooding) para corpus/kg_survey.md. Probes localizados (sección-específicos) para Y discriminativas H_chunk; containment estricto en frases largas.",
   "entities": [
     "Knowledge Graph",
     "RDF",
@@ -34,10 +34,54 @@
     {"subject": "GraphRAG", "object": "Knowledge Graph", "predicate_hint": "RETRIEVES_FROM"}
   ],
   "graphrag_probe_queries": [
-    {"query": "Which query language is used by Neo4j?", "answer": "Cypher"},
-    {"query": "What language queries RDF data?", "answer": "SPARQL"},
-    {"query": "Which embedding model represents a relation as a translation?", "answer": "TransE"},
-    {"query": "What does GraphRAG retrieve context from?", "answer": "a Knowledge Graph"}
+    {
+      "query": "Which bilinear embedding model is named alongside TransE?",
+      "answer": "DistMult",
+      "difficulty": "hard",
+      "section_hint": "Learning over graphs"
+    },
+    {
+      "query": "What construction step merges duplicate entities that refer to the same real-world object?",
+      "answer": "Entity Resolution",
+      "difficulty": "hard",
+      "section_hint": "Construction"
+    },
+    {
+      "query": "GraphRAG retrieves context from a Knowledge Graph instead of what?",
+      "answer": "flat vector index",
+      "difficulty": "hard",
+      "section_hint": "Retrieval-augmented generation"
+    },
+    {
+      "query": "Why are property graphs favored for operational workloads?",
+      "answer": "Cypher expresses traversals concisely",
+      "difficulty": "hard",
+      "section_hint": "Foundations"
+    },
+    {
+      "query": "What richer constructs does OWL add when it extends RDFS?",
+      "answer": "property restrictions",
+      "difficulty": "hard",
+      "section_hint": "Foundations"
+    },
+    {
+      "query": "What missing-relationship task do Knowledge Graph Embeddings enable?",
+      "answer": "link prediction",
+      "difficulty": "medium",
+      "section_hint": "Learning over graphs"
+    },
+    {
+      "query": "What does a Graph Neural Network aggregate to compute node representations?",
+      "answer": "information from a node's neighbors",
+      "difficulty": "hard",
+      "section_hint": "Learning over graphs"
+    },
+    {
+      "query": "Which query language is used by Neo4j?",
+      "answer": "Cypher",
+      "difficulty": "easy",
+      "section_hint": "Foundations"
+    }
   ],
   "expected_inferences": [
     {

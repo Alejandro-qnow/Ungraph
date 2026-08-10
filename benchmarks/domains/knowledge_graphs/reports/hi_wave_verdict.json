@@ -1,0 +1,11 @@
+{
+  "hypothesis": "H_I",
+  "entity_recall_none": 0.0,
+  "entity_recall_ner": 0.4737,
+  "answer_correctness_none": 1.0,
+  "answer_correctness_ner": 1.0,
+  "graph_improves": true,
+  "task_does_not_collapse": true,
+  "pass": true,
+  "note": "PASS: ner > none en entity_recall y tarea no colapsa"
+}

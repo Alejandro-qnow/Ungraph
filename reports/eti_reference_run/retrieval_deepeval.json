@@ -1,0 +1,5 @@
+{
+  "available": false,
+  "reason": "DeepEval is not installed. Install with: pip install 'ungraph[eval]'",
+  "hint": "pip install 'ungraph[eval]'"
+}

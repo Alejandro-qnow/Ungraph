@@ -1,0 +1,89 @@
+site_name: Ungraph Docs
+site_description: Documentación para desarrolladores de Ungraph — ETI, GraphRAG y Neo4j
+site_url: http://127.0.0.1:8000/
+docs_dir: docs
+repo_url: https://github.com/qnow-tech/Ungraph
+repo_name: Ungraph
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  language: es
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Modo oscuro
+    - scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Modo claro
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+
+plugins:
+  - search:
+      lang:
+        - es
+        - en
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Inicio: index.md
+  - Producto:
+      - Documento de producto: PRODUCT.md
+      - Visión y tutoriales: VISION_AND_TUTORIALS.md
+  - Desarrollo:
+      - Flujo de trabajo: DEVELOPMENT_WORKFLOW.md
+      - Instalación e inferencia: INSTALLATION_INFERENCE.md
+  - Conceptos:
+      - Introducción: concepts/sp-introduction.md
+      - Arquitectura: concepts/sp-architecture.md
+      - Slot Infer (I/O): concepts/inference-slot.md
+      - Patrones de grafo: concepts/sp-graph-patterns.md
+      - Grafos léxicos: concepts/sp-lexical-graphs.md
+  - Guías:
+      - Inicio rápido: guides/sp-quickstart.md
+      - Ingesta: guides/sp-ingestion.md
+      - Búsqueda: guides/search.md
+      - Patrones personalizados: guides/sp-custom-patterns.md
+  - API:
+      - API pública: api/sp-public-api.md
+      - Patrones de búsqueda: api/sp-search-patterns.md
+      - Configuración: api/sp-configuration.md
+      - Patrones avanzados: api/sp-advanced-search-patterns.md
+  - Teoría:
+      - GraphRAG: theory/sp-graphrag.md
+      - Neo4j: theory/sp-neo4j.md
+      - Clean Architecture: theory/sp-clean-architecture.md
+  - Tutoriales:
+      - Índice: tutoriales/README.md
+      - Primer grafo: tutoriales/sp-01-primer-grafo.md
+      - Modos de búsqueda: tutoriales/sp-02-modos-de-busqueda.md
+      - Ingesta multifuente: tutoriales/sp-03-ingesta-multifuente.md

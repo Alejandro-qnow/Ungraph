@@ -6,6 +6,17 @@ This guide helps you get started with Ungraph in minutes.
 
 ```bash
 pip install ungraph
+pip install ungraph[cli]
+```
+
+With Neo4j configured (`.env` or `UNGRAPH_NEO4J_*` / `NEO4J_*`):
+
+```bash
+ungraph --help
+ungraph setup --database-init
+ungraph graph --ping
+ungraph ingest --path path/to/file.md
+ungraph ingest --folder ./documents
 ```
 
 ## Initial Configuration

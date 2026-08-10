@@ -154,6 +154,67 @@ def reasoning_from_cognitive(metrics: Dict[str, Any]) -> Dict[str, Any]:
     return {k: metrics[k] for k in keys if metrics and k in metrics}
 
 
+def evidence_coverage_from_counts(
+    *,
+    n_facts: int,
+    n_with_provenance: int,
+) -> Dict[str, Any]:
+    """Fracción de facts/rels con provenance (``provenance_ref`` / DERIVED_FROM)."""
+    n_facts = int(n_facts or 0)
+    n_with_provenance = int(n_with_provenance or 0)
+    cov = (n_with_provenance / n_facts) if n_facts > 0 else 0.0
+    return {
+        "evidence_coverage": round(min(1.0, max(0.0, cov)), 4),
+        "n_facts": n_facts,
+        "n_with_provenance": n_with_provenance,
+    }
+
+
+def extract_from_chunking_downstream(score: Any) -> Dict[str, Any]:
+    """Mapea ``StrategyRetrievalScore`` / dict al bloque extract (+ mrr/hit)."""
+    if hasattr(score, "to_json_obj"):
+        data = score.to_json_obj()
+    elif isinstance(score, dict):
+        data = score
+    else:
+        return {}
+    out: Dict[str, Any] = {
+        "n_chunks": data.get("n_chunks"),
+        "mrr": data.get("mrr"),
+        "probes_covered": data.get("probes_covered"),
+        "probes_total": data.get("probes_total"),
+    }
+    hit = data.get("hit_rate") or {}
+    if isinstance(hit, dict):
+        # prefer hit@5 then hit@3 then first available
+        for k in ("5", "3", "1"):
+            if k in hit:
+                out["hit_at_k"] = hit[k]
+                break
+        else:
+            if hit:
+                out["hit_at_k"] = next(iter(hit.values()))
+    return {k: v for k, v in out.items() if v is not None}
+
+
+def rag_qa_from_probe_eval(probe_metrics: Dict[str, Any]) -> Dict[str, Any]:
+    """Bloque rag_qa desde ``evaluate_answer_containment`` (+ opc. DeepEval)."""
+    out: Dict[str, Any] = {}
+    if not probe_metrics:
+        return out
+    if "answer_correctness" in probe_metrics:
+        out["answer_correctness"] = probe_metrics["answer_correctness"]
+    if "n_probes" in probe_metrics:
+        out["n_probes"] = probe_metrics["n_probes"]
+    if "n_correct" in probe_metrics:
+        out["n_correct"] = probe_metrics["n_correct"]
+    if "contextual_relevancy" in probe_metrics:
+        out["contextual_relevancy"] = probe_metrics["contextual_relevancy"]
+    if "eval_mode" in probe_metrics:
+        out["eval_mode"] = probe_metrics["eval_mode"]
+    return out
+
+
 def build_scorecard(
     domain: str,
     architecture: Dict[str, Any],

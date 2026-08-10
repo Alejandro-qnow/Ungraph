@@ -1,0 +1,30 @@
+name: Bug
+description: Comportamiento incorrecto o regresión
+title: "[fix] "
+labels: ["fix", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Convención de rama: `fix/<nombre-kebab>`. Commits: `fix(scope): …`
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamiento esperado
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Comportamiento actual
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Pasos para reproducir
+      description: Versión de Ungraph, Python, Neo4j (si aplica), fragmento mínimo.
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / traza (opcional)

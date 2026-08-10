@@ -171,7 +171,10 @@ class Settings(BaseSettings):
     # Inference Configuration
     inference_mode: str = Field(
         default="ner",
-        description="Inference mode: 'ner' (spaCy NER baseline), 'llm' (semantic relations with LLM), or 'hybrid'"
+        description=(
+            "Inference mode: 'ner' (spaCy NER), 'pattern' (symbolic lexical), "
+            "'llm' (OpenAI), or 'hybrid' (planned)"
+        )
     )
     inference_model_budget: Literal["economy", "balanced", "quality"] = Field(
         default="balanced",

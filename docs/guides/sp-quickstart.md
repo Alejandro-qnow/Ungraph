@@ -6,6 +6,18 @@ Esta guía te ayudará a empezar con Ungraph en minutos.
 
 ```bash
 pip install ungraph
+# CLI opcional (Typer): ungraph graph ping, ingest file, etc.
+pip install ungraph[cli]
+```
+
+Con Neo4j configurado (`.env` o variables `UNGRAPH_NEO4J_*` / `NEO4J_*`):
+
+```bash
+ungraph --help
+ungraph setup --database-init
+ungraph graph --ping
+ungraph ingest --path ruta/al/archivo.md
+ungraph ingest --folder ./documentos
 ```
 
 ## Configuración Inicial

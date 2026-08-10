@@ -1,0 +1,19 @@
+name: Research / spike
+description: Exploración, prototipo, lectura; entregable suele ser nota o follow-up
+title: "[research] "
+labels: ["research", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Rama: `research/<nombre>`. Commits: `chore(research): …` o `docs(research): …` — ver `docs/DEVELOPMENT_WORKFLOW.md`.
+  - type: textarea
+    id: question
+    attributes:
+      label: Pregunta o hipótesis
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Resultado esperado (issue de seguimiento, doc, prototipo descartable)

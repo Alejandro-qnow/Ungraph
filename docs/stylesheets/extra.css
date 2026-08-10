@@ -1,0 +1,30 @@
+/* Branding ligero Ungraph — ajustar variables para look propio */
+:root {
+  --ungraph-accent: #0d9488;
+  --ungraph-ink: #0f172a;
+}
+
+.ungraph-announce {
+  text-align: center;
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
+}
+
+/* Tipografía de contenido un poco más legible en guías largas */
+.md-typeset {
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.md-typeset h1 {
+  color: var(--ungraph-ink);
+  font-weight: 700;
+}
+
+.md-typeset a {
+  color: var(--ungraph-accent);
+}
+
+[data-md-color-scheme="slate"] .md-typeset h1 {
+  color: #e2e8f0;
+}

@@ -1,0 +1,10 @@
+{
+  "retained_factors": [
+    "chunking",
+    "chunk_size",
+    "inference",
+    "rag"
+  ],
+  "response": "composite_score",
+  "notes": ""
+}

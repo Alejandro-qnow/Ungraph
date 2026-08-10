@@ -11,6 +11,9 @@ import pytest
 from ungraph.evaluation.scorecard import (
     DomainScorecard,
     build_scorecard,
+    evidence_coverage_from_counts,
+    extract_from_chunking_downstream,
+    rag_qa_from_probe_eval,
     rank_scorecards,
     reasoning_from_cognitive,
     transform_from_benchmark,
@@ -84,3 +87,14 @@ def test_json_roundtrip_and_ranking():
     assert "composite_score" in obj
     back = DomainScorecard.from_json_obj(obj)
     assert back.composite_score() == a.composite_score()
+
+
+def test_evidence_and_probe_adapters():
+    cov = evidence_coverage_from_counts(n_facts=10, n_with_provenance=7)
+    assert cov["evidence_coverage"] == 0.7
+    rag = rag_qa_from_probe_eval({"answer_correctness": 0.5, "n_probes": 2})
+    assert rag["answer_correctness"] == 0.5
+    extract = extract_from_chunking_downstream(
+        {"n_chunks": 3, "mrr": 0.8, "hit_rate": {"5": 1.0, "1": 0.5}, "probes_total": 2, "probes_covered": 2}
+    )
+    assert extract["mrr"] == 0.8 and extract["hit_at_k"] == 1.0

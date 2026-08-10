@@ -1,0 +1,45 @@
+{
+  "meta": {
+    "design_id": "chunk-wave-h",
+    "capa0_run_id": "68ffecb7-b7cc-46a7-8b0c-892291ae0a65",
+    "fixed_inference": "ner",
+    "chunk_sizes": [
+      512,
+      1000,
+      1500
+    ],
+    "method": "H_chunk_H_T"
+  },
+  "rows": [
+    {
+      "chunking": "recursive",
+      "chunk_overlap": 200,
+      "inference": "ner",
+      "rag": "text",
+      "top_k": 5,
+      "mode": "online",
+      "chunk_size": 512,
+      "design_row_id": "chunk-512"
+    },
+    {
+      "chunking": "recursive",
+      "chunk_overlap": 200,
+      "inference": "ner",
+      "rag": "text",
+      "top_k": 5,
+      "mode": "online",
+      "chunk_size": 1000,
+      "design_row_id": "chunk-1000"
+    },
+    {
+      "chunking": "recursive",
+      "chunk_overlap": 200,
+      "inference": "ner",
+      "rag": "text",
+      "top_k": 5,
+      "mode": "online",
+      "chunk_size": 1500,
+      "design_row_id": "chunk-1500"
+    }
+  ]
+}

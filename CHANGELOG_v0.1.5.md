@@ -68,3 +68,14 @@ python scripts/publish.py publish --prod
 - ✅ Claims más honestos sobre capacidades actuales vs. planificadas
 - ✅ Mejor comprensión del propósito y estado del proyecto
 
+
+## 🔧 Evidencia de ingeniería (CI, topología, E2E)
+
+- **CI**: Workflow reparado (`tests/test_installation.py`, `tests/test_e2e_complete.py`); jobs separados para tests **integration** y **e2e**; cobertura unitaria con `--cov-report=xml`; variables `UNGRAPH_NEO4J_*` y `NEO4J_*` aceptadas en fixtures.
+- **Integración Neo4j**: `tests/integration/test_file_page_chunk_topology.py` valida conteos File/Page/Chunk y `NEXT_CHUNK` sin cruces de `source_document_uid`.
+- **E2E**: ingest → índices → `text_search` sobre fixture sintético.
+- **Infer**: tests unitarios spaCy/OpenAI/BYO condicionales; inferencia sigue marcada como experimental en documentación hasta ampliar cobertura.
+- **DX**: `import ungraph` evita cargar Neo4j/HuggingFace/LangChain hasta usar APIs que los necesitan; tipos públicos (`Chunk`, `GraphPattern`, …) vía carga perezosa.
+- **Etiquetas GitHub**: script opcional `scripts/sync_github_labels.py` (CLI `gh`).
+
+*Nota: formato **black/isort** en CI aplicado a `tests/`; el paquete `ungraph/` puede ampliarse cuando se normalice estilo en todo el árbol.*

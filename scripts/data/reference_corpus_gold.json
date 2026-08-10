@@ -1,0 +1,35 @@
+{
+  "description": "Weak silver labels for scripts/data/reference_corpus_en.txt — used for recall-style metrics (flexible string match).",
+  "entities": [
+    "Alice Chen",
+    "Acme Robotics",
+    "Mountain View",
+    "California",
+    "Sam Okonkwo",
+    "Northwind Logistics",
+    "Google",
+    "San Francisco Bay Area"
+  ],
+  "relation_pairs": [
+    {
+      "subject": "Alice Chen",
+      "object": "Acme Robotics",
+      "predicate_hint": "WORKS_FOR"
+    },
+    {
+      "subject": "Acme Robotics",
+      "object": "Mountain View",
+      "predicate_hint": "LOCATED_IN"
+    },
+    {
+      "subject": "Alice Chen",
+      "object": "Google",
+      "predicate_hint": "PREVIOUS_EMPLOYMENT"
+    }
+  ],
+  "graphrag_probe_queries": [
+    "Who works at Acme Robotics?",
+    "Where is Acme Robotics based?",
+    "Who does Alice Chen report to?"
+  ]
+}

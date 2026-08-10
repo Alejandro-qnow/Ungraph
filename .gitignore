@@ -12,13 +12,15 @@ article/
 aticle/notebooks/
 article/experiments/
 src/
-scripts/
+# scripts/*.py are versioned (CI / DoE runner); keep secrets local
+scripts/.env
+scripts/.env.*
+scripts/**/__pycache__/
 
 
 lab/*
 lab
 .cursor/
-tests/
 
 project/
 project/*

@@ -16,6 +16,15 @@ métricas que permitan responder dos preguntas:
    motor de inferencia, patrón RAG, verify) tiene variantes cuyo efecto se mide
    **experimentalmente** (Diseño de Experimentos con `doekit`).
 
+ETI es un **contrato modular**: Infer puede ser NER, LLM o multiagente; se comparan por
+salidas medibles (capa A = artefacto; capa B = razonamiento/tarea), no por mecanismos
+internos (tokens, nº de pasos). Programa de oleadas y gates: [`PLAN_MAESTRO.md`](PLAN_MAESTRO.md),
+[`ROADMAP_LEVEL_C.md`](ROADMAP_LEVEL_C.md).
+
+**Gates mínimos:** (1) corrida con Y E/T/I/tarea/eff no vacías; (2) H_I = `ner`>`none` en
+grafo Neo4j + probe-QA sobre **top-k recuperado**; (3) razonadores solo sobre artefactos
+que pasaron (1)–(2).
+
 ### Dogfooding como estrategia de validación
 
 Priorizamos dominios que **son nuestras propias actividades**. Si Ungraph mina papers de
@@ -110,22 +119,36 @@ Silver labels generados por un LLM fuerte + **revisión experta** (factible por 
 dogfooding: conocemos los dominios P0). Incluye `expected_inferences` multi-hop para
 medir razonamiento, no solo extracción.
 
-## 10. Cómo se ejecuta
+## 10. Cómo se ejecuta (DoE con doekit)
+
+Instalación: `pip install 'ungraph[experiments]'` (incluye `doekit`).
+
+Camino por defecto — **no** barrer un producto cartesiano ad-hoc:
 
 ```bash
-# Una arquitectura, end-to-end (requiere Neo4j local + API key)
-python scripts/run_domain_pipeline.py --domain knowledge_graphs --inference llm
+# 1) recommend / screening → diseña la oleada (D-optimal / PB / …)
+python scripts/run_domain_pipeline.py --domain knowledge_graphs --design screening --mode offline
 
-# Comparar arquitecturas y rankear por scorecard
-python scripts/run_domain_pipeline.py --domain knowledge_graphs \
-    --compare "ner,llm" --chunking "recursive,semantic"
+# 2) run → ejecuta solo las filas del diseño; escribe scorecards + results.csv
+python scripts/run_domain_pipeline.py --domain knowledge_graphs --design run --mode offline
+
+# 3) analyze → main_effects / p-values → retained_factors.json
+python scripts/run_domain_pipeline.py --domain knowledge_graphs --design analyze
+
+# 4) propose → siguientes corridas sobre factores activos
+python scripts/run_domain_pipeline.py --domain knowledge_graphs --design propose
 ```
 
-Salida: `benchmarks/domains/<dominio>/reports/scorecard.json` (+ HTML vía
-`eti_report_bundler`). El comparativo alimenta el DoE con `doekit`.
+Descriptor de factores/Y: [`benchmarks/domains/knowledge_graphs/doe.yaml`](../benchmarks/domains/knowledge_graphs/doe.yaml).  
+Bridge: [`ungraph/evaluation/doe_bridge.py`](../ungraph/evaluation/doe_bridge.py).  
+Contrato de corrida: `ExperimentRun` ↔ `DomainScorecard` ↔ fila plana DoE.
 
-## 11. Relación con el roadmap
+`--mode offline` (CI / smoke): spaCy-less lexical metrics + cognitive verify, sin API keys.  
+`--mode online`: LLM / DeepEval / Neo4j (paper); no es gate de CI.
 
-Esta es la instancia end-to-end del **nivel C** (ver [`ROADMAP_LEVEL_C.md`](ROADMAP_LEVEL_C.md)):
-C1 (eval-refinar) + C2 (calidad estructural) + C3 (recomendación de arquitectura) unidos
-por el scorecard y guiados por DoE (C5).
+Salida típica bajo `benchmarks/domains/<dominio>/reports/`:
+`design.json`, `results.csv`, `summary.json`, `analysis.json`, `retained_factors.json`, `scorecard.json`.
+
+## 11. Relación con el roadmap / cierre MVP medible
+
+El scorecard + DoE cierran el loop **medible/falsable** del plan maestro (instrumentación C0–C1 y screening C5 parcial). MCP / recomendación automática siguen fuera del cierre de H_I. **Complexometrum** (complejidad de data no estructurada) es un puente de investigación posterior: validar aquí adaptadores en cortes ETI y, si funcionan, devolverlos como feature a esa librería — ver [`PLAN_MAESTRO.md`](PLAN_MAESTRO.md) § Complexometrum.

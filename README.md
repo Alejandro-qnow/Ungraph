@@ -57,6 +57,10 @@ pip install ungraph
 ### Optional Add-ons
 
 ```bash
+# Command-line interface (Typer): Neo4j ping, indexes, wipe, ingest from terminal
+pip install ungraph[cli]
+# Then: ungraph --help
+
 # Entity extraction and inference (spaCy NER)
 pip install ungraph[infer]
 python -m spacy download en_core_web_sm  # or es_core_news_sm for Spanish
@@ -69,6 +73,10 @@ pip install ungraph[ynet]
 
 # Development tools
 pip install ungraph[dev]
+
+# Developer docs site (MkDocs Material)
+pip install ungraph[docs]
+# Then: mkdocs serve -a 127.0.0.1:8000
 
 # All extensions
 pip install ungraph[all]
@@ -167,23 +175,24 @@ Ungraph provides services that enable the construction of any graph pattern topo
 
 The **Inference** phase distinguishes ETI from traditional ETL. It generates normalized facts, relations, and explanations with confidence scores and PROV-O traceability using inference models (NER, LLM, or neuro-symbolic systems).
 
-**Current Status:** The inference phase is **experimental** and available through internal APIs. The public API currently focuses on Extract and Transform phases, with inference capabilities being refined for future stable releases.
+**Current Status:** Infer is a **slot** (`InferenceService`), not one mega-design. MVP families: **spaCy NER** (`ner`), **lexical/symbolic** (`pattern`), plus **ET control** (`none`) for H_I. **LLM** remains **experimental** (`llm`). Compare architectures with **doekit** (`pip install 'ungraph[experiments]'`; see `docs/PLAN_MAESTRO.md`, `docs/BENCHMARK_ETI_DOMAINS.md`, `docs/concepts/inference-slot.md`).
 
 **Key Capabilities (when inference is enabled):**
-- **Entity Extraction**: Named Entity Recognition (NER) for general entities
-- **Relation Extraction**: Identify relationships between entities
-- **Fact Generation**: Create structured facts (subject-predicate-object triplets) with confidence scores
-- **Provenance Tracking**: Every fact is traceable to its source via PROV-O `wasDerivedFrom` relationships
+- **Entity Extraction**: NER and/or lexical patterns (and experimental LLM)
+- **Relation Extraction**: Co-occurrence and (experimental) semantic relations
+- **Fact Generation**: Structured facts (subject-predicate-object) with confidence
+- **Provenance Tracking**: Facts traceable to source via PROV-O / `DERIVED_FROM`
 
 **Inference Modes:**
 
-- **NER** (available): Fast, production-ready entity extraction with spaCy. Generates simple facts like `(chunk_id, "MENTIONS", entity_name)` and co-occurrence relationships. Requires `ungraph[infer]` extra.
-- **LLM** (experimental): Domain-specific extraction using language models for complex relationship extraction and entity normalization
-- **Hybrid** (planned): Combines NER speed with LLM accuracy for optimal performance and precision
+- **NER** (available): spaCy; facts `(chunk_id, "MENTIONS", entity_name)` + co-occurrence. Requires `ungraph[infer]` / `ungraph[infer-en]`.
+- **pattern** (available): deterministic Title-Case lexical + co-occurrence (`extraction_method=lexical_pattern`); no API key.
+- **LLM** (experimental): language-model extraction for richer relations (`OPENAI_API_KEY` / `UNGRAPH_OPENAI_API_KEY`).
+- **Hybrid** (planned): NER hints → LLM (`NotImplementedError` today).
 
-**Traceability:** All inferred facts include provenance metadata, allowing you to trace any fact back to its source document, page, and chunk.
+**Traceability:** Inferred facts include provenance so you can trace them to document / page / chunk.
 
-**Note:** For production use, Ungraph currently provides a robust Extract-Transform pipeline with GraphRAG retrieval patterns. The full ETI pipeline with public inference APIs is planned for future releases.
+**Note:** Production path today is Extract–Transform + GraphRAG retrieval, with Infer as a measurable plug-in slot (NER/pattern first; LLM experimental).
 
 ## Example Usage
 
@@ -307,7 +316,14 @@ src/
 
 ## Contributing
 
-Contributions are welcome! Please see our contributing guidelines for code style, testing requirements, and pull request process.
+Contributions are welcome. Use **stable `main` + branches + PRs**:
+
+- **[Development workflow (branches, tags, commit types, labels)](docs/DEVELOPMENT_WORKFLOW.md)** — feature / fix / chore / docs / research / test / refactor.
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — puntero al flujo anterior.
+- Pull request template: [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md).
+- Issue templates: [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/).
+
+For product and roadmap context, see [`docs/PLAN_MAESTRO.md`](docs/PLAN_MAESTRO.md) and [`docs/PRODUCT.md`](docs/PRODUCT.md).
 
 ## License
 

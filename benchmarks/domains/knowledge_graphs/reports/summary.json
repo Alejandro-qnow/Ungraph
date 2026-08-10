@@ -1,0 +1,125 @@
+{
+  "domain": "knowledge_graphs",
+  "mode": "online",
+  "hi_wave": true,
+  "wave": "1",
+  "doe_path": null,
+  "design_id": "hi-wave-2",
+  "design_meta": {
+    "design_id": "hi-wave-2",
+    "method": "H_I_contrast",
+    "n_runs": 2,
+    "seed": 0,
+    "factor_names": [
+      "inference"
+    ],
+    "rationale": "Oleada-2: Transform fijo; inference none vs ner (Neo4j+spaCy)."
+  },
+  "n_runs": 2,
+  "results_csv": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\results.csv",
+  "hi_wave_verdict": {
+    "hypothesis": "H_I",
+    "entity_recall_none": 0.0,
+    "entity_recall_ner": 0.4737,
+    "answer_correctness_none": 1.0,
+    "answer_correctness_ner": 1.0,
+    "graph_improves": true,
+    "task_does_not_collapse": true,
+    "pass": true,
+    "note": "PASS: ner > none en entity_recall y tarea no colapsa"
+  },
+  "ranking": [
+    {
+      "composite_score": 0.7746,
+      "run_id": "3188bb4f-b65e-4e70-8355-1a47b91eadb0",
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1000,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "text",
+        "top_k": 5,
+        "mode": "online"
+      }
+    },
+    {
+      "composite_score": 0.4663,
+      "run_id": "29b0b195-94c5-4c57-8e88-ef9421548e1d",
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1000,
+        "chunk_overlap": 200,
+        "inference": "none",
+        "rag": "text",
+        "top_k": 5,
+        "mode": "online"
+      }
+    }
+  ],
+  "runs": [
+    {
+      "run_id": "29b0b195-94c5-4c57-8e88-ef9421548e1d",
+      "path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\29b0b195-94c5-4c57-8e88-ef9421548e1d.json",
+      "composite_score": 0.4663,
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1000,
+        "chunk_overlap": 200,
+        "inference": "none",
+        "rag": "text",
+        "top_k": 5,
+        "mode": "online"
+      },
+      "transform": {
+        "entity_recall": 0.0,
+        "n_gold_entities": 19,
+        "n_hit_entities": 0,
+        "n_graph_entities": 0,
+        "relation_pair_recall": 0.0,
+        "n_gold_pairs": 9,
+        "n_hit_pairs": 0,
+        "evidence_coverage": 0.0,
+        "n_facts": 0,
+        "n_with_provenance": 0
+      },
+      "rag_qa": {
+        "answer_correctness": 1.0,
+        "n_probes": 8,
+        "n_correct": 8,
+        "eval_mode": "topk_retrieved"
+      }
+    },
+    {
+      "run_id": "3188bb4f-b65e-4e70-8355-1a47b91eadb0",
+      "path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\3188bb4f-b65e-4e70-8355-1a47b91eadb0.json",
+      "composite_score": 0.7746,
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1000,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "text",
+        "top_k": 5,
+        "mode": "online"
+      },
+      "transform": {
+        "entity_recall": 0.4737,
+        "n_gold_entities": 19,
+        "n_hit_entities": 9,
+        "n_graph_entities": 12,
+        "relation_pair_recall": 0.3333,
+        "n_gold_pairs": 9,
+        "n_hit_pairs": 3,
+        "evidence_coverage": 1.0,
+        "n_facts": 17,
+        "n_with_provenance": 17
+      },
+      "rag_qa": {
+        "answer_correctness": 1.0,
+        "n_probes": 8,
+        "n_correct": 8,
+        "eval_mode": "topk_retrieved"
+      }
+    }
+  ]
+}

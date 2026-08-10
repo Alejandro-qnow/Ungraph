@@ -1,0 +1,36 @@
+# DoE descriptor — oleada-1 screening (offline MVP medible)
+# Factores tipados para doekit + respuestas Y del scorecard.
+domain: knowledge_graphs
+wave: 1
+goal: screening
+budget: 8
+seed: 0
+response_primary: composite_score
+responses:
+  - composite_score
+  - entity_recall
+  - f1
+  - hallucination_rate
+  - answer_correctness
+  - mrr
+  - latency_s
+factors:
+  - name: chunking
+    kind: categorical
+    levels: [recursive, markdown_header]
+  - name: chunk_size
+    kind: continuous
+    low: 512
+    high: 1024
+  - name: inference
+    kind: categorical
+    levels: [none, ner]
+  - name: rag
+    kind: categorical
+    levels: [text, vector]
+chunk_size_levels: [512, 1024]
+retain:
+  alpha: 0.1
+  effect_abs_min: 0.05
+notes: >
+  Oleada-1 offline: cribar chunking × inference × rag. llm/hybrid solo en --mode online.
