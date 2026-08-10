@@ -492,7 +492,8 @@ def suggest_chunking_strategy(
     file_path: str | Path,
     chunk_size: Optional[int] = None,
     chunk_overlap: Optional[int] = None,
-    evaluate_all: bool = False
+    evaluate_all: bool = False,
+    embedding_model: Any = None,
 ) -> ChunkingRecommendation:
     """
     Suggest the best chunking strategy for a document with explanation.
@@ -562,8 +563,9 @@ def suggest_chunking_strategy(
         metadata=domain_documents[0].metadata
     )
     
-    # Create ChunkingMaster
-    master = ChunkingMaster()
+    # Create ChunkingMaster. Con embedding_model, SEMANTIC entra como candidata
+    # (antes el suggester era ciego al chunking semántico).
+    master = ChunkingMaster(embedding_model=embedding_model)
     
     # Find best strategy
     result = master.find_best_chunking_strategy(
@@ -577,18 +579,19 @@ def suggest_chunking_strategy(
     # Generate explanation
     explanation = _generate_chunking_explanation(result, master)
     
-    # Get alternatives (if multiple were evaluated)
+    # Get alternatives (if multiple were evaluated). ChunkingMaster ahora expone
+    # TODAS las estrategias evaluadas en result.evaluated_alternatives (ordenadas
+    # por score). Fallback a la mejor si no hubo evaluación múltiple.
     alternatives = []
     if evaluate_all:
-        # If evaluate_all=True, ChunkingMaster already evaluated multiple strategies
-        # For now, we only include the best one. In a complete implementation,
-        # we could store all evaluations
-        alternatives.append({
-            "strategy": result.strategy.value,
-            "score": master.evaluator.score_strategy(result.metrics),
-            "num_chunks": result.metrics.num_chunks,
-            "avg_chunk_size": result.metrics.avg_chunk_size
-        })
+        alternatives = list(getattr(result, "evaluated_alternatives", []) or [])
+        if not alternatives:
+            alternatives.append({
+                "strategy": result.strategy.value,
+                "score": master.evaluator.score_strategy(result.metrics),
+                "num_chunks": result.metrics.num_chunks,
+                "avg_chunk_size": result.metrics.avg_chunk_size
+            })
     
     return ChunkingRecommendation(
         strategy=result.strategy.value,
