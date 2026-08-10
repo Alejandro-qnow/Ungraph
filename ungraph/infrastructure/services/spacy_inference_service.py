@@ -22,6 +22,7 @@ from ungraph.domain.entities.chunk import Chunk
 from ungraph.domain.entities.fact import Fact
 from ungraph.domain.entities.entity import Entity
 from ungraph.domain.entities.relation import Relation
+from ungraph.domain.value_objects.entity_quality import is_low_value_entity_name
 
 logger = logging.getLogger(__name__)
 
@@ -35,8 +36,6 @@ except ImportError:
 
 # Líneas que tras quitar marcadores markdown quedan solo como basura (#, ##, …)
 _MD_HASH_ONLY_LINE = re.compile(r"^#+$")
-# Span de entidad que es claramente un artefacto de markdown o demasiado corto
-_NOISE_ENTITY_TEXT = re.compile(r"^#{1,6}\s*$|^[#\s\-_*]+$")
 
 
 def _normalize_markdown_for_ner(text: str) -> str:
@@ -60,15 +59,12 @@ def _normalize_markdown_for_ner(text: str) -> str:
 
 
 def _is_noise_entity_span(name: str) -> bool:
-    """Filtra spans que suelen ser ruido de MD o tokens no útiles como entidades."""
-    s = (name or "").strip()
-    if len(s) < 2:
-        return True
-    if _NOISE_ENTITY_TEXT.match(s):
-        return True
-    if _MD_HASH_ONLY_LINE.fullmatch(s.lstrip()):
-        return True
-    return False
+    """Filtra spans que suelen ser ruido de MD o tokens no útiles como entidades.
+
+    Delega en el value object de dominio ``is_low_value_entity_name`` para compartir
+    el criterio con la ruta LLM (markdown, números/ordinales, cadenas sin letras).
+    """
+    return is_low_value_entity_name(name)
 
 
 class SpacyInferenceService(InferenceService):

@@ -29,3 +29,18 @@ class EntityGraphMaintenanceService(ABC):
             Número de nodos Entity eliminados tras la fusión.
         """
         ...
+
+    @abstractmethod
+    def prune_orphan_entities(self) -> int:
+        """
+        Elimina :Entity sin ninguna relación (huérfanos): sin MENTIONS entrante,
+        sin relaciones a/desde otras entidades, sin facts. Aparecen p. ej. tras un
+        re-minado forzado (``infer --kmining --force``) cuando la nueva extracción
+        deja de mencionar entidades previas.
+
+        Respeta lo revisado por humanos: NO borra entidades ``Curated``/``Invalid``.
+
+        Returns:
+            Número de nodos :Entity huérfanos eliminados.
+        """
+        ...

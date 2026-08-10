@@ -139,5 +139,15 @@ def infer(
             fg=typer.colors.CYAN,
         )
 
+    if force and kmining:
+        # El re-minado forzado puede dejar entidades sin mención; limpiarlas para
+        # que el grafo quede consistente tras actualizar la extracción.
+        maint = create_entity_graph_maintenance_service(database=db)
+        pruned = maint.prune_orphan_entities()
+        typer.secho(
+            f"[prune] entidades huérfanas eliminadas={pruned}",
+            fg=typer.colors.CYAN,
+        )
+
     if exit_code:
         raise typer.Exit(exit_code)

@@ -153,3 +153,24 @@ class Neo4jEntityGraphMaintenanceService(EntityGraphMaintenanceService):
 
     def resolve_entities_strip_punctuation(self) -> int:
         return self._merge_round(_GROUPS_STRIP_PUNCT)
+
+    def prune_orphan_entities(self) -> int:
+        """Elimina :Entity sin relación alguna, preservando Curated/Invalid."""
+        query = """
+        MATCH (e:Entity)
+        WHERE NOT (e)--()
+          AND NOT coalesce(e.curation_state, 'Extracted') IN ['Curated', 'Invalid']
+        WITH collect(e) AS orphans
+        FOREACH (x IN orphans | DETACH DELETE x)
+        RETURN size(orphans) AS removed
+        """
+        driver = graph_session()
+        try:
+            with driver.session(database=self._database) as session:
+                row = session.execute_write(lambda tx: tx.run(query).single())
+                return int(row["removed"]) if row else 0
+        finally:
+            try:
+                driver.close()
+            except Exception as e:
+                logger.debug("driver close: %s", e)
