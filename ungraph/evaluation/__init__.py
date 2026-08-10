@@ -26,6 +26,14 @@ _EXPORTS = {
     "search_results_to_contexts": "retrieval_context_eval",
     "try_score_extractions_contextual_relevancy": "extraction_deepeval",
     "run_dual_inference_benchmark": "inference_method_benchmark",
+    "run_cognitive_eval": "cognitive_eval",
+    "evaluate_verifier": "cognitive_eval",
+    "make_candidates": "cognitive_eval",
+    "build_distractors": "cognitive_eval",
+    "EvidenceIndex": "cognitive_eval",
+    "CandidateFact": "cognitive_eval",
+    "grounded_cooccurrence_verifier": "cognitive_eval",
+    "accept_all_verifier": "cognitive_eval",
 }
 
 __all__ = list(_EXPORTS)
