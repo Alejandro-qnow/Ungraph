@@ -34,6 +34,12 @@ _EXPORTS = {
     "CandidateFact": "cognitive_eval",
     "grounded_cooccurrence_verifier": "cognitive_eval",
     "accept_all_verifier": "cognitive_eval",
+    "PipelineParams": "ablation_harness",
+    "EvalTask": "ablation_harness",
+    "run_trial": "ablation_harness",
+    "run_grid": "ablation_harness",
+    "run_design": "ablation_harness",
+    "RESPONSE_KEYS": "ablation_harness",
 }
 
 __all__ = list(_EXPORTS)

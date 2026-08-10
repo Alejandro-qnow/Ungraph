@@ -96,11 +96,20 @@ class CritiqueReport:
 
 
 # --------------------------------------------------------------------- critique
-# Pesos por defecto de cada señal (grounding textual domina).
-W_COOCCURRENCE = 0.5
-W_BOTH_MENTIONED = 0.2
-W_PREDICATE_ONTOLOGY = 0.3
-W_LLM_FAITHFULNESS = 0.5
+@dataclass(frozen=True)
+class SignalWeights:
+    """Pesos de cada señal del critique (parametrizables para DoE).
+
+    Defaults: grounding textual domina. Ver ``ungraph.evaluation.ablation_harness``.
+    """
+
+    cooccurrence: float = 0.5
+    both_mentioned: float = 0.2
+    predicate_ontology: float = 0.3
+    llm_faithfulness: float = 0.5
+
+
+DEFAULT_WEIGHTS = SignalWeights()
 
 
 def critique_fact(
@@ -112,6 +121,7 @@ def critique_fact(
     llm_critic: Optional[FactCritic] = None,
     llm_gate: bool = False,
     llm_min_confidence: float = 0.6,
+    weights: SignalWeights = DEFAULT_WEIGHTS,
 ) -> CritiqueReport:
     """Evalúa un hecho candidato con señales deterministas (+ crítico LLM opcional).
 
@@ -135,12 +145,12 @@ def critique_fact(
 
     cooccur = evidence.cooccur(candidate.subject, candidate.object)
     signals.append(
-        Signal("evidence_cooccurrence", cooccur, W_COOCCURRENCE, "misma ventana")
+        Signal("evidence_cooccurrence", cooccur, weights.cooccurrence, "misma ventana")
     )
 
     both = evidence.mentions(candidate.subject) and evidence.mentions(candidate.object)
     signals.append(
-        Signal("both_entities_mentioned", both, W_BOTH_MENTIONED, "existencia")
+        Signal("both_entities_mentioned", both, weights.both_mentioned, "existencia")
     )
 
     predicate_ok = True
@@ -151,7 +161,7 @@ def critique_fact(
             Signal(
                 "predicate_in_ontology",
                 predicate_ok,
-                W_PREDICATE_ONTOLOGY,
+                weights.predicate_ontology,
                 candidate.predicate_hint,
             )
         )
@@ -176,7 +186,7 @@ def critique_fact(
                 Signal(
                     "llm_faithfulness",
                     judgment.supported,
-                    W_LLM_FAITHFULNESS,
+                    weights.llm_faithfulness,
                     judgment.rationale,
                 )
             )
@@ -202,6 +212,7 @@ def make_structural_verifier(
     ontology_gate: bool = False,
     llm_critic: Optional[FactCritic] = None,
     llm_gate: bool = False,
+    weights: SignalWeights = DEFAULT_WEIGHTS,
 ) -> Verifier:
     """Construye un ``Verifier`` (plug-in de ``cognitive_eval``) que acepta un hecho
     si su ``CritiqueReport.score`` alcanza ``accept_threshold``.
@@ -219,6 +230,7 @@ def make_structural_verifier(
             ontology_gate=ontology_gate,
             llm_critic=llm_critic,
             llm_gate=llm_gate,
+            weights=weights,
         )
         accepted = report.score >= accept_threshold
         return VerificationOutcome(
