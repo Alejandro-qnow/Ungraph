@@ -159,10 +159,17 @@ def build_distractors(
     gold_pairs: Sequence[Dict[str, str]],
     *,
     max_distractors: Optional[int] = None,
+    predicate_pool: Optional[Sequence[str]] = None,
 ) -> List[CandidateFact]:
     """Genera hechos falsos plausibles: pares de entidades del gold que NO están
-    relacionadas (ni en un sentido ni en el inverso)."""
+    relacionadas (ni en un sentido ni en el inverso).
+
+    ``predicate_pool`` asigna a cada distractor un predicado **plausible** (rotando
+    por el pool) en vez de una etiqueta delatora. Así un verificador ontológico no
+    puede distinguirlos por el predicado: la discriminación debe venir de la
+    evidencia/estructura. Si es None, se usa ``"INJECTED"`` (útil para depurar)."""
     ents = [e for e in entities if e and e.strip()]
+    pool = [p for p in (predicate_pool or []) if p and str(p).strip()]
     out: List[CandidateFact] = []
     for i in range(len(ents)):
         for j in range(len(ents)):
@@ -171,8 +178,9 @@ def build_distractors(
             a, b = ents[i], ents[j]
             if _pair_in_gold(a, b, gold_pairs):
                 continue
+            pred = pool[len(out) % len(pool)] if pool else "INJECTED"
             out.append(
-                CandidateFact(a, b, predicate_hint="INJECTED", is_distractor=True)
+                CandidateFact(a, b, predicate_hint=pred, is_distractor=True)
             )
     # dedupe no-dirigido para no contar (a,b) y (b,a)
     seen: set = set()
@@ -200,8 +208,16 @@ def make_candidates(gold: Dict[str, Any], **kw: Any) -> List[CandidateFact]:
         for r in gold.get("relation_pairs", [])
         if r.get("subject") and r.get("object")
     ]
+    pool = [
+        r.get("predicate_hint", "")
+        for r in gold.get("relation_pairs", [])
+        if r.get("predicate_hint")
+    ]
     distractores = build_distractors(
-        gold.get("entities", []), gold.get("relation_pairs", []), **kw
+        gold.get("entities", []),
+        gold.get("relation_pairs", []),
+        predicate_pool=pool or None,
+        **kw,
     )
     return reales + distractores
 
