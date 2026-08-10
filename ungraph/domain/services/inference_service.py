@@ -21,7 +21,7 @@ el mismo patrón de arquitectura Clean Architecture.
 """
 
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 from ungraph.domain.entities.chunk import Chunk
 from ungraph.domain.entities.fact import Fact
 from ungraph.domain.entities.entity import Entity
@@ -91,7 +91,7 @@ class InferenceService(ABC):
         pass
     
     @abstractmethod
-    def infer_facts(self, chunk: Chunk) -> List[Fact]:
+    def infer_facts(self, chunk: Chunk, entities: Optional[List[Entity]] = None) -> List[Fact]:
         """
         Genera facts estructurados (subject-predicate-object) desde el chunk.
         
@@ -104,6 +104,7 @@ class InferenceService(ABC):
         
         Args:
             chunk: Chunk de texto del cual inferir facts
+            entities: Si se pasa, reutiliza estas entidades (evita segunda pasada NER/LLM).
         
         Returns:
             Lista de facts Fact con subject, predicate, object, confidence y provenance

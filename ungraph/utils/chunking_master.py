@@ -103,7 +103,8 @@ class DocumentAnalyzer:
         """
         # Detectar por extensión
         if file_path:
-            ext = file_path.suffix.lower()
+            fp = Path(file_path) if isinstance(file_path, str) else file_path
+            ext = fp.suffix.lower()
             if ext == '.md' or ext == '.markdown':
                 return DocumentType.MARKDOWN
             elif ext == '.html' or ext == '.htm':
@@ -621,6 +622,19 @@ class ChunkingMaster:
                 group_doc = Document(page_content=group.page_content, metadata=group.metadata)
                 group_chunks = recursive_splitter.split_documents([group_doc])
                 chunks.extend(group_chunks)
+            # Si todo el texto está en la misma línea que el encabezado (# foo bar…),
+            # LangChain deja el cuerpo vacío y split_text puede devolver [] o grupos sin
+            # page_content; el recursive_splitter no genera chunks.
+            full_md = (documents[0].page_content or "").strip()
+            if not chunks and full_md:
+                logger.warning(
+                    "markdown_header no produjo chunks (p. ej. H1 de una sola línea); "
+                    "reintentando con RecursiveCharacterTextSplitter sobre el markdown completo."
+                )
+                base_meta = dict(documents[0].metadata or {})
+                chunks = recursive_splitter.split_documents(
+                    [Document(page_content=documents[0].page_content, metadata=base_meta)]
+                )
         elif strategy == ChunkingStrategy.HTML_HEADER:
             # HTMLHeaderTextSplitter también puede necesitar procesamiento especial
             try:

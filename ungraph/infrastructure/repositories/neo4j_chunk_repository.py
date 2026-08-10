@@ -5,6 +5,7 @@ Implementa ChunkRepository usando Neo4j.
 Envuelve el código existente de graph_operations.py.
 """
 
+from collections import defaultdict
 from typing import List, Optional
 from neo4j import GraphDatabase
 from neo4j.exceptions import ClientError
@@ -13,18 +14,45 @@ import logging
 from ungraph.domain.repositories.chunk_repository import ChunkRepository
 from ungraph.domain.entities.chunk import Chunk
 from ungraph.domain.entities.fact import Fact
-from ungraph.domain.entities.entity import Entity
+from ungraph.domain.entities.relation import Relation
 from ungraph.domain.value_objects.graph_pattern import GraphPattern
+from ungraph.utils.neo4j_infer_reltype import (
+    EXTRACTED_REL_FALLBACK,
+    is_safe_interpolated_reltype,
+    native_neo4j_relationship_type,
+)
 
 logger = logging.getLogger(__name__)
 
 # Importar funciones de graph_operations de manera lazy para evitar importaciones circulares
 # Estas funciones se importan solo cuando se necesitan, no al nivel del módulo
 try:
-    from ungraph.utils.graph_operations import graph_session, extract_document_structure, create_chunk_relationships
+    from ungraph.utils.graph_operations import (
+        graph_session,
+        extract_document_structure,
+        create_chunk_relationships as neo4j_create_chunk_relationships,
+        merge_retrieval_context_view,
+    )
 except ImportError as e:
     logger.error("Cannot import graph_operations. Ensure the package is installed or PYTHONPATH includes project root. Original error: %s", e)
     raise
+
+
+def _chunk_lineage_params(chunk: Chunk) -> dict:
+    uid = chunk.get_source_document_uid()
+    parents = chunk.get_source_parent_uids()
+    doi = chunk.doi_norm if chunk.doi_norm is not None else chunk.metadata.get('doi_norm')
+    primary = (
+        chunk.primary_parent_uid
+        if chunk.primary_parent_uid is not None
+        else chunk.metadata.get('primary_parent_uid')
+    )
+    return {
+        'source_document_uid': uid,
+        'source_parent_uids': parents,
+        'doi_norm': doi,
+        'primary_parent_uid': primary,
+    }
 
 
 class Neo4jChunkRepository(ChunkRepository):
@@ -84,6 +112,7 @@ class Neo4jChunkRepository(ChunkRepository):
                     if embeddings is None:
                         embeddings = []
                     
+                    lin = _chunk_lineage_params(chunk)
                     session.execute_write(
                         extract_document_structure,
                         filename=filename,
@@ -94,8 +123,21 @@ class Neo4jChunkRepository(ChunkRepository):
                         embeddings=embeddings,
                         embeddings_dimensions=chunk.embeddings_dimensions or 384,
                         embedding_encoder_info=chunk.embedding_encoder_info or 'unknown',
-                        chunk_id_consecutive=chunk.chunk_id_consecutive or 0
+                        chunk_id_consecutive=chunk.chunk_id_consecutive or 0,
+                        **lin,
                     )
+                    rot = getattr(chunk, "retrieval_optimized_text", None)
+                    if rot and str(rot).strip():
+                        te = getattr(chunk, "retrieval_token_estimate", None)
+                        if te is None:
+                            te = max(1, len(str(rot)) // 4)
+                        session.execute_write(
+                            merge_retrieval_context_view,
+                            parent_chunk_id=chunk.id,
+                            optimized_text=str(rot).strip(),
+                            strategy=chunk.retrieval_optimization_strategy or "heuristic_v1",
+                            token_estimate=int(te),
+                        )
         except ClientError as e:
             logger.error(f"Error saving chunks to Neo4j: {e}", exc_info=True)
             raise
@@ -141,7 +183,10 @@ class Neo4jChunkRepository(ChunkRepository):
                c.embeddings_dimensions as embeddings_dimensions,
                c.embedding_encoder_info as embedding_encoder_info,
                c.filename as filename,
-               c.page_number as page_number
+               c.page_number as page_number,
+               c.source_document_uid as source_document_uid,
+               c.source_parent_uids as source_parent_uids,
+               c["doi_norm"] AS doi_norm
         LIMIT 1
         """
         result = tx.run(query, chunk_id=chunk_id)
@@ -186,21 +231,60 @@ class Neo4jChunkRepository(ChunkRepository):
                c.embeddings_dimensions as embeddings_dimensions,
                c.embedding_encoder_info as embedding_encoder_info,
                c.filename as filename,
-               c.page_number as page_number
+               c.page_number as page_number,
+               c.source_document_uid as source_document_uid,
+               c.source_parent_uids as source_parent_uids,
+               c["doi_norm"] AS doi_norm
         ORDER BY c.chunk_id_consecutive ASC
         """
         result = tx.run(query, filename=filename)
         return list(result)
+
+    def list_chunk_ids_without_derived_facts(self, *, min_content_chars: int = 1) -> List[str]:
+        """
+        Chunks sin facts derivados (re-inferencia / minado) y con texto suficiente.
+        """
+        driver = self._get_driver()
+        q = """
+        MATCH (c:Chunk)
+        WHERE NOT EXISTS { MATCH (:Fact)-[:DERIVED_FROM]->(c) }
+          AND size(trim(toString(coalesce(c.page_content, '')))) >= $min_chars
+        RETURN c.chunk_id AS id
+        ORDER BY c.chunk_id
+        """
+        try:
+            with driver.session(database=self.database) as session:
+
+                def work(tx):
+                    return [r["id"] for r in tx.run(q, min_chars=min_content_chars)]
+
+                return session.execute_read(work)
+        except Exception as e:
+            logger.error(
+                "Error listing chunks without derived facts: %s",
+                e,
+                exc_info=True,
+            )
+            raise
     
     def _record_to_chunk(self, record) -> Chunk:
         """Convierte un record de Neo4j a entidad Chunk."""
         from ungraph.domain.entities.chunk import Chunk
-        
+
+        extra_lists = record.get('source_parent_uids') or []
+        if extra_lists and not isinstance(extra_lists, list):
+            extra_lists = [extra_lists]
         metadata = {
             'filename': record.get('filename', 'unknown'),
-            'page_number': record.get('page_number', 1)
+            'page_number': record.get('page_number', 1),
         }
-        
+        if record.get('source_document_uid'):
+            metadata['source_document_uid'] = record['source_document_uid']
+        if extra_lists:
+            metadata['source_parent_uids'] = list(extra_lists)
+        if record.get('doi_norm'):
+            metadata['doi_norm'] = record['doi_norm']
+
         return Chunk(
             id=record.get('chunk_id', ''),
             page_content=record.get('page_content', ''),
@@ -209,7 +293,10 @@ class Neo4jChunkRepository(ChunkRepository):
             chunk_id_consecutive=record.get('chunk_id_consecutive', 0),
             embeddings=record.get('embeddings'),
             embeddings_dimensions=record.get('embeddings_dimensions'),
-            embedding_encoder_info=record.get('embedding_encoder_info')
+            embedding_encoder_info=record.get('embedding_encoder_info'),
+            source_document_uid=record.get('source_document_uid'),
+            source_parent_uids=list(extra_lists) if extra_lists else None,
+            doi_norm=record.get('doi_norm'),
         )
     
     def save_with_pattern(self, chunks: List[Chunk], pattern: GraphPattern) -> None:
@@ -297,17 +384,31 @@ class Neo4jChunkRepository(ChunkRepository):
         return data
     
     
-    def create_chunk_relationships(self) -> None:
-        """
-        Crea relaciones NEXT_CHUNK entre chunks consecutivos.
-        
-        Usa el código existente de graph_operations.py.
-        """
+    def create_chunk_relationships(
+        self,
+        *,
+        source_document_uid: Optional[str] = None,
+        filename: Optional[str] = None,
+        chunk_ids: Optional[List[str]] = None,
+        global_legacy: bool = False,
+    ) -> None:
+        gl = global_legacy
+        if not source_document_uid and not filename and not chunk_ids and not gl:
+            logger.warning(
+                "create_chunk_relationships without scope — falling back to global_legacy (legacy batch path)"
+            )
+            gl = True
         driver = self._get_driver()
-        
+
         try:
             with driver.session(database=self.database) as session:
-                create_chunk_relationships(session)
+                neo4j_create_chunk_relationships(
+                    session,
+                    source_document_uid=source_document_uid,
+                    filename=filename,
+                    chunk_ids=chunk_ids,
+                    global_legacy=gl,
+                )
         except Exception as e:
             logger.error(f"Error creating chunk relationships: {e}", exc_info=True)
             raise
@@ -317,7 +418,7 @@ class Neo4jChunkRepository(ChunkRepository):
         Guarda facts en Neo4j creando nodos Fact y relaciones DERIVED_FROM.
         
         Para cada fact:
-        - Crea un nodo Fact con propiedades: id, subject, predicate, object, confidence
+        - Crea un nodo Fact con propiedades: id, subject, predicate, object, confidence, curation_state
         - Crea relación DERIVED_FROM desde Fact hacia Chunk (provenance)
         - Si el object es una entidad mencionada, crea nodo Entity y relación MENTIONS
         
@@ -360,7 +461,12 @@ class Neo4jChunkRepository(ChunkRepository):
             fact.predicate = fact_data.predicate,
             fact.object = fact_data.object,
             fact.confidence = fact_data.confidence,
-            fact.provenance_ref = fact_data.provenance_ref
+            fact.provenance_ref = fact_data.provenance_ref,
+            fact.curation_state = CASE
+                WHEN coalesce(fact.curation_state, '') IN ['Curated', 'Invalid']
+                THEN fact.curation_state
+                ELSE coalesce(fact_data.curation_state, 'Extracted')
+            END
         
         // Crear relación DERIVED_FROM (provenance)
         MERGE (fact)-[:DERIVED_FROM]->(chunk)
@@ -375,7 +481,18 @@ class Neo4jChunkRepository(ChunkRepository):
         
         MERGE (entity:Entity {name: fact_data.object})
         ON CREATE SET entity.entity_id = fact_data.object + '_entity',
-                      entity.type = 'UNKNOWN'
+                      entity.type = coalesce(fact_data.object_entity_type, 'UNKNOWN'),
+                      entity.curation_state = coalesce(fact_data.curation_state, 'Extracted')
+        SET entity.type = coalesce(fact_data.object_entity_type, entity.type, 'UNKNOWN'),
+            entity.ontology_class_uri = coalesce(
+                fact_data.object_ontology_class_uri,
+                entity.ontology_class_uri
+            ),
+            entity.curation_state = CASE
+                WHEN coalesce(entity.curation_state, '') IN ['Curated', 'Invalid']
+                THEN entity.curation_state
+                ELSE coalesce(fact_data.curation_state, 'Extracted')
+            END
         
         MERGE (chunk)-[:MENTIONS]->(entity)
         
@@ -390,13 +507,102 @@ class Neo4jChunkRepository(ChunkRepository):
                 "predicate": fact.predicate,
                 "object": fact.object,
                 "confidence": fact.confidence,
-                "provenance_ref": fact.provenance_ref
+                "provenance_ref": fact.provenance_ref,
+                "object_entity_type": fact.object_entity_type,
+                "object_ontology_class_uri": fact.object_ontology_class_uri,
+                "curation_state": fact.curation_state,
             }
             for fact in facts
         ]
         
         result = tx.run(query, facts=facts_data)
         return list(result)
+    
+    def save_relations(self, relations: List[Relation]) -> None:
+        """
+        Crea relaciones inferidas entre :Entity emparejados por ``name``.
+
+        Si ``relation_type`` es un identificador Neo4j seguro (p. ej. ``WORKS_FOR``),
+        se usa como tipo nativo; si no, ``EXTRACTED_REL`` + propiedad ``relation_type``.
+
+        Requiere que los nodos existan (p. ej. vía save_facts). Omite filas sin
+        ``source_entity_name`` / ``target_entity_name`` o si no hay MATCH.
+        """
+        if not relations:
+            return
+        rel_data: List[dict] = []
+        for r in relations:
+            sn = (r.source_entity_name or "").strip()
+            tn = (r.target_entity_name or "").strip()
+            if not sn or not tn or sn == tn:
+                continue
+            cypher_type, is_native = native_neo4j_relationship_type(r.relation_type)
+            if not is_native:
+                cypher_type = EXTRACTED_REL_FALLBACK
+            rel_data.append(
+                {
+                    "id": r.id,
+                    "source_name": sn,
+                    "target_name": tn,
+                    "relation_type": r.relation_type,
+                    "confidence": r.confidence,
+                    "provenance_ref": r.provenance_ref,
+                    "ontology_property_uri": r.ontology_property_uri,
+                    "extraction_method": r.extraction_method,
+                    "curation_state": r.curation_state,
+                    "_cypher_rel_type": cypher_type,
+                }
+            )
+        if not rel_data:
+            return
+        buckets: dict[str, List[dict]] = defaultdict(list)
+        for row in rel_data:
+            ct = row.pop("_cypher_rel_type", EXTRACTED_REL_FALLBACK)
+            if not is_safe_interpolated_reltype(ct):
+                ct = EXTRACTED_REL_FALLBACK
+            buckets[ct].append(row)
+        driver = self._get_driver()
+        try:
+            with driver.session(database=self.database) as session:
+                for cypher_type, batch in buckets.items():
+                    session.execute_write(
+                        self._save_relations_typed_batch,
+                        batch,
+                        cypher_type,
+                    )
+            logger.info("Successfully saved %s inferred relations to Neo4j", len(rel_data))
+        except ClientError as e:
+            logger.error(f"Error saving relations to Neo4j: {e}", exc_info=True)
+            raise
+
+    def _save_relations_typed_batch(
+        self,
+        tx,
+        relations: List[dict],
+        cypher_rel_type: str,
+    ) -> list:
+        if not is_safe_interpolated_reltype(cypher_rel_type):
+            cypher_rel_type = EXTRACTED_REL_FALLBACK
+        query = f"""
+        UNWIND $relations AS rel
+        OPTIONAL MATCH (source:Entity {{name: rel.source_name}})
+        OPTIONAL MATCH (target:Entity {{name: rel.target_name}})
+        WITH rel, source, target
+        WHERE source IS NOT NULL AND target IS NOT NULL AND id(source) <> id(target)
+        MERGE (source)-[r:`{cypher_rel_type}` {{relation_id: rel.id}}]->(target)
+        SET r.relation_type = rel.relation_type,
+            r.confidence = rel.confidence,
+            r.provenance_ref = rel.provenance_ref,
+            r.ontology_property_uri = rel.ontology_property_uri,
+            r.extraction_method = rel.extraction_method,
+            r.curation_state = CASE
+                WHEN coalesce(r.curation_state, '') IN ['Curated', 'Invalid']
+                THEN r.curation_state
+                ELSE coalesce(rel.curation_state, 'Extracted')
+            END
+        RETURN count(r) AS created
+        """
+        return list(tx.run(query, relations=relations))
     
     def close(self) -> None:
         """Cierra la conexión a Neo4j."""

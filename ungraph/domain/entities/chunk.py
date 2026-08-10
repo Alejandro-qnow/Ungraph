@@ -17,7 +17,7 @@ Ejemplo de uso:
     print(chunk.page_content)  # Acceder a datos
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Any, Optional, List
 
 
@@ -35,6 +35,12 @@ class Chunk:
         embeddings_dimensions: Dimensión del vector de embeddings
         embedding_encoder_info: Información del encoder usado
         is_unitary: Indica si el chunk es unitario (no dividido)
+        source_document_uid: Ámbito estable del documento lógico para NEXT_CHUNK / catálogo (también puede ir en metadata).
+        source_parent_uids: Lista de ids de fuentes padres (multipadre / trazabilidad).
+        doi_norm: DOI normalizado si aplica al documento origen.
+        primary_parent_uid: Ancla única UX opcional dentro de source_parent_uids.
+        retrieval_optimized_text: Texto derivado para recuperación/LLM (menos ruido que page_content).
+        retrieval_token_estimate: Estimación de tokens del texto de recuperación (p. ej. para Neo4j).
     """
     id: str
     page_content: str
@@ -44,6 +50,13 @@ class Chunk:
     embeddings_dimensions: Optional[int] = None
     embedding_encoder_info: Optional[str] = None
     is_unitary: bool = False
+    source_document_uid: Optional[str] = None
+    source_parent_uids: Optional[List[str]] = field(default=None)
+    doi_norm: Optional[str] = None
+    primary_parent_uid: Optional[str] = None
+    retrieval_optimized_text: Optional[str] = None
+    retrieval_optimization_strategy: Optional[str] = field(default=None, repr=False)
+    retrieval_token_estimate: Optional[int] = field(default=None, repr=False)
     
     def __post_init__(self):
         """
@@ -67,6 +80,16 @@ class Chunk:
         Esto es lógica de negocio, no persistencia.
         """
         return self.metadata.get('filename')
+
+    def get_source_document_uid(self) -> Optional[str]:
+        """UID del documento lógico (campo dedicado o metadata)."""
+        return self.source_document_uid or self.metadata.get('source_document_uid')
+
+    def get_source_parent_uids(self) -> List[str]:
+        raw = self.source_parent_uids or self.metadata.get('source_parent_uids') or []
+        if isinstance(raw, list):
+            return [str(x) for x in raw]
+        return [str(raw)] if raw is not None else []
     
     def get_page_number(self) -> Optional[int]:
         """

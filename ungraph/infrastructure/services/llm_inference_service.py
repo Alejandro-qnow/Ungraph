@@ -10,11 +10,12 @@ for knowledge graph construction.
 
 Architecture:
     - LLMInferenceService: Main service implementing InferenceService interface
-    - LangChainAdapter: Helper class for type conversion between LangChain
-      and Ungraph domain entities
+    - LangGraph StateGraph (``build_llm_extraction_graph``): spacy_hints → context → extract
+    - LangChainAdapter: conversión tipos LangChain ↔ dominio
 
 Dependencies:
-    - langchain_experimental.graph_transformers.LLMGraphTransformer
+    - langgraph: orquestación (StateGraph)
+    - langchain_experimental.graph_transformers.LLMGraphTransformer (vía el grafo)
     - langchain_core.documents.Document
     - langchain_community.graphs.graph_document.GraphDocument
 
@@ -40,12 +41,11 @@ like dynamic example selection, confidence scoring, and Opik evaluation are
 planned for v0.2.0.
 """
 
-from typing import List, Optional, Any
+from typing import Dict, List, Optional, Any
 from uuid import uuid4
 
 from langchain_core.documents import Document as LangChainDocument
 from langchain_core.language_models import BaseLanguageModel
-from langchain_experimental.graph_transformers import LLMGraphTransformer
 from langchain_community.graphs.graph_document import (
     GraphDocument,
     Node as LangChainNode,
@@ -56,7 +56,10 @@ from ungraph.domain.entities.chunk import Chunk
 from ungraph.domain.entities.entity import Entity
 from ungraph.domain.entities.fact import Fact
 from ungraph.domain.entities.relation import Relation
+from ungraph.domain.services.document_context_service import DocumentContextService
+from ungraph.domain.services.domain_question_service import DomainQuestionService
 from ungraph.domain.services.inference_service import InferenceService
+from ungraph.domain.value_objects.ontology_profile import OntologyProfile
 
 
 class LangChainAdapter:
@@ -134,6 +137,7 @@ class LangChainAdapter:
                 name=node.id,
                 type=entity_type,
                 mentions=[chunk_id],
+                extraction_method="llm",
             )
             entities.append(entity)
         return entities
@@ -179,6 +183,9 @@ class LangChainAdapter:
                 relation_type=rel.type,
                 confidence=0.8,  # Default confidence for LLM extraction
                 provenance_ref=chunk_id,
+                extraction_method="llm",
+                source_entity_name=rel.source.id,
+                target_entity_name=rel.target.id,
             )
             relations.append(relation)
         return relations
@@ -211,6 +218,8 @@ class LangChainAdapter:
                 object=entity.name,
                 confidence=1.0,
                 provenance_ref=chunk_id,
+                object_entity_type=entity.type,
+                object_ontology_class_uri=entity.ontology_class_uri,
             )
             facts.append(fact)
         return facts
@@ -223,11 +232,11 @@ class LLMInferenceService(InferenceService):
     Uses LangChain's LLMGraphTransformer to extract entities, relationships,
     and facts from text chunks using a Language Model (LLM).
     
-    This implementation delegates to LLMGraphTransformer for extraction logic,
-    focusing on integration with Ungraph's domain model via LangChainAdapter.
+    This implementation runs a LangGraph pipeline (optional spaCy hints, context, extract)
+    backed by LLMGraphTransformer, integrating with Ungraph via LangChainAdapter.
     
     Attributes:
-        transformer: LLMGraphTransformer instance for extraction
+        _extraction_graph: Grafo LangGraph compilado (spacy_hints → context → extract)
         adapter: LangChainAdapter for type conversion
         
     Configuration:
@@ -262,17 +271,31 @@ class LLMInferenceService(InferenceService):
         allowed_relationships: Optional[List[str]] = None,
         prompt: Optional[Any] = None,
         strict_mode: bool = True,
+        document_context_service: Optional[DocumentContextService] = None,
+        domain_question_service: Optional[DomainQuestionService] = None,
+        context_addon_max_chars: int = 6000,
+        ontology_profile: Optional[OntologyProfile] = None,
+        spacy_lexical_service: Any = None,
     ) -> None:
         """
         Initialize LLMInferenceService with LLM and schema configuration.
         
         Args:
-            llm: LangChain-compatible language model (e.g., ChatOpenAI, ChatOllama)
+            llm: LangChain-compatible chat model (expected: ChatOpenAI for the default factory).
             allowed_nodes: Permitted entity types. If None, all types allowed.
             allowed_relationships: Permitted relation types. If None, all types allowed.
             prompt: Custom ChatPromptTemplate for extraction. If None, uses default.
             strict_mode: If True, filter results to allowed_nodes/allowed_relationships.
                         If False, permit all extracted types (useful for exploration).
+            document_context_service: Si viene junto con domain_question_service, el grafo
+                enriquece el texto antes de ``LLMGraphTransformer``.
+            domain_question_service: Par del anterior; ambos o ninguno tienen efecto.
+            context_addon_max_chars: Tope para el snippet inyectado vía
+                ``build_graph_transformer_context_addon``.
+            ontology_profile: Perfil usado para ``ontology_class_uri`` / ``ontology_property_uri``
+                cuando el mapa SPARQL o preset los define.
+            spacy_lexical_service: Opcional; si expone ``extract_entities(chunk)``, el grafo antepone
+                candidatos NER (p. ej. ``SpacyInferenceService``) al prompt del extractor.
                         
         Raises:
             ValueError: If llm is None or not a BaseLanguageModel
@@ -288,19 +311,70 @@ class LLMInferenceService(InferenceService):
         # Use empty lists as defaults (allow all types)
         self.allowed_nodes = allowed_nodes or []
         self.allowed_relationships = allowed_relationships or []
-        
-        # Initialize LangChain transformer
-        self.transformer = LLMGraphTransformer(
-            llm=llm,
+
+        self._ontology_profile = ontology_profile
+
+        from ungraph.infrastructure.agents.inference_state_graph import (
+            build_llm_extraction_graph,
+        )
+
+        self._extraction_graph = build_llm_extraction_graph(
+            llm,
             allowed_nodes=self.allowed_nodes,
             allowed_relationships=self.allowed_relationships,
             prompt=prompt,
             strict_mode=strict_mode,
+            document_context_service=document_context_service,
+            domain_question_service=domain_question_service,
+            context_addon_max_chars=context_addon_max_chars,
+            spacy_lexical_service=spacy_lexical_service,
         )
-        
+
         # Initialize adapter
         self.adapter = LangChainAdapter()
-    
+
+        # Una sola llamada a LLMGraphTransformer por chunk_id (reutiliza GraphDocument)
+        self._graph_cache: Dict[str, GraphDocument] = {}
+        self._max_graph_cache_entries: int = 128
+
+    def _cache_put_graph(self, chunk_id: str, graph_document: GraphDocument) -> None:
+        if (
+            len(self._graph_cache) >= self._max_graph_cache_entries
+            and chunk_id not in self._graph_cache
+        ):
+            self._graph_cache.pop(next(iter(self._graph_cache)))
+        self._graph_cache[chunk_id] = graph_document
+
+    def _get_graph_document(self, chunk: Chunk) -> GraphDocument:
+        """Una invocación a process_response por chunk (salvo caché)."""
+        cached = self._graph_cache.get(chunk.id)
+        if cached is not None:
+            return cached
+        out = self._extraction_graph.invoke({"chunk": chunk})
+        graph_document = out.get("graph_document")
+        if graph_document is None:
+            raise RuntimeError("LangGraph extraction did not return graph_document")
+        self._cache_put_graph(chunk.id, graph_document)
+        return graph_document
+
+    def _enrich_entities_ontology(self, entities: List[Entity]) -> None:
+        prof = self._ontology_profile
+        if not prof:
+            return
+        for e in entities:
+            uri = prof.resolve_class_uri(e.type)
+            if uri:
+                e.ontology_class_uri = uri
+
+    def _enrich_relations_ontology(self, relations: List[Relation]) -> None:
+        prof = self._ontology_profile
+        if not prof:
+            return
+        for r in relations:
+            uri = prof.resolve_property_uri(r.relation_type)
+            if uri:
+                r.ontology_property_uri = uri
+
     def extract_entities(self, chunk: Chunk) -> List[Entity]:
         """
         Extract entities from chunk using LLM.
@@ -312,10 +386,8 @@ class LLMInferenceService(InferenceService):
             List of Entity objects extracted from chunk
             
         Process:
-            1. Convert Chunk to LangChain Document
-            2. Process with LLMGraphTransformer
-            3. Extract nodes from GraphDocument
-            4. Convert nodes to Entity objects
+            1. Ejecutar grafo LangGraph (extract con LLMGraphTransformer)
+            2. Extraer nodos del GraphDocument y convertir a Entity
             
         Example:
             >>> chunk = Chunk(
@@ -327,18 +399,13 @@ class LLMInferenceService(InferenceService):
             >>> [e.name for e in entities]
             ['Apple Inc.', 'iPhone 15']
         """
-        # Convert to LangChain format
-        document = self.adapter.chunk_to_langchain_document(chunk)
-        
-        # Process with LLMGraphTransformer
-        graph_document = self.transformer.process_response(document)
-        
-        # Convert nodes to entities
+        graph_document = self._get_graph_document(chunk)
+
         entities = self.adapter.langchain_nodes_to_entities(
             nodes=graph_document.nodes,
             chunk_id=chunk.id,
         )
-        
+        self._enrich_entities_ontology(entities)
         return entities
     
     def extract_relations(
@@ -357,14 +424,12 @@ class LLMInferenceService(InferenceService):
             List of Relation objects connecting entities
             
         Note:
-            This method re-processes the chunk to extract relationships.
-            The entities parameter is used for ID resolution during conversion.
+            Reutiliza el mismo GraphDocument que ``extract_entities`` para este
+            ``chunk.id`` (una sola llamada LLM por chunk cuando se llama a ambos).
             
         Process:
-            1. Convert Chunk to LangChain Document
-            2. Process with LLMGraphTransformer
-            3. Extract relationships from GraphDocument
-            4. Convert relationships to Relation objects using entity lookup
+            1. Obtener GraphDocument (caché o grafo LangGraph)
+            2. Convertir relationships a Relation con resolución de IDs
             
         Example:
             >>> relations = service.extract_relations(chunk, entities)
@@ -372,22 +437,17 @@ class LLMInferenceService(InferenceService):
             >>> rel.relation_type
             'PRODUCED_BY'
         """
-        # Convert to LangChain format
-        document = self.adapter.chunk_to_langchain_document(chunk)
-        
-        # Process with LLMGraphTransformer
-        graph_document = self.transformer.process_response(document)
-        
-        # Convert relationships to relations
+        graph_document = self._get_graph_document(chunk)
+
         relations = self.adapter.langchain_relationships_to_relations(
             relationships=graph_document.relationships,
             entities=entities,
             chunk_id=chunk.id,
         )
-        
+        self._enrich_relations_ontology(relations)
         return relations
     
-    def infer_facts(self, chunk: Chunk) -> List[Fact]:
+    def infer_facts(self, chunk: Chunk, entities: Optional[List[Entity]] = None) -> List[Fact]:
         """
         Infer facts from chunk (entity mentions).
         
@@ -402,8 +462,8 @@ class LLMInferenceService(InferenceService):
             Each fact represents: chunk MENTIONS entity_name
             
         Process:
-            1. Extract entities from chunk
-            2. Generate MENTIONS fact for each entity
+            1. Reutilizar GraphDocument en caché si existe (misma ejecución del grafo que extract_entities)
+            2. Generar MENTIONS fact por entidad
             
         Example:
             >>> facts = service.infer_facts(chunk)
@@ -411,13 +471,20 @@ class LLMInferenceService(InferenceService):
             >>> fact.predicate
             'MENTIONS'
         """
-        # Extract entities
-        entities = self.extract_entities(chunk)
-        
-        # Convert to MENTIONS facts
-        facts = self.adapter.entities_to_facts(
-            entities=entities,
+        if entities is not None:
+            self._enrich_entities_ontology(entities)
+            return self.adapter.entities_to_facts(
+                entities=entities,
+                chunk_id=chunk.id,
+            )
+        graph_document = self._get_graph_document(chunk)
+        built = self.adapter.langchain_nodes_to_entities(
+            nodes=graph_document.nodes,
             chunk_id=chunk.id,
         )
-        
-        return facts
+        self._enrich_entities_ontology(built)
+
+        return self.adapter.entities_to_facts(
+            entities=built,
+            chunk_id=chunk.id,
+        )

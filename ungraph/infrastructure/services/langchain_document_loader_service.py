@@ -12,6 +12,8 @@ import logging
 from ungraph.domain.services.document_loader_service import DocumentLoaderService
 from ungraph.domain.entities.document import Document
 from ungraph.domain.value_objects.document_type import DocumentType
+from ungraph.domain.value_objects.web_document import ExtractionRecipe
+from ungraph.infrastructure.services.html_cir_extractor import extract_web_document
 
 # Imports de LangChain (infrastructure puede usar frameworks)
 from langchain_community.document_loaders import (
@@ -42,6 +44,7 @@ class LangChainDocumentLoaderService(DocumentLoaderService):
     - Texto plano (.txt)
     - Word (.doc, .docx)
     - PDF (.pdf) usando langchain-docling (IBM Docling)
+    - HTML (.html, .htm) vía CIR (extracción estructurada y markdown outline)
     """
     
     def __init__(self, text_cleaning_service=None):
@@ -56,12 +59,12 @@ class LangChainDocumentLoaderService(DocumentLoaderService):
     def supports(self, file_path: Path) -> bool:
         """Verifica si puede cargar el tipo de archivo."""
         suffix = file_path.suffix.lower()
-        supported = ['.md', '.markdown', '.txt', '.doc', '.docx']
+        supported = ['.md', '.markdown', '.txt', '.doc', '.docx', '.html', '.htm']
         if DOCLING_AVAILABLE:
             supported.append('.pdf')
         return suffix in supported
     
-    def load(self, file_path: Path, clean: bool = True) -> List[Document]:
+    def load(self, file_path: Path, clean: bool = True, **kwargs) -> List[Document]:
         """
         Carga un archivo y lo convierte en Document(s).
         
@@ -81,24 +84,34 @@ class LangChainDocumentLoaderService(DocumentLoaderService):
             return self._load_word(file_path, clean)
         elif suffix == '.pdf':
             return self._load_pdf(file_path, clean)
+        elif suffix in ('.html', '.htm'):
+            recipe = kwargs.get("extraction_recipe")
+            if recipe is not None and not isinstance(recipe, ExtractionRecipe):
+                raise TypeError("extraction_recipe debe ser ExtractionRecipe o None")
+            return self._load_html(
+                file_path,
+                clean,
+                recipe,
+                source_url=kwargs.get("source_url"),
+            )
         else:
             raise ValueError(f"Tipo de archivo no soportado: {suffix}")
     
     def _load_markdown(self, file_path: Path, clean: bool) -> List[Document]:
         """Carga un archivo Markdown."""
         logger.info(f"Cargando archivo Markdown: {file_path}")
-        
+
         loader = UnstructuredMarkdownLoader(str(file_path))
         langchain_docs = loader.load()
-        
+
         documents = []
         for lc_doc in langchain_docs:
             content = lc_doc.page_content
-            
+
             # Limpiar si está habilitado
             if clean and self.text_cleaning_service:
                 content = self.text_cleaning_service.clean(content)
-            
+
             # Crear entidad Document del dominio
             doc = Document.create(
                 content=content,
@@ -110,10 +123,46 @@ class LangChainDocumentLoaderService(DocumentLoaderService):
                 }
             )
             documents.append(doc)
-        
+
         logger.info(f"Archivo cargado exitosamente. Documentos generados: {len(documents)}")
         return documents
-    
+
+    def _load_html(
+        self,
+        file_path: Path,
+        clean: bool,
+        recipe: ExtractionRecipe | None,
+        source_url: str | None = None,
+    ) -> List[Document]:
+        """Carga HTML: extrae CIR y serializa a markdown outline para chunking jerárquico."""
+        logger.info(f"Cargando HTML: {file_path}")
+        raw = file_path.read_bytes()
+        # URL canónica para crawls; si no, ruta absoluta del archivo
+        source_id = (source_url or "").strip() or str(file_path.resolve())
+        web_doc = extract_web_document(raw, source_id=source_id, recipe=recipe)
+        content = web_doc.to_markdown_outline()
+        if clean and self.text_cleaning_service:
+            content = self.text_cleaning_service.clean(content)
+        if not content.strip():
+            raise ValueError(f"Sin contenido extraíble del HTML: {file_path}")
+        meta = {
+            "file_path": str(file_path),
+            "content_format": "markdown_outline",
+            "web_document": web_doc.to_dict(),
+            "source_id": web_doc.source_id,
+            "recipe_id": web_doc.recipe_id,
+            "recipe_version": web_doc.recipe_version,
+            "canonical_url": source_url,
+        }
+        doc = Document.create(
+            content=content,
+            filename=file_path.name,
+            file_type=DocumentType.HTML.value,
+            metadata=meta,
+        )
+        logger.info("HTML convertido a markdown outline para ingestión")
+        return [doc]
+
     def _load_txt(self, file_path: Path, clean: bool) -> List[Document]:
         """
         Carga un archivo de texto con detección automática de codificación.

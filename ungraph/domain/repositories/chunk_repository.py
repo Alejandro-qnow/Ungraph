@@ -22,7 +22,10 @@ Ejemplo de uso:
 
 from abc import ABC, abstractmethod
 from typing import List, Optional
+
 from ungraph.domain.entities.chunk import Chunk
+from ungraph.domain.entities.fact import Fact
+from ungraph.domain.entities.relation import Relation
 
 
 class ChunkRepository(ABC):
@@ -90,13 +93,41 @@ class ChunkRepository(ABC):
         pass
     
     @abstractmethod
-    def create_chunk_relationships(self) -> None:
+    def create_chunk_relationships(
+        self,
+        *,
+        source_document_uid: Optional[str] = None,
+        filename: Optional[str] = None,
+        chunk_ids: Optional[List[str]] = None,
+        global_legacy: bool = False,
+    ) -> None:
         """
-        Crea relaciones entre chunks consecutivos.
-        
-        Esto es específico del dominio: necesitamos relaciones NEXT_CHUNK
-        entre chunks consecutivos. La implementación puede variar
-        (Neo4j usa relaciones, PostgreSQL usa foreign keys, etc.)
+        Crea relaciones NEXT_CHUNK dentro del mismo documento ``source_document_uid``,
+        mismo ``filename`` (:File→:Page→:Chunk), o solo entre ``chunk_ids`` ordenados;
+        ``global_legacy`` conserva comportamiento anterior (no recomendado en ingesta nueva).
+        """
+        pass
+
+    @abstractmethod
+    def list_chunk_ids_without_derived_facts(self, *, min_content_chars: int = 1) -> List[str]:
+        """
+        Identificadores de :Chunk sin ningún :Fact-[:DERIVED_FROM]->(chunk)
+        y con texto mínimo (para re-ejecutar inferencia / minado).
+        """
+        pass
+
+    @abstractmethod
+    def save_facts(self, facts: List[Fact]) -> None:
+        """Persiste hechos inferidos (Neo4j: Fact + Entity + MENTIONS)."""
+        pass
+
+    @abstractmethod
+    def save_relations(self, relations: List[Relation]) -> None:
+        """
+        Persiste relaciones inferidas entre :Entity (tras save_facts u otra creación de entidades).
+
+        La implementación Neo4j usa el tipo de relación ``EXTRACTED_REL`` con la semántica
+        en propiedades (``relation_type``, URIs, etc.) para no depender de APOC.
         """
         pass
 

@@ -47,9 +47,15 @@ FILE_PAGE_CHUNK_PATTERN = GraphPattern(
             optional_properties={
                 "is_unitary": bool,
                 "chunk_id_consecutive": int,
-                "embedding_encoder_info": str
+                "embedding_encoder_info": str,
+                "filename": str,
+                "page_number": int,
+                "source_document_uid": str,
+                "source_parent_uids": list,
+                "doi_norm": str,
+                "primary_parent_uid": str,
             },
-            indexes=["chunk_id", "chunk_id_consecutive"]
+            indexes=["chunk_id", "chunk_id_consecutive", "source_document_uid"]
         )
     ],
     relationship_definitions=[

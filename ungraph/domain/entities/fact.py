@@ -24,6 +24,8 @@ Ejemplo de uso:
 from dataclasses import dataclass
 from typing import Optional
 
+from ungraph.domain.value_objects.curation_state import normalize_curation_state
+
 
 @dataclass
 class Fact:
@@ -41,6 +43,9 @@ class Fact:
         object: Objeto de la tripleta (típicamente entidad o valor)
         confidence: Nivel de confianza (0.0-1.0)
         provenance_ref: Referencia al chunk origen (para trazabilidad PROV-O)
+        object_entity_type: Si ``predicate`` es MENTIONS, tipo de la entidad objeto (opcional)
+        object_ontology_class_uri: Si ``predicate`` es MENTIONS, IRI de clase OWL (opcional)
+        curation_state: Ciclo de vida de validación: Extracted | Curated | Invalid
     """
     id: str
     subject: str
@@ -48,6 +53,9 @@ class Fact:
     object: str
     confidence: float
     provenance_ref: str
+    object_entity_type: Optional[str] = None
+    object_ontology_class_uri: Optional[str] = None
+    curation_state: str = "Extracted"
     
     def __post_init__(self):
         """
@@ -65,6 +73,7 @@ class Fact:
             raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
         if not self.provenance_ref:
             raise ValueError("Fact provenance_ref cannot be empty")
+        object.__setattr__(self, "curation_state", normalize_curation_state(self.curation_state))
     
     def to_triple(self) -> tuple[str, str, str]:
         """

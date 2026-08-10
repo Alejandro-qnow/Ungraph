@@ -181,6 +181,11 @@ class Neo4jIndexService(IndexService):
             "Chunk",
             "chunk_id_consecutive"
         )
+        self.setup_regular_index(
+            "chunk_source_document_uid_idx",
+            "Chunk",
+            "source_document_uid",
+        )
         
         # Índice vectorial para embeddings
         self.setup_vector_index(
@@ -247,7 +252,8 @@ class Neo4jIndexService(IndexService):
         indexes_to_drop = [
             "chunk_embeddings",  # Vector index
             "chunk_content",     # Full-text index
-            "chunk_consecutive_idx"  # Regular index
+            "chunk_consecutive_idx",  # Regular index
+            "chunk_source_document_uid_idx",
         ]
         
         for index_name in indexes_to_drop:
@@ -276,15 +282,19 @@ class Neo4jIndexService(IndexService):
                 if node_labels:
                     # Eliminar solo nodos con labels específicos
                     for label in node_labels:
-                        query = f"MATCH (n:{label}) DETACH DELETE n"
-                        result = session.execute_write(lambda tx: tx.run(query))
-                        count = result.consume().counters.nodes_deleted
+                        def _delete_labeled(tx, lbl: str = label):
+                            res = tx.run(f"MATCH (n:{lbl}) DETACH DELETE n")
+                            return res.consume().counters.nodes_deleted
+
+                        count = session.execute_write(_delete_labeled)
                         logger.info(f"Deleted {count} nodes with label '{label}'")
                 else:
                     # Eliminar todos los nodos y relaciones
-                    query = "MATCH (n) DETACH DELETE n"
-                    result = session.execute_write(lambda tx: tx.run(query))
-                    count = result.consume().counters.nodes_deleted
+                    def _delete_all(tx):
+                        res = tx.run("MATCH (n) DETACH DELETE n")
+                        return res.consume().counters.nodes_deleted
+
+                    count = session.execute_write(_delete_all)
                     logger.info(f"Deleted {count} nodes and all relationships")
         except Exception as e:
             logger.error(f"Error cleaning graph: {e}")

@@ -20,8 +20,10 @@ Ejemplo de uso:
     )
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
+
+from ungraph.domain.value_objects.curation_state import normalize_curation_state
 
 
 @dataclass
@@ -39,6 +41,12 @@ class Relation:
         relation_type: Tipo de relación (ej: "WORKS_FOR", "LOCATED_IN", etc.)
         confidence: Nivel de confianza (0.0-1.0)
         provenance_ref: Referencia al chunk origen (para trazabilidad PROV-O)
+        ontology_property_uri: URI de propiedad OWL/RDF si aplica
+        extraction_method: Origen de la extracción (p. ej. "llm", "spacy")
+        decision_log_id: Identificador de trazabilidad de la corrida de inferencia
+        source_entity_name: Texto/mención origen (persistencia Neo4j :Entity.name)
+        target_entity_name: Texto/mención destino (persistencia Neo4j :Entity.name)
+        curation_state: Ciclo de vida de validación: Extracted | Curated | Invalid
     """
     id: str
     source_entity_id: str
@@ -46,6 +54,12 @@ class Relation:
     relation_type: str
     confidence: float
     provenance_ref: str
+    ontology_property_uri: Optional[str] = None
+    extraction_method: Optional[str] = None
+    decision_log_id: Optional[str] = field(default=None, repr=False)
+    source_entity_name: Optional[str] = None
+    target_entity_name: Optional[str] = None
+    curation_state: str = "Extracted"
     
     def __post_init__(self):
         """
@@ -65,6 +79,7 @@ class Relation:
             raise ValueError("Relation provenance_ref cannot be empty")
         if self.source_entity_id == self.target_entity_id:
             raise ValueError("Source and target entity cannot be the same")
+        object.__setattr__(self, "curation_state", normalize_curation_state(self.curation_state))
     
     def is_high_confidence(self, threshold: float = 0.8) -> bool:
         """

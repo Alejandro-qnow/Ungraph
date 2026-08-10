@@ -1,5 +1,7 @@
 import os
 import ast
+from typing import Optional, Sequence
+
 from neo4j import GraphDatabase
 from neo4j.exceptions import ClientError
 import logging
@@ -31,9 +33,9 @@ def graph_session() -> GraphDatabase:
 
     if not URI or not PASSWORD:
         raise ValueError(
-            "NEO4J_URI and NEO4J_PASSWORD must be set. "
-            "Use ungraph.configure() or set environment variables.\n"
-            "Example: ungraph.configure(neo4j_uri='bolt://localhost:7687', neo4j_password='your_password')"
+            "Faltan credenciales Neo4j. Define UNGRAPH_NEO4J_URI y UNGRAPH_NEO4J_PASSWORD "
+            "(o NEO4J_URI y NEO4J_PASSWORD), o usa ungraph.configure(...). "
+            "Si usas un .env en la carpeta del paquete, puede ir en ungraph/.env junto a este proyecto."
         )
     
     AUTH = (USER, PASSWORD)
@@ -62,16 +64,22 @@ def graph_session() -> GraphDatabase:
 
 ## PROCESAMIENTO DE DOCUMENT DATA OBJECT A GRAFO.
 # Función para extraer estructura de documento
-def extract_document_structure(tx, 
-                               filename, 
-                               page_number, 
-                               chunk_id, 
-                               page_content, 
-                               is_unitary, 
-                               embeddings, 
-                               embeddings_dimensions, 
-                               embedding_encoder_info,
-                               chunk_id_consecutive):
+def extract_document_structure(
+    tx,
+    filename,
+    page_number,
+    chunk_id,
+    page_content,
+    is_unitary,
+    embeddings,
+    embeddings_dimensions,
+    embedding_encoder_info,
+    chunk_id_consecutive,
+    source_document_uid: Optional[str] = None,
+    source_parent_uids: Optional[Sequence[str]] = None,
+    doi_norm: Optional[str] = None,
+    primary_parent_uid: Optional[str] = None,
+):
     """
     Extrae y persiste la estructura FILE-PAGE-CHUNK en Neo4j.
     
@@ -124,6 +132,7 @@ def extract_document_structure(tx,
     ```
     """
     try:
+        parent_list = list(source_parent_uids or [])
         query = """
                 MERGE (f:File {filename: $filename})
                 ON CREATE SET f.createdAt = timestamp()
@@ -133,25 +142,49 @@ def extract_document_structure(tx,
                 MERGE (c:Chunk {chunk_id: $chunk_id})
                 ON CREATE SET c.page_content = $page_content,
                               c.is_unitary = $is_unitary,
-                              c.embeddings = $embeddings, 
+                              c.embeddings = $embeddings,
                               c.embeddings_dimensions = toInteger($embeddings_dimensions),
                               c.embedding_encoder_info = $embedding_encoder_info,
-                              c.chunk_id_consecutive = toInteger($chunk_id_consecutive)
+                              c.chunk_id_consecutive = toInteger($chunk_id_consecutive),
+                              c.filename = $filename,
+                              c.page_number = toInteger($page_number),
+                              c.source_document_uid = $source_document_uid,
+                              c.source_parent_uids = $source_parent_uids,
+                              c.doi_norm = $doi_norm,
+                              c.primary_parent_uid = $primary_parent_uid
+                ON MATCH SET c.page_content = $page_content,
+                             c.is_unitary = $is_unitary,
+                             c.embeddings = $embeddings,
+                             c.embeddings_dimensions = toInteger($embeddings_dimensions),
+                             c.embedding_encoder_info = $embedding_encoder_info,
+                             c.chunk_id_consecutive = toInteger($chunk_id_consecutive),
+                             c.filename = $filename,
+                             c.page_number = toInteger($page_number),
+                             c.source_document_uid = CASE WHEN $source_document_uid IS NULL THEN c.source_document_uid ELSE $source_document_uid END,
+                             c.source_parent_uids = CASE WHEN size($source_parent_uids) = 0 AND c.source_parent_uids IS NOT NULL THEN c.source_parent_uids ELSE $source_parent_uids END,
+                             c.doi_norm = CASE WHEN $doi_norm IS NULL THEN c.doi_norm ELSE $doi_norm END,
+                             c.primary_parent_uid = CASE WHEN $primary_parent_uid IS NULL THEN c.primary_parent_uid ELSE $primary_parent_uid END
 
                 MERGE (f)-[:CONTAINS]->(p)
                 MERGE (p)-[:HAS_CHUNK]->(c)
 
             """
-        result = tx.run(query, 
-                        filename=filename, 
-                        page_number=page_number,
-                        chunk_id=chunk_id,
-                        page_content=page_content,
-                        is_unitary=is_unitary,
-                        embeddings=embeddings,
-                        embeddings_dimensions=embeddings_dimensions,
-                        embedding_encoder_info=embedding_encoder_info,
-                        chunk_id_consecutive=chunk_id_consecutive)
+        result = tx.run(
+            query,
+            filename=filename,
+            page_number=page_number,
+            chunk_id=chunk_id,
+            page_content=page_content,
+            is_unitary=is_unitary,
+            embeddings=embeddings,
+            embeddings_dimensions=embeddings_dimensions,
+            embedding_encoder_info=embedding_encoder_info,
+            chunk_id_consecutive=chunk_id_consecutive,
+            source_document_uid=source_document_uid,
+            source_parent_uids=parent_list,
+            doi_norm=doi_norm,
+            primary_parent_uid=primary_parent_uid,
+        )
         return result
     except ClientError as e:
         logger.error("Database error", exc_info=True)
@@ -159,21 +192,183 @@ def extract_document_structure(tx,
         raise
 
 
+def merge_retrieval_context_view(
+    tx,
+    parent_chunk_id: str,
+    optimized_text: str,
+    strategy: str,
+    token_estimate: int,
+):
+    """
+    Crea/actualiza un nodo RetrievalChunk y la relación HAS_RETRIEVAL_VIEW desde Chunk.
 
-# Creo las relaciones entre chunks consecutivos.
-def create_chunk_relationships(session):
-    """Crear relaciones NEXT_CHUNK entre chunks consecutivos"""
-    join_chunks_query = """
-    MATCH (c1:Chunk),(c2:Chunk)
-    WHERE c1.chunk_id_consecutive + 1 = c2.chunk_id_consecutive
-    MERGE (c1)-[:NEXT_CHUNK]->(c2)
+    El texto completo permanece en ``Chunk.page_content``; ``optimized_text`` es la
+    vista reducida para ventanas de LLM y búsquedas con menos ruido.
     """
     try:
-        session.execute_write(lambda tx: tx.run(join_chunks_query))
-        logger.info("Chunk relationships created successfully")
+        query = """
+            MATCH (c:Chunk {chunk_id: $parent_chunk_id})
+            MERGE (v:RetrievalChunk {parent_chunk_id: $parent_chunk_id})
+            SET v.text = $optimized_text,
+                v.strategy = $strategy,
+                v.token_estimate = toInteger($token_estimate),
+                v.updatedAt = timestamp()
+            MERGE (c)-[:HAS_RETRIEVAL_VIEW]->(v)
+            """
+        return tx.run(
+            query,
+            parent_chunk_id=parent_chunk_id,
+            optimized_text=optimized_text,
+            strategy=strategy,
+            token_estimate=int(token_estimate),
+        )
+    except ClientError as e:
+        logger.error("merge_retrieval_context_view error", exc_info=True)
+        tx.rollback()
+        raise
+
+
+def create_chunk_relationships_tx(
+    tx,
+    *,
+    source_document_uid: Optional[str] = None,
+    filename: Optional[str] = None,
+    chunk_ids: Optional[Sequence[str]] = None,
+    global_legacy: bool = False,
+) -> None:
+    """
+    NEXT_CHUNK dentro del mismo ámbito de documento.
+
+    Preferir ``source_document_uid``; si falta usar ``filename`` via patrón File→Page→Chunk;
+    si ``chunk_ids`` se proporciona enlaza en orden tras ordenar por ``chunk_id_consecutive``
+    dentro de ese conjunto (compat reparación); ``global_legacy`` conserva comportamiento anterior.
+    """
+    if global_legacy:
+        q = """
+        MATCH (c1:Chunk), (c2:Chunk)
+        WHERE c1.chunk_id_consecutive + 1 = c2.chunk_id_consecutive
+        MERGE (c1)-[:NEXT_CHUNK]->(c2)
+        """
+        tx.run(q)
+        return
+
+    if source_document_uid:
+        q = """
+        MATCH (c1:Chunk), (c2:Chunk)
+        WHERE c1.source_document_uid = $uid
+          AND c2.source_document_uid = $uid
+          AND c1.chunk_id_consecutive + 1 = c2.chunk_id_consecutive
+        MERGE (c1)-[:NEXT_CHUNK]->(c2)
+        """
+        tx.run(q, uid=source_document_uid)
+        return
+
+    if filename:
+        q = """
+        MATCH (f:File {filename: $fn})-[:CONTAINS]->(:Page)-[:HAS_CHUNK]->(c1:Chunk)
+        MATCH (f)-[:CONTAINS]->(:Page)-[:HAS_CHUNK]->(c2:Chunk)
+        WHERE c1.chunk_id_consecutive + 1 = c2.chunk_id_consecutive
+        MERGE (c1)-[:NEXT_CHUNK]->(c2)
+        """
+        tx.run(q, fn=filename)
+        return
+
+    if chunk_ids:
+        q = """
+        MATCH (c:Chunk)
+        WHERE c.chunk_id IN $ids
+        WITH c ORDER BY c.chunk_id_consecutive ASC
+        WITH collect(c) AS nodes
+        UNWIND range(0, size(nodes) - 2) AS i
+        WITH nodes[i] AS c1, nodes[i + 1] AS c2
+        MERGE (c1)-[:NEXT_CHUNK]->(c2)
+        """
+        tx.run(q, ids=list(chunk_ids))
+        return
+
+    raise ValueError(
+        "create_chunk_relationships_tx requires source_document_uid, filename, chunk_ids, or global_legacy=True"
+    )
+
+
+def create_chunk_relationships(
+    session,
+    *,
+    source_document_uid: Optional[str] = None,
+    filename: Optional[str] = None,
+    chunk_ids: Optional[Sequence[str]] = None,
+    global_legacy: bool = False,
+) -> None:
+    """Crear relaciones NEXT_CHUNK; envoltorio de sesión Neo4j."""
+
+    def work(tx):
+        create_chunk_relationships_tx(
+            tx,
+            source_document_uid=source_document_uid,
+            filename=filename,
+            chunk_ids=chunk_ids,
+            global_legacy=global_legacy,
+        )
+
+    try:
+        session.execute_write(work)
+        logger.info(
+            "Chunk relationships created successfully (scoped=%s)",
+            source_document_uid or filename or chunk_ids or "global_legacy",
+        )
     except Exception as e:
         logger.exception("Error creating chunk relationships: %s", e)
         raise
+
+
+def create_chunk_relationships_global(session) -> None:
+    """Solo saneamiento/admin: cadena NEXT_CHUNK entre todos los chunks consecutivos compartidos (legacy)."""
+    create_chunk_relationships(session, global_legacy=True)
+
+
+def delete_next_chunk_edges_for_chunks_tx(tx, chunk_ids: Sequence[str]) -> None:
+    """Elimina aristas NEXT_CHUNK incidentes sobre los chunks dados (incoming y outgoing)."""
+    ids = list(chunk_ids)
+    if not ids:
+        return
+    q_out = """
+    UNWIND $ids AS cid
+    MATCH (c:Chunk {chunk_id: cid})-[r:NEXT_CHUNK]->()
+    DELETE r
+    """
+    q_in = """
+    UNWIND $ids AS cid
+    MATCH (c:Chunk {chunk_id: cid})<-[r:NEXT_CHUNK]-()
+    DELETE r
+    """
+    tx.run(q_out, ids=ids)
+    tx.run(q_in, ids=ids)
+
+
+def repair_next_chunk_chain_tx(tx, chunk_ids: Sequence[str]) -> None:
+    """
+    Parche qsar-lab: borrar NEXT_CHUNK que toquen estos ids y recrear cadena por chunk_id_consecutive.
+    Requiere que los chunks ya existan y compartan ámbito lógico.
+    """
+    delete_next_chunk_edges_for_chunks_tx(tx, chunk_ids)
+    create_chunk_relationships_tx(tx, chunk_ids=chunk_ids)
+
+
+def sanitize_illegitimate_next_chunk_tx(tx) -> None:
+    """
+    Borra NEXT_CHUNK donde ambos extremos tienen source_document_uid distinto (ambos definidos).
+    """
+    q = """
+    MATCH (c1:Chunk)-[r:NEXT_CHUNK]->(c2:Chunk)
+    WHERE c1.source_document_uid IS NOT NULL AND c2.source_document_uid IS NOT NULL
+      AND c1.source_document_uid <> c2.source_document_uid
+    DELETE r
+    """
+    tx.run(q)
+
+
+def sanitize_illegitimate_next_chunk(session) -> None:
+    session.execute_write(sanitize_illegitimate_next_chunk_tx)
 
 
 
@@ -318,8 +513,8 @@ def process_with_neo4j(df, batch_size=100, target_database="neo4j"):
                         axis=1
                     )
 
-                # Crear relaciones entre chunks consecutivos
-                create_chunk_relationships(session)
+                # Crear relaciones entre chunks consecutivos (legacy global; DataFrame batch path)
+                create_chunk_relationships(session, global_legacy=True)
             else:
                 logger.error("Data validation failed for DataFrame")
                 raise ValueError("Data validation failed for provided DataFrame")

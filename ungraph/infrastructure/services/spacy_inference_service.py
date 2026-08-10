@@ -13,9 +13,9 @@ https://neo4j.com/labs/genai-ecosystem/llm-graph-builder/
 """
 
 import logging
+import re
 import uuid
-from typing import List, Dict, Set
-from datetime import datetime
+from typing import Dict, List, Optional, Set, Tuple
 
 from ungraph.domain.services.inference_service import InferenceService
 from ungraph.domain.entities.chunk import Chunk
@@ -32,9 +32,43 @@ try:
     SPACY_AVAILABLE = True
 except ImportError:
     SPACY_AVAILABLE = False
-    logger.warning(
-        "spaCy no está instalado. Instala con: pip install spacy && python -m spacy download en_core_web_sm"
-    )
+
+# Líneas que tras quitar marcadores markdown quedan solo como basura (#, ##, …)
+_MD_HASH_ONLY_LINE = re.compile(r"^#+$")
+# Span de entidad que es claramente un artefacto de markdown o demasiado corto
+_NOISE_ENTITY_TEXT = re.compile(r"^#{1,6}\s*$|^[#\s\-_*]+$")
+
+
+def _normalize_markdown_for_ner(text: str) -> str:
+    """
+    Quita prefijos de encabezado markdown por línea para que spaCy no etiquete
+    ``###``, ``## Foo`` como ORG/PRODUCT, y omite líneas vacías / solo-gatos.
+    """
+    if not text:
+        return ""
+    lines_out: List[str] = []
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        while line.startswith("#"):
+            line = line[1:].lstrip(" \t")
+        if not line:
+            continue
+        if _MD_HASH_ONLY_LINE.fullmatch(line):
+            continue
+        lines_out.append(line)
+    return "\n".join(lines_out)
+
+
+def _is_noise_entity_span(name: str) -> bool:
+    """Filtra spans que suelen ser ruido de MD o tokens no útiles como entidades."""
+    s = (name or "").strip()
+    if len(s) < 2:
+        return True
+    if _NOISE_ENTITY_TEXT.match(s):
+        return True
+    if _MD_HASH_ONLY_LINE.fullmatch(s.lstrip()):
+        return True
+    return False
 
 
 class SpacyInferenceService(InferenceService):
@@ -68,6 +102,9 @@ class SpacyInferenceService(InferenceService):
         "MONEY": "MONEY",
         "PERCENT": "PERCENT",
         "QUANTITY": "QUANTITY",
+        "PRODUCT": "ORGANIZATION",
+        "WORK_OF_ART": "WORK_OF_ART",
+        "FAC": "LOCATION",
     }
     
     def __init__(self, model_name: str = "en_core_web_sm", disable: List[str] = None):
@@ -119,28 +156,35 @@ class SpacyInferenceService(InferenceService):
             raise ValueError("Chunk cannot be empty")
         
         logger.debug(f"Extracting entities from chunk: {chunk.id}")
-        
-        # Procesar texto con spaCy
-        doc = self.nlp(chunk.page_content)
+
+        plain = _normalize_markdown_for_ner(chunk.page_content)
+        text_for_ner = plain if plain.strip() else chunk.page_content
+
+        # Procesar texto con spaCy (markdown atenuado para menos falsos positivos)
+        doc = self.nlp(text_for_ner)
         
         # Extraer entidades únicas (por nombre y tipo)
         entities_dict: Dict[tuple[str, str], Entity] = {}
         
         for ent in doc.ents:
+            span_text = ent.text.strip()
+            if _is_noise_entity_span(span_text):
+                continue
             # Normalizar tipo de entidad
             entity_type = self.ENTITY_TYPE_MAPPING.get(ent.label_, ent.label_)
             
             # Crear clave única (nombre, tipo)
-            key = (ent.text.strip(), entity_type)
+            key = (span_text, entity_type)
             
             if key not in entities_dict:
                 # Crear nueva entidad
                 entity_id = f"entity_{uuid.uuid4().hex[:8]}"
                 entity = Entity(
                     id=entity_id,
-                    name=ent.text.strip(),
+                    name=span_text,
                     type=entity_type,
-                    mentions=[chunk.id]
+                    mentions=[chunk.id],
+                    extraction_method="spacy",
                 )
                 entities_dict[key] = entity
             else:
@@ -172,12 +216,17 @@ class SpacyInferenceService(InferenceService):
         logger.debug(f"Extracting relations from {len(entities)} entities in chunk {chunk.id}")
         
         relations = []
-        
+        seen_pairs: Set[Tuple[str, str]] = set()
+
         # Generar relaciones de co-ocurrencia entre entidades en el mismo chunk
-        # Solo para entidades diferentes
+        # Solo para entidades diferentes; un par (nombre A, nombre B) una sola vez
         for i, source_entity in enumerate(entities):
-            for target_entity in entities[i+1:]:
-                # Crear relación de co-ocurrencia
+            for target_entity in entities[i + 1 :]:
+                a, b = sorted((source_entity.name, target_entity.name))
+                pair_key = (a, b)
+                if pair_key in seen_pairs:
+                    continue
+                seen_pairs.add(pair_key)
                 relation_id = f"rel_{uuid.uuid4().hex[:8]}"
                 relation = Relation(
                     id=relation_id,
@@ -185,7 +234,10 @@ class SpacyInferenceService(InferenceService):
                     target_entity_id=target_entity.id,
                     relation_type="CO_OCCURS_WITH",
                     confidence=0.7,  # Confianza media para co-ocurrencia
-                    provenance_ref=chunk.id
+                    provenance_ref=chunk.id,
+                    extraction_method="spacy",
+                    source_entity_name=source_entity.name,
+                    target_entity_name=target_entity.name,
                 )
                 relations.append(relation)
         
@@ -193,7 +245,7 @@ class SpacyInferenceService(InferenceService):
         
         return relations
     
-    def infer_facts(self, chunk: Chunk) -> List[Fact]:
+    def infer_facts(self, chunk: Chunk, entities: Optional[List[Entity]] = None) -> List[Fact]:
         """
         Genera facts estructurados desde el chunk usando spaCy NER.
         
@@ -214,13 +266,12 @@ class SpacyInferenceService(InferenceService):
         
         logger.debug(f"Inferring facts from chunk: {chunk.id}")
         
-        # Extraer entidades
-        entities = self.extract_entities(chunk)
+        ent_list = entities if entities is not None else self.extract_entities(chunk)
         
         # Generar facts: uno por cada entidad encontrada
         facts = []
         
-        for entity in entities:
+        for entity in ent_list:
             # Calcular confianza basada en tipo de entidad
             # Entidades comunes (PERSON, ORG) tienen mayor confianza
             confidence_map = {
@@ -242,7 +293,8 @@ class SpacyInferenceService(InferenceService):
                 predicate="MENTIONS",
                 object=entity.name,
                 confidence=confidence,
-                provenance_ref=chunk.id
+                provenance_ref=chunk.id,
+                object_entity_type=entity.type,
             )
             facts.append(fact)
         

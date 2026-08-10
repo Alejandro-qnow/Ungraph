@@ -30,13 +30,14 @@ class DocumentLoaderService(ABC):
     """
     
     @abstractmethod
-    def load(self, file_path: Path, clean: bool = True) -> List[Document]:
+    def load(self, file_path: Path, clean: bool = True, **kwargs) -> List[Document]:
         """
         Carga un archivo y lo convierte en uno o más Document(s).
         
         Args:
             file_path: Ruta al archivo a cargar
             clean: Si True, aplica limpieza de texto (default: True)
+            **kwargs: Extensiones opcionales (p. ej. extraction_recipe para HTML)
         
         Returns:
             Lista de entidades Document con el contenido del archivo
