@@ -1,0 +1,25 @@
+# Pack seed — mono-doc (histórico H_I)
+
+pack_id: pack_seed
+description: >
+  Documento seed alineado al gold.json actual. Sirve como blanco mono-doc
+  y continuidad con hi_wave / pipeline_closure. No usar solo para afirmar §5.
+
+gold: ../gold.json
+default_pattern: FILE_PAGE_CHUNK
+staging_root: ../staging/
+complexity_projections: [emb, chunk_table]
+
+# Diseño limpio por defecto (sin LLM)
+allowed_inference_clean: [none, ner, pattern]
+# LLM solo en oleada B′ (contaminable) si el doc es pre-corte del modelo
+allowed_inference_contaminable: [llm]
+
+docs:
+  - id: kg_survey
+    path: ../corpus/kg_survey.md
+    published_at: 2024-01-01
+    note: >
+      Dogfood / survey sintético-normalizado del dominio. Tratar cutoff_class
+      como unknown salvo que se fije model_cutoff en la corrida.
+    topics: [knowledge_graphs, embeddings, graphrag, construction]

@@ -7,9 +7,9 @@
 
 | | |
 |--|--|
-| **is** | Track documentado; runner doekit + dominio P0 KG; serie notebooks research; export F5; **[`EXPERIMENTAL_DESIGN.md`](EXPERIMENTAL_DESIGN.md)** como único contexto de diseño experimental. |
-| **will be** | Packs + staging; probes D0–D5 calibrados; DoE multidoc; $C_k$ por celda; corridas NB; veredictos `reports/research/multicorpus/`. |
-| **Open claims** | Ver [`EXPERIMENTAL_DESIGN.md`](EXPERIMENTAL_DESIGN.md) §3 + PLAN § Open claims. Seed ≠ PRODUCT §5. |
+| **is** | Track + [`EXPERIMENTAL_DESIGN.md`](EXPERIMENTAL_DESIGN.md) (saneamiento, blancos, corte LLM); scaffold `packs/` E0. |
+| **will be** | E1 calibración probes from_text; E2 DoE B limpio; E3 B′ corte; E4 $C_k$; veredictos multicorpus. |
+| **Open claims** | Ver EXPERIMENTAL_DESIGN §3 (incl. H8 contaminación). Seed ≠ PRODUCT §5. |
 
 **Diseño experimental (hipótesis, planilla, traza, diseños A–C):** [`EXPERIMENTAL_DESIGN.md`](EXPERIMENTAL_DESIGN.md).
 

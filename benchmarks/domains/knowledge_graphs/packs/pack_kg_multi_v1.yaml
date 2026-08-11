@@ -1,0 +1,46 @@
+# Pack multicorpus v1 — fechas de publicación para régimen de corte LLM
+
+pack_id: pack_kg_multi_v1
+description: >
+  Batería multi-doc del dominio KG. published_at aprox. arXiv.
+  Diseños: B limpio (none/ner/pattern); B′ añade llm y compara pre vs post model_cutoff.
+
+gold: ../gold/gold_pack_kg_multi_v1.json   # will be — E1
+default_pattern: FILE_PAGE_CHUNK
+staging_root: ../staging/
+complexity_projections: [emb, chunk_table]
+
+allowed_inference_clean: [none, ner, pattern]
+allowed_inference_contaminable: [llm]
+
+docs:
+  - id: kg_survey
+    path: ../corpus/kg_survey.md
+    published_at: 2024-01-01
+    topics: [knowledge_graphs, survey_local]
+
+  - id: hogan_kg
+    path: ../corpus/2003.02320_knowledge_graphs_hogan.md
+    published_at: 2021-03-01
+    arxiv: 2003.02320
+    topics: [knowledge_graphs, foundations]
+    note: Alto riesgo de preentrenamiento en LLM actuales → régimen pre_cutoff típico
+
+  - id: ji_kg
+    path: ../corpus/2002.00388_kg_survey_ji.md
+    published_at: 2020-02-01
+    arxiv: 2002.00388
+    topics: [representation, acquisition]
+
+  - id: pan_llm_kg
+    path: ../corpus/2306.08302_llm_kg_roadmap.md
+    published_at: 2023-06-01
+    arxiv: 2306.08302
+    topics: [llm, kg]
+
+  - id: graphrag_edge
+    path: ../corpus/2404.16130_graphrag.md
+    published_at: 2024-04-01
+    arxiv: 2404.16130
+    topics: [graphrag, retrieval]
+    note: Posterior a cortes antiguos; útil como post_cutoff según model_cutoff
