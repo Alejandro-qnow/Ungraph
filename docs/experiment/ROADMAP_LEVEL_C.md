@@ -9,9 +9,9 @@
 
 | | |
 |--|--|
-| **is** | Instrumentación C0–C1 y C5 parcial en código (`ExperimentRun`, scorecard, doekit); oleadas seed H_I / family-wave / H_chunk **cerradas en P0** (ver PLAN — seed ≠ PRODUCT §5). |
-| **will be** | C2 ampliado multi-dominio; C3 recomendación; C4 MCP/interop; C5 automejora orquestada; DQ `dq_*` ([`sp-data-quality-graph-plan.md`](sp-data-quality-graph-plan.md)); Complexometrum. |
-| **Open claims** | Ver § Open claims. Nada de C se vende como capacidad B “validada”. |
+| **is** | Instrumentación C0–C1 y C5 parcial en código (`ExperimentRun`, scorecard, doekit); oleadas seed H_I / family-wave / H_chunk **cerradas en P0**; **PLAN A+B seed+técnico cerrado** (ver [`PLAN_MAESTRO.md`](PLAN_MAESTRO.md) — seed ≠ PRODUCT §5). |
+| **will be** | C2 ampliado multi-dominio; C3 recomendación; C4 MCP/interop; C5 automejora orquestada; DQ `dq_*` ([`sp-data-quality-graph-plan.md`](sp-data-quality-graph-plan.md)); Complexometrum; §5. |
+| **Open claims** | Ver PLAN § Open claims. Nada de C se vende como capacidad B “validada”. Seed+A+B cerrados **no** cierran este horizonte C. |
 
 **Línea roja:** Ungraph habilita medición y decisión reproducible; el integrador define políticas de memoria, gobernanza y producto cerrado. ETI nombra un **contrato de etapas**, no un único motor de inferencia. Retrieval/MCP son **consumidores** del almacén epistémico.
 

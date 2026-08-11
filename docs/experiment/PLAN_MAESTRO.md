@@ -3,15 +3,16 @@
 **Capa ZEN:** `experiment/` — índice ejecutable del programa medible (hipótesis → gates → scorecards / `ExperimentRun`).  
 **Audiencia:** research + developer.  
 **Última revisión:** 2026-08-11  
-**Paquete:** `ungraph` ([`pyproject.toml`](../../pyproject.toml))
+**Paquete:** `ungraph` ([`pyproject.toml`](../../pyproject.toml))  
+**Estado del plan:** **cerrado** en loop seed + cierre técnico librería A+B. Ciencia PRODUCT §5 y horizonte C (F*/C7) quedan **abiertos / diferidos** — ver § Open claims y § F.
 
 No sustituye teoría ([`../concepts/eti-spine.md`](../concepts/eti-spine.md), [`../research/WHITEPAPER_UNGRAPH_IMRAD.md`](../research/WHITEPAPER_UNGRAPH_IMRAD.md)), ni el criterio de producto “validado” ([`../product/PRODUCT.md`](../product/PRODUCT.md) §5), ni resultados ya promovidos a [`../validation/`](../validation/).
 
 | | |
 |--|--|
-| **is** | Contrato de corrida (`ExperimentRun` + `DomainScorecard` + bridge doekit); runner offline/online; dogfood P0 `knowledge_graphs` con corpus/gold/reports; gates seed documentados abajo; slot Infer `ner` / `pattern` / `llm` (`hybrid` no implementado); CI `eti-measurable`. |
-| **will be** | 2º dominio con Y discriminativas; DeepEval como juez estable; puente Complexometrum; `inference_mode=hybrid`; promoción de scorecards a `validation/` solo si cumplen PRODUCT §5. |
-| **Open claims** | Ver § Open claims. Gate PASS en seed ≠ “validado” de producto. |
+| **is** | Loop medible seed KG cerrado (`ExperimentRun` + scorecard + doekit + runner offline/online + reports H_I/family/H_chunk); cierre técnico A+B (settings→ingest, CLI E4/E5, reasoning API, CI `eti-measurable` + NER smoke); slot Infer `none`/`ner`/`pattern`/`llm` (experimental); DeepEval opcional (`ungraph[eval]`, no gate). |
+| **will be** | 2º dominio / probes duros hacia §5; `inference_mode=hybrid`; DeepEval como juez estable del gate; puente Complexometrum; MCP/reco/DQ (nivel C); promoción a `validation/` solo si cumple PRODUCT §5. |
+| **Open claims** | Gates seed PASS ≠ “validado” de producto. Ver § Open claims (ciencia abierta). Diferidos C7/F* no bloquean este cierre. |
 
 ---
 
@@ -45,6 +46,8 @@ Punteros fuera de `docs/` (skills, `article/`, `project/`) no sustituyen esta je
 
 Los veredictos H_I / family-wave / H_chunk en el dominio P0 son **evidencia de seed (dogfood)** — útiles para ingeniería y para acotar claims — no promoción automática a `validation/` ni a promesa B.
 
+**Cierre de este PLAN:** checklist A–E (con B6/C3 como tooling/experimental) = ingeniería + loop seed **cerrados**. PRODUCT §5 y filas F*/C7 = ciencia / horizonte **abiertos** (no se fingen `[x]`).
+
 ---
 
 ## Visión técnico-científica (qué queremos probar)
@@ -62,8 +65,8 @@ Extract → Transform → Inference son **módulos sustituibles**. Lo estable es
 | `none` | baseline ET (sin Infer) | **is** en runner H_I (`inference_service=None`) |
 | `ner` | Transductiva spaCy | **is** (default settings) |
 | `pattern` | Simbólica / léxica | **is** |
-| `llm` | Neural (OpenAI-compatible) | **is** experimental (extras) |
-| `hybrid` | NER↔LLM | **will be** — `NotImplementedError` |
+| `llm` | Neural (OpenAI-compatible) | **is** experimental (extras / API key; no gate familia seed) |
+| `hybrid` | NER↔LLM | **DIFERIDO** — `NotImplementedError` (fuera del cierre de este plan) |
 
 Fuente contrato: [`../api/sp-configuration.md`](../api/sp-configuration.md). Factor DoE `inference` / `pattern` RAG no confundir con `GraphPattern` de ingesta.
 
@@ -123,14 +126,14 @@ Ungraph debe habilitar experimentos **reproducibles, falsables y parametrizables
 3. **Dogfood P0** — [`benchmarks/domains/knowledge_graphs/`](../../benchmarks/domains/knowledge_graphs/).  
 4. **Oleadas 1–3 + H_chunk** — hechos en seed; veredictos en `reports/`.  
 5. **Capa 0 congelada** — `capa0_artifact.json` + reload wipe→re-ingest.  
-6. **Siguiente (ops / ampliación)** — commit/PR del paquete medible si aplica; 2º dominio o probes más duros; F5 Complexometrum si Y de tarea varían más. **No** es horizonte C (recomendación/MCP/DQ avanzada).
+6. **Ops A+B + cierre técnico** — **hecho** (paquete en `main`, docs ZEN, CLI/API Infer, CI). **Siguiente = ciencia** (2º dominio / probes más duros hacia §5); no reabrir A5–D6 salvo regresión. Horizonte C (MCP/reco/DQ) y F5 no bloquean este cierre.
 
 ---
 
 ## Checklist de estado (qué tenemos / qué no)
 
-Leyenda: **[x]** listo · **[~]** parcial / offline / experimental · **[ ]** no listo.  
-Fecha de foto: **2026-08-11**.
+Leyenda: **[x]** listo · **[~]** parcial / experimental documentado · **[ ]** no listo · **DIFERIDO** = fuera del cierre de este plan (criterio en nota).  
+Fecha de foto: **2026-08-11** (cierre plan seed + A+B).
 
 ### A. Instrumentación medible (MVP loop)
 
@@ -156,7 +159,7 @@ Fecha de foto: **2026-08-11**.
 | B3 | `entity_recall` / `relation_pair_recall` **desde Neo4j** | [x] | `neo4j_gold_metrics.py` |
 | B4 | `evidence_coverage` desde provenance / `DERIVED_FROM` | [x] | cableado en runner online |
 | B5 | Latency por fase en scorecard | [x] | `efficiency.latency_*` |
-| B6 | DeepEval como juez externo (anti-circularidad) | [~] | extra `ungraph[eval]`; no es gate de H_I |
+| B6 | DeepEval como juez externo (tooling) | [x] | extra `ungraph[eval]` + `extraction_deepeval.py`; **no** gate H_I; juez-estable-en-gate = will be |
 
 ### C. Contrato Infer (slot, no mega-diseño)
 
@@ -165,11 +168,11 @@ Fecha de foto: **2026-08-11**.
 | C1 | ABC `InferenceService` | [x] | `domain/services/inference_service.py` |
 | C2 | Instancia spaCy (`ner`) | [x] | `spacy_inference_service.py` |
 | C2b | Instancia léxica (`pattern`) | [x] | `lexical_pattern_inference_service.py` |
-| C3 | Instancia LLM (experimental) | [~] | `llm_inference_service.py` |
+| C3 | Instancia LLM (experimental) | [x] | `llm_inference_service.py` + factory `inference_mode=llm`; extras/API key; no gate familia seed |
 | C4 | Control ET `inference=none` en runner | [x] | online: `inference_service=None` |
 | C5 | Doc I/O del slot | [x] | [`../concepts/inference-slot.md`](../concepts/inference-slot.md) |
 | C6 | Taxonomía de familias en plan | [x] | esta página |
-| C7 | `inference_mode=hybrid` | [ ] | `NotImplementedError` |
+| C7 | `inference_mode=hybrid` | [ ] DIFERIDO | `NotImplementedError` hasta Y multi-familia estables; no mezclar con H_I — ver ROADMAP C |
 
 ### D. Gates y claims científicos
 
@@ -195,24 +198,26 @@ Fecha de foto: **2026-08-11**.
 | E6 | Claims README alineados al slot Infer | [x] | README + inference-slot |
 | E7 | Docs plan/producto como fuente en git | [x] | `docs/` versionado (canon ZEN: experiment/product/ops/archive) |
 
-### F. Fuera del cierre de claim seed (no bloquear H_I)
+### F. Fuera del cierre de este plan (horizonte C / will be) — DIFERIDO
 
-| # | Ítem | Estado | Nota |
-|---|------|--------|------|
-| F1 | MCP Ungraph | [~] | exploratorio — horizonte C |
-| F2 | Report UI / yFiles | [~] | DX, no gate científico |
-| F3 | Multiagente | [~] | Capa 2 / C |
-| F4 | SPARQL / ontologías remotas | [~] | checkpoint; no H_I |
-| F5 | Puente Complexometrum | [ ] | Tras Y más variables / más dominios |
-| F6 | Recomendación automática de arquitectura (C3) | [ ] | tras factores retenidos multi-dominio |
+No bloquean el cierre seed + A+B. Detalle: [`ROADMAP_LEVEL_C.md`](ROADMAP_LEVEL_C.md).
+
+| # | Ítem | Estado | Criterio de diferido |
+|---|------|--------|----------------------|
+| F1 | MCP Ungraph | [~] DIFERIDO | Horizonte C4; tools → casos de uso; no bloquea loop medible |
+| F2 | Report UI / yFiles | [~] DIFERIDO | DX producto; no gate científico |
+| F3 | Multiagente | [~] DIFERIDO | Capa 2; prohibido mezclar en oleadas Capa 0 |
+| F4 | SPARQL / ontologías remotas | [~] DIFERIDO | Interop C / checkpoint; no H_I |
+| F5 | Puente Complexometrum | [ ] DIFERIDO | Tras Y de tarea más variables **o** ≥2 dominios; claim `H_bridge_complexity` |
+| F6 | Recomendación automática de arquitectura (C3) | [ ] DIFERIDO | Tras factores retenidos multi-dominio |
 
 ### Lectura rápida
 
-- Loop ExperimentRun↔scorecard↔doekit↔online **cerrado en seed KG**.  
+- **Este PLAN está cerrado** en instrumentación (A), Y seed (B1–B5 + B6 tooling), slot Infer (C salvo hybrid diferido), gates seed (D) y librería A+B (E).  
 - H_I / family-wave / H_chunk: veredictos en `reports/` — **probe seed**, no PRODUCT §5.  
 - H_chunk (AC) y H_T siguen débiles — no inflar.  
-- **Cierre técnico A+B (wave1):** settings→ingest, CLI humo E4/E5, reasoning en API pública, CI NER smoke.  
-- Siguiente científico (después del cierre técnico): 2º dominio o probes más duros; F5 cuando Y varíen.  
+- **Abierto solo:** C7 + F* (DIFERIDO) y § Open claims (ciencia §5).  
+- Siguiente ciclo de trabajo: oleada-ciencia (2º dominio / probes) o horizonte C — no reabrir A5–D6 salvo regresión.  
 - Comandos H_chunk: ver [`BENCHMARK_ETI_DOMAINS.md`](BENCHMARK_ETI_DOMAINS.md).
 
 ---
@@ -253,27 +258,33 @@ Detalle CLI y fases de producto: ops + [`../product/PRODUCT.md`](../product/PROD
 
 ## Open claims (falseables)
 
-### Claim H_I_seed_vs_product
+> **Cierre del checklist de este PLAN ≠ cierre científico de producto.**  
+> A–E están cerrados en seed + ingeniería. Lo de abajo permanece **OPEN** hasta nueva medición o confrontación §5.
 
+### Claim H_I_seed_vs_product — **OPEN (bloquea §5)**
+
+- **Estado:** gate H_I PASS en seed (`hi_wave_verdict.json`); §5 no reclamado.
 - **Enunciado:** El gate H_I PASS en `knowledge_graphs` / `kg_survey.md` no implica validación PRODUCT §5 hasta confrontar ≥1 corpus/fuente externa (u otro dominio P0) con el mismo protocolo.
 - **Predicción observable:** Tras 2º dominio o gold externo, al menos una Y de grafo o tarea mantiene `ner`>`none` sin colapso de AC@k; o el claim se acota a “seed-only”.
 - **Protocolo mínimo:** fixture versionado + wipe + `--hi-wave` online; veredicto JSON comparable a `hi_wave_verdict.json`.
 - **Falsación:** Si en el nuevo dominio `ner` no mejora recall anclado o la tarea colapsa sistemáticamente, H_I queda acotado o rechazado fuera del seed.
 - **Reproducibilidad:** `ExperimentRun` + scorecard + veredicto en `reports/`; promoción a `validation/` solo si cumple §5.
 
-### Claim H_chunk_task_Y
+### Claim H_chunk_task_Y — **OPEN / débil en seed**
 
+- **Estado:** medido en seed; AC no retiene factores; latency sí (`chunk_size`). No inflar a causalidad de tarea.
 - **Enunciado:** Con Infer fijo (`ner`), `chunk_size` / estrategia de chunk mueven Y de **tarea** (no solo latency) en un diseño doekit con probes localizados.
 - **Predicción observable:** Algún factor retenido en analyze con respuesta `answer_correctness` (o hit@k), no solo `latency_s`.
 - **Protocolo mínimo:** `doe_h_chunk.yaml` online; analyze dual (AC + latency); ver `pipeline_closure.json`.
 - **Falsación:** Si AC permanece en banda estrecha sin factores retenidos (estado actual del seed), el claim de mejora de tarea queda rechazado en ese corpus.
 - **Reproducibilidad:** `results_h_chunk.csv` / `analysis_h_chunk*.json`.
 
-### Claim H_bridge_complexity (will be)
+### Claim H_bridge_complexity — **DEFERRED (F5)**
 
+- **Estado:** diferido hasta Y de tarea más variables o ≥2 dominios.
 - **Enunciado:** Un proxy de complejidad no estructurada en cortes ETI correlaciona con error de Infer/tarea mejor que azar en ≥2 dominios.
 - **Predicción / falsación / protocolo:** ver skill `eti-experiment-science` + ROADMAP oleada Complexometrum; no diseñar mega-DoE aquí.
 
 ---
 
-*Índice entre visión (§3/§8) e ingeniería medible. Actualizar checklist al cerrar o recortar un gate.*
+*Índice entre visión (§3/§8) e ingeniería medible. **Plan cerrado** en seed + A+B; actualizar solo al cerrar un Open claim o al recortar un diferido.*

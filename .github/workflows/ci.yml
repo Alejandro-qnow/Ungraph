@@ -142,6 +142,7 @@ jobs:
           tests/unit/test_lexical_pattern_inference_unit.py \
           tests/unit/test_domain_pipeline_offline_unit.py \
           tests/unit/test_composition_root_settings_unit.py \
+          tests/unit/test_extraction_deepeval_unit.py \
           -v -m "unit or not integration" --tb=short
 
     - name: Offline DoE smoke (screening + run, no Neo4j)

@@ -1,45 +1,46 @@
 # Gaps: desarrollo, pruebas, consideraciones
 
-Foto alineada al checklist de [`docs/experiment/PLAN_MAESTRO.md`](../../../docs/experiment/PLAN_MAESTRO.md). Actualizar junto con ese checklist.
+Foto alineada al checklist de [`docs/experiment/PLAN_MAESTRO.md`](../../../docs/experiment/PLAN_MAESTRO.md).  
+**PLAN cerrado** en seed + A+B técnico (2026-08-11). Actualizar solo al cerrar un Open claim o al des-diferir C7/F*.
 
-## Bloqueantes H_I (prioridad)
+## Cerrado (no reabrir salvo regresión)
 
-| Gap | Desarrollo | Pruebas | Consideración |
-|-----|------------|---------|---------------|
-| A5 Runner online | **Hecho:** `run_architecture_online` + `--mode online --hi-wave` | `tests/integration/test_hi_wave_online_unit_gate.py` | Neo4j + `ungraph[infer-en]` |
-| B2 Probes top-k | **Hecho:** `evaluate_answer_containment_topk` | unit en `test_neo4j_gold_metrics_unit.py` | Nunca corpus completo |
-| B3 Recall desde Neo4j | **Hecho:** `neo4j_gold_metrics.py` | unit + integration | Normalización case/espacios |
-| B4 evidence_coverage Neo4j | **Hecho:** `fetch_fact_provenance_counts` en online | vía evaluate_gold_against_neo4j | DERIVED_FROM |
-| D3 Cerrar H_I | **Hecho (PASS):** `entity_recall` none=0 / ner≈0.47; AC@k estable | `hi_wave_verdict.json` | seed KG; no generalizar aún |
-| D4 Capa 0 freeze | **Hecho:** `capa0_artifact.py` + `freeze/reload-capa0`; gate match | `capa0_artifact.json`, `reload_verdict.json` | reload ≠ dump Neo4j |
-| D5 Oleada-3 | **Hecho:** `ner` vs `pattern` COMPARED | `family_wave_verdict.json` | LLM opcional (`--families ner,llm`) |
-| C5 Doc I/O Infer | **Hecho:** `docs/concepts/inference-slot.md` + nav mkdocs | — | slot ≠ mega-diseño |
-| D6 H_chunk/H_T | **Hecho (DoE):** `doe_h_chunk.yaml` + online 7 celdas | `results_h_chunk.csv`, `analysis_h_chunk*.json` | AC débil; latency retiene chunk_size |
-| Instrumento probes | **Hecho:** gold localizado + exact≥4 tokens | unit probe | evita saturación AC |
-| Cierre loop | **Hecho:** `pipeline_closure.json` | reports/ | seed KG |
+Bloqueantes históricos H_I / A5–D6 / E7 / wave1 técnico: **hechos** — ver PLAN checklist A–E y `reports/` del dominio `knowledge_graphs`.
 
-## Desarrollo pendiente (orden siguiente)
+| Gap wave1 | Estado |
+|-----------|--------|
+| Composition root settings | Hecho |
+| CLI E4/E5 humo | Hecho |
+| API reasoning | Hecho |
+| CI NER smoke | Hecho |
+| B6 DeepEval tooling | Hecho (no gate) |
+| C3 LLM experimental | Hecho (extras/API key; no gate familia seed) |
+
+## Diferido (explícito — no bloquea cierre del PLAN)
+
+| Ítem | Criterio |
+|------|----------|
+| C7 hybrid Infer | Hasta Y multi-familia estables; `NotImplementedError` |
+| F1–F4 MCP / UI / multiagente / SPARQL | Horizonte C ([`ROADMAP_LEVEL_C.md`](../../../docs/experiment/ROADMAP_LEVEL_C.md)) |
+| F5 Complexometrum | Tras Y más variables o ≥2 dominios |
+| F6 Reco arquitectura | Tras factores retenidos multi-dominio |
+
+## Ciencia abierta (post-cierre del PLAN)
 
 | Gap | Acción |
 |-----|--------|
-| E7 docs en git | **Hecho:** `docs/` versionado (estructura ZEN experiment/product/ops) |
-| Promoción a `main` | **Hecho** @ `b39b7d0` (paquete medible + canon docs) |
-| Composition root settings | **Hecho (wave1):** factories usan `get_settings()`; `ingest_document` pasa settings |
-| CLI E4/E5 humo | **Hecho (wave1):** `test_cli_smoke_unit.py` + CI installation |
-| API reasoning | **Hecho (wave1):** `mine_knowledge` / `infer_over_document` / `graph_stats` / `validate_topology` en `__all__` |
-| CI NER smoke | **Hecho (wave1):** integration + `infer-en` + `en_core_web_sm` |
-| C7 hybrid Infer | **Fuera de oleada #1** — diferido (`NotImplementedError`) |
-| 2º dominio / probes más duros | Tras cierre técnico; para afirmar H_chunk en AC y H_T |
-| F5 Complexometrum | Tras Y de tarea más variables |
-| Integration H_I completo en CI | Opcional nightly (pesado); humo NER ya en integration |
+| `H_I_seed_vs_product` OPEN | 2º dominio P0 o gold externo + `--hi-wave` comparable |
+| `H_chunk_task_Y` OPEN/débil | Probes más duros o 2º dominio (AC no saturado) |
+| `H_bridge_complexity` DEFERRED | Solo tras desbloquear F5 |
+| DeepEval como juez-del-gate | Will be; no confundir con B6 tooling |
+| Integration H_I nightly | Opcional (pesado); humo NER ya en CI |
 
 ## Pruebas recomendadas (matriz)
 
 | Nivel | Qué | Marker / cmd |
 |-------|-----|----------------|
-| Unit | ExperimentRun↔scorecard↔doe_row; doe_bridge sintético; probe containment | `pytest.mark.unit` (ya) |
-| Unit | Mapeo gold→recall puro (sin Neo4j) | nuevo si se extrae lógica pura |
-| Integration | wipe + ingest `none` vs `ner` + B2/B3 | `pytest.mark.integration` + Neo4j |
+| Unit | ExperimentRun↔scorecard↔doe_row; doe_bridge; probe; settings; CLI; deepeval degrade | `pytest.mark.unit` |
+| Integration | wipe + ingest `none` vs `ner` + B2/B3; NER smoke | `pytest.mark.integration` + Neo4j |
 | Smoke DoE | screening seed fijo + analyze | script offline CI sin Neo4j |
 | E2E claim | oleada-2 documentada en `reports/` | manual/CI nightly con Neo4j |
 
@@ -48,9 +49,9 @@ Foto alineada al checklist de [`docs/experiment/PLAN_MAESTRO.md`](../../../docs/
 - No mezclar factores de agente (Capa 2) en oleada H_I.
 - Composite_score es secundario; reportar Y desagregadas.
 - R²≈1 con N pequeño → no sobreinterpretar p-valores; mirar ranking ET vs ETI y deltas.
-- DeepEval (B6) es juez externo opcional; no circular con el crítico del verify.
+- DeepEval (B6) es juez externo **opcional**; no circular con el crítico del verify; no es gate H_I.
 - Complexometrum (F5) solo tras Y reales; feedback a librería original si el adaptador correlaciona.
 
-## Fuera de foco (Capa 2 / producto amplio)
+## Fuera de foco hasta oleada-ciencia o C
 
-MCP, report UI, multiagente completo, SPARQL curado, hybrid Infer, recomendación C3, Complexometrum — hasta probes/Y más discriminativos o A10.
+MCP, report UI, multiagente completo, SPARQL curado, hybrid Infer, recomendación C3, Complexometrum — ver PLAN § F (DIFERIDO).
