@@ -27,11 +27,15 @@ Bloqueantes históricos H_I / A5–D6 / E7 / wave1 técnico: **hechos** — ver 
 
 ## Ciencia abierta (post-cierre del PLAN)
 
+Diseño maestro: [`docs/experiment/EXPERIMENTAL_DESIGN_MULTICORPUS.md`](../../../docs/experiment/EXPERIMENTAL_DESIGN_MULTICORPUS.md) (packs, D0–D5, $C_k$ por celda).
+
 | Gap | Acción |
 |-----|--------|
-| `H_I_seed_vs_product` OPEN | 2º dominio P0 o gold externo + `--hi-wave` comparable |
-| `H_chunk_task_Y` OPEN/débil | Probes más duros o 2º dominio (AC no saturado) |
-| `H_bridge_complexity` DEFERRED | Solo tras desbloquear F5 |
+| `H_probe_calibration` OPEN | Etiquetar probes D0–D5; media AC ET < 0.9 |
+| `H_multi_doc_reasoning` OPEN | Pack multicorpus + probes D3+ |
+| `H_I_seed_vs_product` OPEN | Pack multi y/o 2º dominio + protocolo comparable |
+| `H_chunk_task_Y` OPEN/débil | Solo tras probes calibrados (no seed fácil) |
+| `H_bridge_complexity` OPEN condicional | $C_k$ por celda tras M1+M3+M5 del diseño maestro |
 | DeepEval como juez-del-gate | Will be; no confundir con B6 tooling |
 | Integration H_I nightly | Opcional (pesado); humo NER ya en CI |
 

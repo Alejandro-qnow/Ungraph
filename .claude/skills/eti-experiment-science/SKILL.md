@@ -9,7 +9,7 @@ description: >
 
 # ETI experiment science (Ungraph)
 
-Fuente de verdad: [`docs/experiment/PLAN_MAESTRO.md`](../../../docs/experiment/PLAN_MAESTRO.md) (visión + **checklist de estado**) y [`docs/experiment/ROADMAP_LEVEL_C.md`](../../../docs/experiment/ROADMAP_LEVEL_C.md) (oleadas). Operativa DoE: [`docs/experiment/BENCHMARK_ETI_DOMAINS.md`](../../../docs/experiment/BENCHMARK_ETI_DOMAINS.md).
+Fuente de verdad: [`docs/experiment/PLAN_MAESTRO.md`](../../../docs/experiment/PLAN_MAESTRO.md) (visión + **checklist de estado**) y [`docs/experiment/ROADMAP_LEVEL_C.md`](../../../docs/experiment/ROADMAP_LEVEL_C.md) (oleadas). Operativa DoE: [`docs/experiment/BENCHMARK_ETI_DOMAINS.md`](../../../docs/experiment/BENCHMARK_ETI_DOMAINS.md). Programa post-cierre (multicorpus / dificultad probes / $C_k$ por celda): [`docs/experiment/EXPERIMENTAL_DESIGN_MULTICORPUS.md`](../../../docs/experiment/EXPERIMENTAL_DESIGN_MULTICORPUS.md) + [`docs/experiment/RESEARCH_TRACK.md`](../../../docs/experiment/RESEARCH_TRACK.md).
 
 ## Principios (no negociables)
 

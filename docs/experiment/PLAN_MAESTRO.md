@@ -279,11 +279,15 @@ Detalle CLI y fases de producto: ops + [`../product/PRODUCT.md`](../product/PROD
 - **Falsación:** Si AC permanece en banda estrecha sin factores retenidos (estado actual del seed), el claim de mejora de tarea queda rechazado en ese corpus.
 - **Reproducibilidad:** `results_h_chunk.csv` / `analysis_h_chunk*.json`.
 
-### Claim H_bridge_complexity — **DEFERRED (F5)**
+### Claim H_bridge_complexity — **OPEN condicional (programa multicorpus)**
 
-- **Estado:** diferido hasta Y de tarea más variables o ≥2 dominios.
-- **Enunciado:** Un proxy de complejidad no estructurada en cortes ETI correlaciona con error de Infer/tarea mejor que azar en ≥2 dominios.
-- **Predicción / falsación / protocolo:** ver skill `eti-experiment-science` + ROADMAP oleada Complexometrum; no diseñar mega-DoE aquí.
+- **Estado:** activar analyze cuando existan packs + probes calibrados + $C_k$ por celda ([`EXPERIMENTAL_DESIGN_MULTICORPUS.md`](EXPERIMENTAL_DESIGN_MULTICORPUS.md) M1+M3+M5).
+- **Enunciado:** Un proxy de complejidad no estructurada en cortes ETI correlaciona con error de Infer/tarea (esp. D3–D4) mejor que azar en ≥1 pack multi (idealmente ≥2 packs/dominios).
+- **Predicción / falsación / protocolo:** diseño maestro multicorpus §4 + skill `eti-experiment-science`.
+
+### Programa post-cierre (puntero)
+
+Diseño experimental (multicorpus, dificultad de probes, complejidad por celda): [`EXPERIMENTAL_DESIGN_MULTICORPUS.md`](EXPERIMENTAL_DESIGN_MULTICORPUS.md) · track: [`RESEARCH_TRACK.md`](RESEARCH_TRACK.md).
 
 ---
 

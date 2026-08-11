@@ -7,9 +7,11 @@
 
 | | |
 |--|--|
-| **is** | Track documentado; runner doekit + dominio P0 KG; serie notebooks research (esqueleto); export F5 `complexity_export` portado. |
-| **will be** | Corridas NB-01…04 con figs bajo `reports/research/`; probes duros en KG; 2º dominio P0; bridge Complexometrum con Y variables. |
-| **Open claims** | `H_I_seed_vs_product`, `H_chunk_task_Y`, `H_bridge_complexity` — ver PLAN § Open claims. Seed ≠ PRODUCT §5. |
+| **is** | Track documentado; runner doekit + dominio P0 KG; serie notebooks research (esqueleto); export F5 `complexity_export` portado; **diseño maestro multicorpus** versionado. |
+| **will be** | Packs + staging; probes D0–D5 calibrados; DoE multidoc; $C_k$ por celda; corridas NB-01…06; veredictos `reports/research/multicorpus/`. |
+| **Open claims** | Ver [`EXPERIMENTAL_DESIGN_MULTICORPUS.md`](EXPERIMENTAL_DESIGN_MULTICORPUS.md) §4 + PLAN § Open claims. Seed ≠ PRODUCT §5. |
+
+**Diseño maestro (lineamientos / metas / experimentos / pasos):** [`EXPERIMENTAL_DESIGN_MULTICORPUS.md`](EXPERIMENTAL_DESIGN_MULTICORPUS.md).
 
 No sustituye fundamento ([`../research/COMPLEXITY_UNSTRUCTURED.md`](../research/COMPLEXITY_UNSTRUCTURED.md)) ni el contrato API. Notebooks **no** “validan” producto.
 
@@ -20,7 +22,7 @@ No sustituye fundamento ([`../research/COMPLEXITY_UNSTRUCTURED.md`](../research/
 | Capa | Path | Rol |
 |------|------|-----|
 | Fundamento | [`../research/COMPLEXITY_UNSTRUCTURED.md`](../research/COMPLEXITY_UNSTRUCTURED.md), [`../research/OLEADA_COMPLEXOMETRIA_UNSTRUCTURED.md`](../research/OLEADA_COMPLEXOMETRIA_UNSTRUCTURED.md) | $C_k$, roles Ungraph↔Complexometrum |
-| Experimentación | **este archivo**, [`BENCHMARK_ETI_DOMAINS.md`](BENCHMARK_ETI_DOMAINS.md), [`ROADMAP_LEVEL_C.md`](ROADMAP_LEVEL_C.md) | Oleadas, gates, comandos |
+| Experimentación | **este archivo**, [`EXPERIMENTAL_DESIGN_MULTICORPUS.md`](EXPERIMENTAL_DESIGN_MULTICORPUS.md), [`BENCHMARK_ETI_DOMAINS.md`](BENCHMARK_ETI_DOMAINS.md), [`ROADMAP_LEVEL_C.md`](ROADMAP_LEVEL_C.md) | Diseño maestro, oleadas, gates, comandos |
 | Reproducibilidad | [`../../ungraph/notebooks/research/`](../../ungraph/notebooks/research/) | Step-by-step E2E |
 | Medición cruda | [`../../benchmarks/domains/knowledge_graphs/reports/research/`](../../benchmarks/domains/knowledge_graphs/reports/research/) | JSON/CSV/figs de esta rama (no pisar veredictos seed) |
 | Código bridge | [`../../ungraph/evaluation/complexity_export.py`](../../ungraph/evaluation/complexity_export.py) | Export proyecciones ETI → Complexometrum |
@@ -43,8 +45,9 @@ fundamento (research/) → experimentación (este track + doekit)
 | **2 NB-02 DoE** | Batería doekit screening→run→analyze | Artefactos en `reports/research/` vía runner | will be |
 | **3 NB-03 Plots** | Y desagregadas (recall, AC@k, latency) | Figs + lectura scorecard; no composite como veredicto | will be |
 | **4 NB-04 Bridge** | Export + correlación exploratoria proxy↔error | `complexity_export` + notebook; claim H_bridge sigue DEFERRED | will be |
-| **5 Probes duros KG** | Bajar saturación AC@k | Gold/probes ajustados; re-leer H_chunk | will be |
-| **6 2º dominio** | Confrontación `H_I_seed_vs_product` | Fixture P0 + `--hi-wave` comparable | will be (oleada siguiente) |
+| **5 Probes + multicorpus** | Calibración D0–D5 + packs/staging (Diseño A–B) | Ver [`EXPERIMENTAL_DESIGN_MULTICORPUS.md`](EXPERIMENTAL_DESIGN_MULTICORPUS.md) P1–P6 | will be |
+| **6 Complejidad por celda** | $C_k$ covariable en cada ExperimentRun | Diseño C + analyze vs D3–D4 | will be |
+| **7 2º dominio / §5** | Confrontación externa tras Y discriminativas | Fixture P0 + protocolo comparable | will be (después de P8) |
 
 ---
 

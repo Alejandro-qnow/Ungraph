@@ -96,6 +96,7 @@ nav:
   - Experimentación:
       - Plan maestro: experiment/PLAN_MAESTRO.md
       - Research track (DoE × complejidad): experiment/RESEARCH_TRACK.md
+      - Diseño experimental multicorpus: experiment/EXPERIMENTAL_DESIGN_MULTICORPUS.md
       - Benchmark ETI / DoE: experiment/BENCHMARK_ETI_DOMAINS.md
       - Roadmap nivel C: experiment/ROADMAP_LEVEL_C.md
       - Plan calidad datos (dq_*): experiment/sp-data-quality-graph-plan.md
