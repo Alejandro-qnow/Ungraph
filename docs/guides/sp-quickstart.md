@@ -5,14 +5,15 @@ Audiencia: developer. Espina ETI: [`../concepts/eti-spine.md`](../concepts/eti-s
 
 ## Prerrequisitos
 
-1. Python 3.10+ y Neo4j accesible (Bolt).
+1. Python 3.12+ y Neo4j accesible (Bolt).
 2. Credenciales Neo4j (`.env` o `ungraph.configure`).
 3. Paquete instalado:
 
 ```bash
 pip install ungraph
-# opcional: CLI
-pip install ungraph[cli]
+# opcional: CLI + spaCy EN
+pip install 'ungraph[cli,infer-en]'
+python -m spacy download en_core_web_sm
 ```
 
 **Resultado observable:** `import ungraph` sin error; `ungraph.__version__` imprime la versión del paquete.
@@ -42,6 +43,7 @@ ungraph.configure(
     neo4j_password="tu_contraseña",
     neo4j_database="neo4j",
     embedding_model="sentence-transformers/all-MiniLM-L6-v2",
+    inference_mode="ner",  # none|ner|pattern|llm — honrado por ingest / reasoning
 )
 ```
 
@@ -55,6 +57,8 @@ ungraph setup --database-init
 ungraph graph --ping
 ungraph ingest --path ruta/al/archivo.md
 ungraph ingest --folder ./documentos
+ungraph infer --kmining
+ungraph report -o ./out
 ```
 
 **Resultado observable:** `graph --ping` confirma conexión; `ingest` deja nodos File/Page/Chunk consultables en Neo4j.
@@ -74,7 +78,16 @@ print(len(chunks))
 print(chunks[0].id, chunks[0].page_content[:120])
 ```
 
-**is:** carga → limpieza opcional → chunks → embeddings → persistencia léxica (`FILE_PAGE_CHUNK` por defecto). El slot Inference (NER/LLM/…) se activa según `UNGRAPH_INFERENCE_MODE`; ver [`../concepts/inference-slot.md`](../concepts/inference-slot.md).
+**is:** carga → limpieza opcional → chunks → embeddings → persistencia léxica (`FILE_PAGE_CHUNK` por defecto). El slot Inference (NER/LLM/…) se activa según `UNGRAPH_INFERENCE_MODE` / `configure(inference_mode=…)`; ver [`../concepts/inference-slot.md`](../concepts/inference-slot.md).
+
+**Post-ingest (fase I explícita):**
+
+```python
+info = ungraph.infer_over_document("mi_documento.md")
+print(info["inference_mode"], info["chunks_created"])
+print(ungraph.mine_knowledge())
+print(ungraph.validate_topology())
+```
 
 **Resultado observable:** `len(chunks) > 0` y chunks con `id` / `page_content`.
 

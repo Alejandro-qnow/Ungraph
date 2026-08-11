@@ -54,6 +54,10 @@ __all__ = [
     "search_with_pattern",
     "suggest_chunking_strategy",
     "ingest_tabular",
+    "mine_knowledge",
+    "infer_over_document",
+    "graph_stats",
+    "validate_topology",
 
     # Clases para uso avanzado
     "IngestDocumentUseCase",
@@ -176,8 +180,9 @@ def ingest_document(
     from ungraph.application.dependencies import create_ingest_document_use_case
     
     use_case = create_ingest_document_use_case(
+        settings=settings,
         database=db_name,
-        embedding_model=emb_model
+        embedding_model=emb_model,
     )
     
     loader_kw: Dict[str, Any] = {}
@@ -689,6 +694,65 @@ def ingest_tabular(
         mapping=mapping,
         use_llm=use_llm,
         batch_size=batch_size,
+    )
+
+
+def mine_knowledge(
+    database: Optional[str] = None,
+    *,
+    inference_language: str = "en",
+    use_tqdm: bool = False,
+) -> Dict[str, Any]:
+    """Re-inferencia sobre chunks sin facts (fase I post-ingest). Ver ``ungraph.reasoning``."""
+    from ungraph.reasoning import mine_knowledge as _mine_knowledge
+
+    return _mine_knowledge(
+        database=database,
+        inference_language=inference_language,
+        use_tqdm=use_tqdm,
+    )
+
+
+def infer_over_document(
+    document_path: str | Path,
+    database: Optional[str] = None,
+    *,
+    inference_language: str = "en",
+    chunk_size: int = 1000,
+    chunk_overlap: int = 200,
+) -> Dict[str, Any]:
+    """Ingesta + inferencia sobre un documento; fachada serializable. Ver ``ungraph.reasoning``."""
+    from ungraph.reasoning import infer_over_document as _infer_over_document
+
+    return _infer_over_document(
+        str(document_path),
+        database=database,
+        inference_language=inference_language,
+        chunk_size=chunk_size,
+        chunk_overlap=chunk_overlap,
+    )
+
+
+def graph_stats(database: Optional[str] = None) -> Dict[str, Any]:
+    """Estadísticas estructurales del grafo (R/O). Ver ``ungraph.reasoning``."""
+    from ungraph.reasoning import graph_stats as _graph_stats
+
+    return _graph_stats(database=database)
+
+
+def validate_topology(
+    database: Optional[str] = None,
+    *,
+    source_document_uid: Optional[str] = None,
+    min_chunks: int = 1,
+) -> Dict[str, Any]:
+    """Valida topología File–Page–Chunk. Ver ``ungraph.reasoning``."""
+    from ungraph.reasoning import validate_topology as _validate_topology
+
+    return _validate_topology(
+        database=database,
+        source_document_uid=source_document_uid,
+        min_chunks=min_chunks,
     )
 
 

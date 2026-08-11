@@ -190,8 +190,8 @@ Fecha de foto: **2026-08-11**.
 | E1 | Ingest E→T→persist Neo4j | [x] | `ingest_document` + composition root |
 | E2 | Búsqueda text / vector / hybrid | [x] | API pública / guides |
 | E3 | Validador topología File–Page–Chunk | [x] | `graph_topology_validate` |
-| E4 | CLI setup / graph / ingest | [~] | extra `ungraph[cli]` |
-| E5 | CLI infer / report | [~] | parcial / stub |
+| E4 | CLI setup / graph / ingest | [x] | `ungraph[cli]`; humo `tests/unit/test_cli_smoke_unit.py` |
+| E5 | CLI infer / report | [x] | `infer` / `report` + help smoke en CI installation |
 | E6 | Claims README alineados al slot Infer | [x] | README + inference-slot |
 | E7 | Docs plan/producto como fuente en git | [x] | `docs/` versionado (canon ZEN: experiment/product/ops/archive) |
 
@@ -211,7 +211,8 @@ Fecha de foto: **2026-08-11**.
 - Loop ExperimentRun↔scorecard↔doekit↔online **cerrado en seed KG**.  
 - H_I / family-wave / H_chunk: veredictos en `reports/` — **probe seed**, no PRODUCT §5.  
 - H_chunk (AC) y H_T siguen débiles — no inflar.  
-- Siguiente científico: 2º dominio o probes más duros; F5 cuando Y varíen.  
+- **Cierre técnico A+B (wave1):** settings→ingest, CLI humo E4/E5, reasoning en API pública, CI NER smoke.  
+- Siguiente científico (después del cierre técnico): 2º dominio o probes más duros; F5 cuando Y varíen.  
 - Comandos H_chunk: ver [`BENCHMARK_ETI_DOMAINS.md`](BENCHMARK_ETI_DOMAINS.md).
 
 ---

@@ -23,10 +23,15 @@ Foto alineada al checklist de [`docs/experiment/PLAN_MAESTRO.md`](../../../docs/
 | Gap | Acción |
 |-----|--------|
 | E7 docs en git | **Hecho:** `docs/` versionado (estructura ZEN experiment/product/ops) |
-| Promoción a `main` | Merge paquete medible + docs canon; sincronizar feature branch |
-| 2º dominio / probes más duros | Para afirmar H_chunk en AC (no solo latency) y H_T |
+| Promoción a `main` | **Hecho** @ `b39b7d0` (paquete medible + canon docs) |
+| Composition root settings | **Hecho (wave1):** factories usan `get_settings()`; `ingest_document` pasa settings |
+| CLI E4/E5 humo | **Hecho (wave1):** `test_cli_smoke_unit.py` + CI installation |
+| API reasoning | **Hecho (wave1):** `mine_knowledge` / `infer_over_document` / `graph_stats` / `validate_topology` en `__all__` |
+| CI NER smoke | **Hecho (wave1):** integration + `infer-en` + `en_core_web_sm` |
+| C7 hybrid Infer | **Fuera de oleada #1** — diferido (`NotImplementedError`) |
+| 2º dominio / probes más duros | Tras cierre técnico; para afirmar H_chunk en AC y H_T |
 | F5 Complexometrum | Tras Y de tarea más variables |
-| Integration H_I en CI | Opcional nightly: Neo4j + spaCy model (pesado) |
+| Integration H_I completo en CI | Opcional nightly (pesado); humo NER ya en integration |
 
 ## Pruebas recomendadas (matriz)
 

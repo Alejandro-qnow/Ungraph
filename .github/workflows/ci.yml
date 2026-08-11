@@ -47,6 +47,8 @@ jobs:
         uv pip install "${WHEEL}[cli]"
         ungraph --help
         python -c "from ungraph.cli.main import app"
+        uv pip install pytest
+        pytest tests/unit/test_cli_smoke_unit.py -v
 
     - name: Run critical packaging test
       run: |
@@ -139,6 +141,7 @@ jobs:
           tests/unit/test_neo4j_gold_metrics_unit.py \
           tests/unit/test_lexical_pattern_inference_unit.py \
           tests/unit/test_domain_pipeline_offline_unit.py \
+          tests/unit/test_composition_root_settings_unit.py \
           -v -m "unit or not integration" --tb=short
 
     - name: Offline DoE smoke (screening + run, no Neo4j)
@@ -197,11 +200,16 @@ jobs:
     - name: Install dependencies
       run: |
         uv pip install pytest pytest-cov pytest-mock pytest-timeout
-        uv pip install -e .
+        uv pip install -e ".[infer-en]"
+        python -m spacy download en_core_web_sm
 
     - name: Wait for Neo4j to be ready
       run: |
         python scripts/wait_for_neo4j.py --uri bolt://localhost:7687 --user neo4j --password testpassword123 --timeout 120
+
+    - name: NER factory smoke
+      run: |
+        pytest tests/integration/test_ner_smoke_integration.py -v -m integration --tb=short --timeout=120
 
     - name: Run integration tests
       run: |

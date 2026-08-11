@@ -14,6 +14,7 @@ from ungraph.application.use_cases.ingest_tabular import IngestTabularUseCase
 from ungraph.application.use_cases.knowledge_mining import KnowledgeMiningUseCase
 from ungraph.core.configuration import (
     Settings,
+    get_settings,
     resolve_openai_model_for_inference_domain_questions,
     resolve_openai_model_for_inference_extraction,
     resolve_openai_model_for_inference_context,
@@ -192,7 +193,7 @@ def create_ontology_resolver(
     )
 
     if settings is None:
-        settings = Settings()
+        settings = get_settings()
     preset = PresetOntologyResolver()
     ep = (settings.ontology_sparql_endpoint or "").strip()
     nq = _ontology_sparql_query_from_settings(settings, nodes=True)
@@ -284,7 +285,7 @@ def create_inference_service(
         'LLMInferenceService'
     """
     if settings is None:
-        settings = Settings()
+        settings = get_settings()
     
     inference_mode = settings.inference_mode.lower()
     
@@ -394,7 +395,7 @@ def create_llm_inference_openai(
     when spaCy is installed; otherwise hints are skipped.
     """
     if settings is None:
-        settings = Settings()
+        settings = get_settings()
     if not settings.openai_api_key:
         return None
     try:
@@ -454,7 +455,7 @@ def create_ingest_document_use_case(
         el pipeline funcionará sin fase Inference (solo ET).
     """
     if settings is None:
-        settings = Settings()
+        settings = get_settings()
     
     # Crear servicios de infraestructura
     text_cleaning_service = SimpleTextCleaningService()
@@ -510,7 +511,7 @@ def create_bulk_ingest_documents_use_case(
     from ungraph.domain.services.duplicate_guard_service import DuplicateGuardService
 
     if settings is None:
-        settings = Settings()
+        settings = get_settings()
     ingest = create_ingest_document_use_case(
         settings=settings,
         database=database,
@@ -554,7 +555,7 @@ def create_ingest_tabular_use_case(
         IngestTabularUseCase configurado.
     """
     if settings is None:
-        settings = Settings()
+        settings = get_settings()
 
     from ungraph.infrastructure.repositories.neo4j_tabular_repository import (
         Neo4jTabularRepository,
@@ -606,7 +607,7 @@ def create_knowledge_mining_use_case(
         RuntimeError: si no hay ``InferenceService`` disponible (dependencias / modo).
     """
     if settings is None:
-        settings = Settings()
+        settings = get_settings()
     inference = create_inference_service(settings, language=inference_language)
     if inference is None:
         raise RuntimeError(

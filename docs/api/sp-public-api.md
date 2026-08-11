@@ -47,6 +47,35 @@ chunks = ungraph.ingest_document("documento.md", chunk_size=500)
 print(len(chunks), chunks[0].id)
 ```
 
+`configure(inference_mode=...)` afecta a este camino: el composition root usa el singleton de `get_settings()`.
+
+---
+
+### Inferencia / reasoning (fase I)
+
+Fachadas serializables (también en `ungraph.reasoning`):
+
+```python
+# Tras configure(inference_mode="ner"|"pattern"|"llm")
+info = ungraph.infer_over_document("documento.md")
+# {'document_path', 'chunks_created', 'inference_mode', 'inference_active'}
+
+mined = ungraph.mine_knowledge()          # re-inferencia sobre chunks sin :Fact
+stats = ungraph.graph_stats()             # conteos estructurales R/O
+topo = ungraph.validate_topology()        # {'ok': bool, 'issues': [...]}
+```
+
+| Función | Rol |
+|---------|-----|
+| `infer_over_document` | Ingest + Infer según `inference_mode` |
+| `mine_knowledge` | Re-minado de chunks pendientes |
+| `graph_stats` | Stats estructurales |
+| `validate_topology` | Invariantes File–Page–Chunk |
+
+Equivalente: `from ungraph.reasoning import mine_knowledge, …`.
+
+**Nota:** `inference_mode=hybrid` (NER↔LLM) sigue **will be** (`NotImplementedError`). El hybrid de **búsqueda** es otro contrato (`hybrid_search`).
+
 ---
 
 ### `search`
