@@ -10,6 +10,9 @@
 | [`WHITEPAPER_UNGRAPH_IMRAD.md`](WHITEPAPER_UNGRAPH_IMRAD.md) | Whitepaper IMRaD (lectura principal) |
 | [`INSPIRATION_MATRIX.md`](INSPIRATION_MATRIX.md) | Matriz papers/productos → capacidades (`is` / `will be` / Ixx) |
 | [`CURATION_CHECKLIST.md`](CURATION_CHECKLIST.md) | Checklist operativo de curación documental ETI |
+| [`COMPLEXITY_UNSTRUCTURED.md`](COMPLEXITY_UNSTRUCTURED.md) | Fundamento F5: $C_k$, roles Ungraph↔Complexometrum |
+| [`OLEADA_COMPLEXOMETRIA_UNSTRUCTURED.md`](OLEADA_COMPLEXOMETRIA_UNSTRUCTURED.md) | Anexo hallazgos oleada F5 / bridge |
+| [`ETI_LITERATURE_ANCHOR.md`](ETI_LITERATURE_ANCHOR.md) | Ancla literatura × métricas (adopt/adapt/dogfood) |
 
 ## Conceptos canónicos (espina ETI)
 
@@ -37,6 +40,6 @@ Argumento epistémico por fase (Motivation → Theory → In Ungraph → Open cl
 |-----------|------|
 | Quickstart / ingesta / search | [`../guides/`](../guides/sp-quickstart.md) |
 | Contrato de librería | [`../api/sp-public-api.md`](../api/sp-public-api.md) |
-| Hipótesis medibles, DoE, oleadas | [`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md), [`../experiment/BENCHMARK_ETI_DOMAINS.md`](../experiment/BENCHMARK_ETI_DOMAINS.md), [`../experiment/ROADMAP_LEVEL_C.md`](../experiment/ROADMAP_LEVEL_C.md) |
+| Hipótesis medibles, DoE, oleadas | [`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md), [`../experiment/BENCHMARK_ETI_DOMAINS.md`](../experiment/BENCHMARK_ETI_DOMAINS.md), [`../experiment/ROADMAP_LEVEL_C.md`](../experiment/ROADMAP_LEVEL_C.md), [`../experiment/RESEARCH_TRACK.md`](../experiment/RESEARCH_TRACK.md) |
 | Resultados confrontables (criterio PRODUCT §5) | [`../validation/`](../validation/sp-validation_summary.md) |
 | Promesa de producto | [`../product/PRODUCT.md`](../product/PRODUCT.md), [`../product/VISION_AND_TUTORIALS.md`](../product/VISION_AND_TUTORIALS.md) |

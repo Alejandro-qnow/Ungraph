@@ -52,6 +52,22 @@ jupyter notebook "ungraph/notebooks/1.1 Document Ingestion Basics_.ipynb"
 
 **Resultado observable (típico 1.1):** chunks persistidos y al menos una búsqueda con hits.
 
+## Serie research (ETI × DoE × complejidad)
+
+Track: [`../experiment/RESEARCH_TRACK.md`](../experiment/RESEARCH_TRACK.md). Rama `feature/research-eti-complexity`.  
+Evidencia bajo `benchmarks/domains/knowledge_graphs/reports/research/` — **no** PRODUCT §5.
+
+| Notebook | Enfoque |
+|----------|---------|
+| `ungraph/notebooks/research/01_eti_pipeline_e2e.ipynb` | Pipeline ETI step-by-step |
+| `ungraph/notebooks/research/02_doe_doekit_screening.ipynb` | DoE doekit vía runner |
+| `ungraph/notebooks/research/03_measure_plot_scorecard.ipynb` | Medir Y + plots |
+| `ungraph/notebooks/research/04_complexity_bridge.ipynb` | Export F5 / proxy complejidad |
+
+```bash
+jupyter notebook ungraph/notebooks/research/
+```
+
 ## WIP / exploratorio
 
 Prefijo `WIP_` = trayectoria o prototipo; **no** afirmar capacidad de producto.
