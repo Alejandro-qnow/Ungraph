@@ -1,9 +1,9 @@
 # Visión de producto y plan de tutoriales (desarrollo paralelo)
 
-**Última revisión:** 2026-04-12  
+**Última revisión:** 2026-08-11  
 **Paquete de referencia:** `ungraph` 0.1.5 (`pyproject.toml`, `ungraph/__init__.py`)
 
-**Jerarquía de documentos maestros:** [`PRODUCT.md`](PRODUCT.md) define *finalidad*, historias y casos de uso; **este archivo** ancla *visión*, niveles de promesa (§3), tutoriales y aprendizaje del grafo; [`ROADMAP_LEVEL_C.md`](ROADMAP_LEVEL_C.md) recoge el **horizonte nivel C** (fuera del alcance de entrega prioritario A+B); [`../agent/AGENT_SKILLS.md`](../agent/AGENT_SKILLS.md) es el *plan técnico de ejecución* (skills, prioridades §8, visualización §7).
+**Jerarquía:** **este archivo es el norte de visión** (§2, §3 A/B/C, §6 pedagogía, §8 ciclo evaluar–refinar). [`PRODUCT.md`](PRODUCT.md) lo operacionaliza (finalidad, historias, casos, criterio de cuándo algo está *validado*). [`ROADMAP_LEVEL_C.md`](../experiment/ROADMAP_LEVEL_C.md) = horizonte C; [`PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md) = índice ejecutable; [`../../agent/AGENT_SKILLS.md`](../../agent/AGENT_SKILLS.md) = plan técnico (skills, viz §7).
 
 ---
 
@@ -48,7 +48,7 @@ Una librería **“estable”** en el sentido Ungraph no significa “implementa
 
 **Línea roja de comunicación:** Ungraph **habilita** memoria agéntica y retrievers de alta calidad **dentro de las políticas y patrones que el integrador define**; no se afirma sustitución de soluciones completas de memoria (p. ej. productos tipo “palacio” o grafos dinámicos comerciales) salvo que exista implementación y comparación explícitas.
 
-**Alcance priorizado del plan maestro:** el esfuerzo de producto y de releases **prioriza nivel A y nivel B**. El nivel C se documenta como **horizonte** en [`ROADMAP_LEVEL_C.md`](ROADMAP_LEVEL_C.md) y en §8 más abajo; no es obligatorio avanzar C en cada versión.
+**Alcance priorizado del plan maestro:** el esfuerzo de producto y de releases **prioriza nivel A y nivel B**. El nivel C se documenta como **horizonte** en [`ROADMAP_LEVEL_C.md`](../experiment/ROADMAP_LEVEL_C.md) y en §8 más abajo; no es obligatorio avanzar C en cada versión.
 
 ---
 
@@ -56,12 +56,12 @@ Una librería **“estable”** en el sentido Ungraph no significa “implementa
 
 | Recurso | Rol |
 |--------|-----|
-| [PRODUCT.md](PRODUCT.md) | **Documento maestro de producto:** finalidad, niveles A/B/C (resumen), historias de usuario y casos de uso. El “qué” y “para quién”. Alcance de entrega **prioritario A+B**; C como horizonte en `ROADMAP_LEVEL_C`. |
-| [ROADMAP_LEVEL_C.md](ROADMAP_LEVEL_C.md) | **Plan maestro — horizonte nivel C:** fases exploratorias (medición, MCP, recomendación); **no** compromiso de cierre simultáneo con B. |
-| [../agent/AGENT_SKILLS.md](../agent/AGENT_SKILLS.md) | Prioridades técnicas (**§8**), skills, **§7** módulo de visualización (yFiles for Jupyter) y exportación de grafos. **Artefacto vivo** para quien desarrolla o asiste con agentes. |
+| [PRODUCT.md](PRODUCT.md) | Operacionaliza esta visión: finalidad, historias, casos, límites; §5 criterio de validación (fuentes externas, anti-sesgo, patrones, modelado correcto). Entrega prioritaria **A+B**; C en `ROADMAP_LEVEL_C`. |
+| [ROADMAP_LEVEL_C.md](../experiment/ROADMAP_LEVEL_C.md) | **Plan maestro — horizonte nivel C:** fases exploratorias (medición, MCP, recomendación); **no** compromiso de cierre simultáneo con B. |
+| [../agent/AGENT_SKILLS.md](../../agent/AGENT_SKILLS.md) | Prioridades técnicas (**§8**), skills, **§7** módulo de visualización (yFiles for Jupyter) y exportación de grafos. **Artefacto vivo** para quien desarrolla o asiste con agentes. |
 | [../ANALYSIS_120426.md](../ANALYSIS_120426.md) | Análisis crítico del estado del paquete frente a una librería “madura” (reproducibilidad, CI, tipado, estabilidad). Sirve de **línea base honesta**, no de hoja de marketing. |
-| [theory/sp-graphrag.md](theory/sp-graphrag.md) | Fundamentos y patrones GraphRAG alineados con referencias externas (p. ej. catálogo [graphrag.com](https://graphrag.com/reference/graphrag/)). |
-| [guides/sp-ingestion.md](guides/sp-ingestion.md), [guides/sp-custom-patterns.md](guides/sp-custom-patterns.md) | Ingesta y patrones de grafo ya documentados en profundidad. |
+| [../theory/sp-graphrag.md](../theory/sp-graphrag.md) | Fundamentos y patrones GraphRAG alineados con referencias externas (p. ej. catálogo [graphrag.com](https://graphrag.com/reference/graphrag/)). |
+| [../guides/sp-ingestion.md](../guides/sp-ingestion.md), [../guides/sp-custom-patterns.md](../guides/sp-custom-patterns.md), [../guides/sp-quickstart.md](../guides/sp-quickstart.md), [../guides/search.md](../guides/search.md) | How-to canónicos (Oleada 2 ZEN); tutoriales bajo `tutoriales/` son stubs → guías. |
 
 ---
 
@@ -70,7 +70,7 @@ Una librería **“estable”** en el sentido Ungraph no significa “implementa
 1. **Tres etiquetas por pieza:** cada tutorial o sección debe indicar si es **Implementado** (soportado por la API/código actual), **Parcial** (flujo posible con extras o limitaciones), o **Exploratorio** (notebook primero; la formalización en código viene después).
 2. **Sin prometer API inexistente:** lo exploratorio se presenta como diseño y experimentación, enlazando issues o decisiones de diseño cuando existan.
 3. **Misma verdad que el código:** si cambia `ingest_document`, `search_with_pattern` o los extras (`[gds]`, `[infer]`), se actualiza primero la referencia técnica y luego el tutorial correspondiente.
-4. **Carpeta futura:** el contenido pedagógico concreto vivirá bajo `docs/tutoriales/` (por crear), con índice y, si aplica, espejo bilingüe siguiendo el criterio del resto de `docs/` (`sp-` / `en-`).
+4. **How-to canónico en `guides/`:** los tutoriales 1–3 que clonaban guías son stubs → `guides/sp-*` / `guides/search.md` ([`tutoriales/README.md`](../tutoriales/README.md)). Nuevos viajes multi-sesión solo si no duplican una guía.
 
 ---
 
@@ -112,7 +112,7 @@ La numeración siguiente es la **hoja de ruta pedagógica** acordada; el estado 
 
 - **Contenido:** uso de MCP Neo4j genérico, scripts de ejemplo, visión de herramientas que conozcan el esquema Ungraph.
 - **Estado:** **Exploratorio / Parcial** — hay material de ejemplo y validación; un servidor MCP “oficial” de Ungraph sería nueva superficie y debe tratarse aparte.
-- **Horizonte nivel C (plan maestro, fuera de entrega prioritaria B):** [`ROADMAP_LEVEL_C.md`](ROADMAP_LEVEL_C.md) — fases C0–C5 (medición, eval–refinar, MCP en fase tardía).
+- **Horizonte nivel C (plan maestro, fuera de entrega prioritaria B):** [`ROADMAP_LEVEL_C.md`](../experiment/ROADMAP_LEVEL_C.md) — fases C0–C5 (medición, eval–refinar, MCP en fase tardía).
 
 ---
 

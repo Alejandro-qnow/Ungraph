@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Rama: `research/<nombre>`. Commits: `chore(research): …` o `docs(research): …` — ver `docs/DEVELOPMENT_WORKFLOW.md`.
+        Rama: `research/<nombre>`. Commits: `chore(research): …` o `docs(research): …` — ver `docs/ops/DEVELOPMENT_WORKFLOW.md`.
   - type: textarea
     id: question
     attributes:

@@ -175,7 +175,7 @@ Ungraph provides services that enable the construction of any graph pattern topo
 
 The **Inference** phase distinguishes ETI from traditional ETL. It generates normalized facts, relations, and explanations with confidence scores and PROV-O traceability using inference models (NER, LLM, or neuro-symbolic systems).
 
-**Current Status:** Infer is a **slot** (`InferenceService`), not one mega-design. MVP families: **spaCy NER** (`ner`), **lexical/symbolic** (`pattern`), plus **ET control** (`none`) for H_I. **LLM** remains **experimental** (`llm`). Compare architectures with **doekit** (`pip install 'ungraph[experiments]'`; see `docs/PLAN_MAESTRO.md`, `docs/BENCHMARK_ETI_DOMAINS.md`, `docs/concepts/inference-slot.md`).
+**Current Status:** Infer is a **slot** (`InferenceService`), not one mega-design. MVP families: **spaCy NER** (`ner`), **lexical/symbolic** (`pattern`), plus **ET control** (`none`) for H_I. **LLM** remains **experimental** (`llm`). Compare architectures with **doekit** (`pip install 'ungraph[experiments]'`; see `docs/experiment/PLAN_MAESTRO.md`, `docs/experiment/BENCHMARK_ETI_DOMAINS.md`, `docs/concepts/inference-slot.md`).
 
 **Key Capabilities (when inference is enabled):**
 - **Entity Extraction**: NER and/or lexical patterns (and experimental LLM)
@@ -318,12 +318,12 @@ src/
 
 Contributions are welcome. Use **stable `main` + branches + PRs**:
 
-- **[Development workflow (branches, tags, commit types, labels)](docs/DEVELOPMENT_WORKFLOW.md)** — feature / fix / chore / docs / research / test / refactor.
+- **[Development workflow (branches, tags, commit types, labels)](docs/ops/DEVELOPMENT_WORKFLOW.md)** — feature / fix / chore / docs / research / test / refactor.
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — puntero al flujo anterior.
 - Pull request template: [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md).
 - Issue templates: [`.github/ISSUE_TEMPLATE/`](.github/ISSUE_TEMPLATE/).
 
-For product and roadmap context, see [`docs/PLAN_MAESTRO.md`](docs/PLAN_MAESTRO.md) and [`docs/PRODUCT.md`](docs/PRODUCT.md).
+For product and roadmap context, see [`docs/experiment/PLAN_MAESTRO.md`](docs/experiment/PLAN_MAESTRO.md) and [`docs/product/PRODUCT.md`](docs/product/PRODUCT.md).
 
 ## License
 

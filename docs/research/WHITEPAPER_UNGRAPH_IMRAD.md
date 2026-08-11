@@ -345,7 +345,7 @@ This draft consolidates an internal product conversation (2026-07-27) and open l
 
 ### Internal Ungraph documents
 
-51. Ungraph `docs/PRODUCT.md`, `docs/VISION_AND_TUTORIALS.md`, `docs/ROADMAP_LEVEL_C.md`, `docs/CHECKPOINT_INFERENCE_PIPELINE.md`, `docs/PLAN_MAESTRO.md` (2025–2026).  
+51. Ungraph `docs/product/PRODUCT.md`, `docs/product/VISION_AND_TUTORIALS.md`, `docs/experiment/ROADMAP_LEVEL_C.md`, `docs/archive/CHECKPOINT_INFERENCE_PIPELINE.md`, `docs/experiment/PLAN_MAESTRO.md` (2025–2026).  
 52. Internal notes `project/Notas.md` (2026-07-27) — accumulation, depuración, medallion, agentic critique.
 
 ---

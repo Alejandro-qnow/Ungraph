@@ -1,6 +1,6 @@
 # Gaps: desarrollo, pruebas, consideraciones
 
-Foto alineada al checklist de [`docs/PLAN_MAESTRO.md`](../../../docs/PLAN_MAESTRO.md). Actualizar junto con ese checklist.
+Foto alineada al checklist de [`docs/experiment/PLAN_MAESTRO.md`](../../../docs/experiment/PLAN_MAESTRO.md). Actualizar junto con ese checklist.
 
 ## Bloqueantes H_I (prioridad)
 
@@ -22,7 +22,8 @@ Foto alineada al checklist de [`docs/PLAN_MAESTRO.md`](../../../docs/PLAN_MAESTR
 
 | Gap | Acción |
 |-----|--------|
-| E7 commit | `git add` PLAN, suite ETI, `run_domain_pipeline.py`, doe_h_chunk, reports clave, CI |
+| E7 docs en git | **Hecho:** `docs/` versionado (estructura ZEN experiment/product/ops) |
+| Promoción a `main` | Merge paquete medible + docs canon; sincronizar feature branch |
 | 2º dominio / probes más duros | Para afirmar H_chunk en AC (no solo latency) y H_T |
 | F5 Complexometrum | Tras Y de tarea más variables |
 | Integration H_I en CI | Opcional nightly: Neo4j + spaCy model (pesado) |

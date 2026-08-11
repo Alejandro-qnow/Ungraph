@@ -1,12 +1,13 @@
-# API Pública de Ungraph
+# API pública
 
-Referencia completa de la API pública de Ungraph.
+Contrato estable de la superficie `import ungraph` (paquete de referencia en `main`).  
+Audiencia: developer. Contexto epistémico (una línea): la espina es ETI; búsqueda/GraphRAG son interfaz — [`../concepts/eti-spine.md`](../concepts/eti-spine.md).
 
-## Funciones Principales
+Configuración: [`sp-configuration.md`](sp-configuration.md). How-to: [`../guides/sp-quickstart.md`](../guides/sp-quickstart.md).
 
-### `ingest_document()`
+## Funciones
 
-Ingiere un documento al grafo de conocimiento.
+### `ingest_document`
 
 ```python
 chunks = ungraph.ingest_document(
@@ -15,61 +16,81 @@ chunks = ungraph.ingest_document(
     chunk_overlap: int = 200,
     clean_text: bool = True,
     database: Optional[str] = None,
-    embedding_model: Optional[str] = None
+    embedding_model: Optional[str] = None,
+    pattern: Optional[GraphPattern] = None,
+    extraction_recipe: Optional[ExtractionRecipe] = None,
+    source_url: Optional[str] = None,
+    retrieval_optimization: bool = False,
 ) -> List[Chunk]
 ```
 
-**Parámetros:**
-- `file_path`: Ruta al archivo a ingerir
-- `chunk_size`: Tamaño de cada chunk (default: 1000)
-- `chunk_overlap`: Solapamiento entre chunks (default: 200)
-- `clean_text`: Limpiar texto antes de procesar (default: True)
-- `database`: Nombre de la base de datos Neo4j (default: desde configuración)
-- `embedding_model`: Modelo de embedding a usar (default: desde configuración)
+| Parámetro | Descripción |
+|-----------|-------------|
+| `file_path` | Ruta al archivo (`.md`, `.txt`, `.docx`, `.pdf`, `.html`/`.htm`) |
+| `chunk_size` / `chunk_overlap` | Tamaño y solape de chunk (caracteres) |
+| `clean_text` | Limpiar texto antes de chunking |
+| `database` | Base Neo4j; default = settings |
+| `embedding_model` | Modelo de embedding; default = settings |
+| `pattern` | `GraphPattern`; default = `FILE_PAGE_CHUNK` |
+| `extraction_recipe` | HTML: receta XPath/CSS opcional |
+| `source_url` | URL pública de provenance (HTML/crawl) |
+| `retrieval_optimization` | Si True, rellena vista de retrieval y puede persistir `(:RetrievalChunk)` |
 
-**Retorna:** Lista de objetos `Chunk` creados
+**Retorna:** `List[Chunk]`.
 
-**Ejemplo:**
+**Errores:** `FileNotFoundError`, `ValueError`, `RuntimeError` (Neo4j).
+
 ```python
 import ungraph
 
 chunks = ungraph.ingest_document("documento.md", chunk_size=500)
-print(f"Creados {len(chunks)} chunks")
+print(len(chunks), chunks[0].id)
 ```
 
 ---
 
-### `search()`
-
-Busca en el grafo usando búsqueda por texto.
+### `search`
 
 ```python
 results = ungraph.search(
     query_text: str,
     limit: int = 5,
-    database: Optional[str] = None
+    database: Optional[str] = None,
 ) -> List[SearchResult]
 ```
 
-**Parámetros:**
-- `query_text`: Texto a buscar
-- `limit`: Número máximo de resultados (default: 5)
-- `database`: Nombre de la base de datos Neo4j (default: desde configuración)
+Búsqueda full-text.
 
-**Retorna:** Lista de `SearchResult` ordenados por score descendente
+**Errores:** `ValueError` (query vacío), `RuntimeError`.
 
-**Ejemplo:**
 ```python
 results = ungraph.search("computación cuántica", limit=10)
-for result in results:
-    print(f"Score: {result.score}, Content: {result.content[:100]}")
 ```
 
 ---
 
-### `hybrid_search()`
+### `vector_search`
 
-Búsqueda híbrida combinando texto y vectorial.
+```python
+results = ungraph.vector_search(
+    query_text: str,
+    limit: int = 5,
+    database: Optional[str] = None,
+    embedding_model: Optional[str] = None,
+) -> List[SearchResult]
+```
+
+Embedding de la query + similitud vectorial en el grafo.
+
+**Errores:** `ValueError`, `RuntimeError`.
+
+```python
+results = ungraph.vector_search("machine learning", limit=5)
+```
+
+---
+
+### `hybrid_search`
 
 ```python
 results = ungraph.hybrid_search(
@@ -77,62 +98,82 @@ results = ungraph.hybrid_search(
     limit: int = 5,
     weights: Tuple[float, float] = (0.3, 0.7),
     database: Optional[str] = None,
-    embedding_model: Optional[str] = None
+    embedding_model: Optional[str] = None,
 ) -> List[SearchResult]
 ```
 
-**Parámetros:**
-- `query_text`: Texto a buscar
-- `limit`: Número máximo de resultados (default: 5)
-- `weights`: Pesos para combinar scores `(text_weight, vector_weight)` (default: (0.3, 0.7))
-- `database`: Nombre de la base de datos Neo4j (default: desde configuración)
-- `embedding_model`: Modelo de embedding a usar (default: desde configuración)
+| Parámetro | Descripción |
+|-----------|-------------|
+| `weights` | `(text_weight, vector_weight)` |
 
-**Retorna:** Lista de `SearchResult` ordenados por score combinado descendente
+**Errores:** `ValueError`, `RuntimeError`.
 
-**Ejemplo:**
 ```python
 results = ungraph.hybrid_search(
     "inteligencia artificial",
     limit=10,
-    weights=(0.4, 0.6)  # 40% texto, 60% vectorial
+    weights=(0.4, 0.6),
 )
 ```
 
 ---
 
-### `suggest_chunking_strategy()`
-
-Obtiene recomendación inteligente de estrategia de chunking.
+### `search_with_pattern`
 
 ```python
-recommendation = ungraph.suggest_chunking_strategy(
-    file_path: str | Path
-) -> ChunkingRecommendation
+results = ungraph.search_with_pattern(
+    query_text: str,
+    pattern_type: str,
+    limit: int = 5,
+    database: Optional[str] = None,
+    embedding_model: Optional[str] = None,
+    **kwargs,
+) -> List[SearchResult]
 ```
 
-**Parámetros:**
-- `file_path`: Ruta al archivo a analizar
+Patrones de retrieval GraphRAG. Resultados normalizados a `SearchResult` (campos extra del Cypher se proyectan a `content` / `next_chunk_content` según el patrón).
 
-**Retorna:** Objeto `ChunkingRecommendation` con:
-- `strategy`: Nombre de la estrategia recomendada
-- `chunk_size`: Tamaño de chunk recomendado
-- `chunk_overlap`: Solapamiento recomendado
-- `explanation`: Explicación de la recomendación
-- `quality_score`: Score de calidad (0-1)
-- `alternatives`: Lista de alternativas evaluadas
+**Patrones básicos (`is`):** `basic` / `basic_retriever`, `metadata_filtering`, `parent_child` / `parent_child_retriever`.
 
-**Ejemplo:**
+**Patrones avanzados (`is` con extras):** `local` / `local_retriever`, `graph_enhanced` / `graph_enhanced_vector`, `community_summary` / `community_summary_gds` — requieren módulos opcionales (`ungraph[gds]`, etc.).
+
+**Errores:** `ValueError` (query vacío o `pattern_type` inválido), `RuntimeError`, `ImportError` (extra ausente).
+
+kwargs y detalle: [`sp-search-patterns.md`](sp-search-patterns.md), [`sp-advanced-search-patterns.md`](sp-advanced-search-patterns.md).
+
 ```python
-recommendation = ungraph.suggest_chunking_strategy("documento.md")
-print(f"Usar: chunk_size={recommendation.chunk_size}, overlap={recommendation.chunk_overlap}")
+results = ungraph.search_with_pattern(
+    "machine learning",
+    pattern_type="metadata_filtering",
+    metadata_filters={"filename": "ai_paper.md"},
+    limit=10,
+)
 ```
 
 ---
 
-### `configure()`
+### `suggest_chunking_strategy`
 
-Configuración programática de Ungraph.
+```python
+recommendation = ungraph.suggest_chunking_strategy(
+    file_path: str | Path,
+    chunk_size: Optional[int] = None,
+    chunk_overlap: Optional[int] = None,
+    evaluate_all: bool = False,
+    embedding_model: Any = None,
+) -> ChunkingRecommendation
+```
+
+**Errores:** `FileNotFoundError`, `ValueError`.
+
+```python
+rec = ungraph.suggest_chunking_strategy("documento.md")
+print(rec.strategy, rec.chunk_size, rec.chunk_overlap)
+```
+
+---
+
+### `configure`
 
 ```python
 ungraph.configure(
@@ -141,34 +182,25 @@ ungraph.configure(
     neo4j_password: Optional[str] = None,
     neo4j_database: Optional[str] = None,
     embedding_model: Optional[str] = None,
-    **kwargs
+    **kwargs,
 ) -> None
 ```
 
-**Parámetros:**
-- `neo4j_uri`: URI de conexión a Neo4j
-- `neo4j_user`: Usuario de Neo4j
-- `neo4j_password`: Contraseña de Neo4j
-- `neo4j_database`: Nombre de la base de datos
-- `embedding_model`: Modelo de embedding a usar
-- `**kwargs`: Otros parámetros de configuración
+Otros campos de `Settings` vía kwargs / env — [`sp-configuration.md`](sp-configuration.md). También: `ungraph.reset_configuration()`.
 
-**Ejemplo:**
 ```python
 ungraph.configure(
     neo4j_uri="bolt://localhost:7687",
     neo4j_password="mi_contraseña",
-    embedding_model="sentence-transformers/all-MiniLM-L6-v2"
+    embedding_model="sentence-transformers/all-MiniLM-L6-v2",
 )
 ```
 
 ---
 
-## Clases Principales
+## Tipos
 
 ### `Chunk`
-
-Entidad que representa un fragmento de texto.
 
 ```python
 @dataclass
@@ -178,41 +210,21 @@ class Chunk:
     metadata: Dict[str, Any]
 ```
 
-**Atributos:**
-- `id`: Identificador único del chunk
-- `page_content`: Contenido del chunk
-- `metadata`: Metadatos adicionales
-
----
-
 ### `SearchResult`
 
-Resultado de una búsqueda.
-
 ```python
-@dataclass
 class SearchResult:
     content: str
     score: float
     chunk_id: str
-    chunk_id_consecutive: int = 0
-    previous_chunk_content: Optional[str] = None
-    next_chunk_content: Optional[str] = None
+    chunk_id_consecutive: int
+    previous_chunk_content: Optional[str]
+    next_chunk_content: Optional[str]
 ```
 
-**Atributos:**
-- `content`: Contenido del chunk encontrado
-- `score`: Score de relevancia
-- `chunk_id`: ID del chunk
-- `chunk_id_consecutive`: Número consecutivo del chunk
-- `previous_chunk_content`: Contenido del chunk anterior (si existe)
-- `next_chunk_content`: Contenido del chunk siguiente (si existe)
-
----
+En patrones parent–child / comunidad / graph-enhanced, el contexto ampliado suele ir en `next_chunk_content` (no hay campos `parent_content` / `children` en el tipo público).
 
 ### `ChunkingRecommendation`
-
-Recomendación de estrategia de chunking.
 
 ```python
 @dataclass
@@ -222,44 +234,19 @@ class ChunkingRecommendation:
     chunk_overlap: int
     explanation: str
     quality_score: float
-    alternatives: List[ChunkingStrategy]
+    alternatives: List[Dict[str, Any]]
+    metrics: Dict[str, Any]
 ```
 
-**Atributos:**
-- `strategy`: Nombre de la estrategia recomendada
-- `chunk_size`: Tamaño de chunk recomendado
-- `chunk_overlap`: Solapamiento recomendado
-- `explanation`: Explicación textual
-- `quality_score`: Score de calidad (0-1)
-- `alternatives`: Alternativas evaluadas
+`quality_score` es heurística del recomendador, no scorecard de validación.
 
----
+### Otros exportados
 
-## Módulos Disponibles
-
-### Value Objects
-
-```python
-from domain.value_objects.graph_pattern import (
-    GraphPattern,
-    NodeDefinition,
-    RelationshipDefinition
-)
-
-from domain.value_objects.predefined_patterns import (
-    FILE_PAGE_CHUNK_PATTERN
-)
-```
-
-### Servicios
-
-```python
-from infrastructure.services.neo4j_pattern_service import Neo4jPatternService
-from infrastructure.services.neo4j_search_service import Neo4jSearchService
-```
+Desde `ungraph`: `GraphPattern`, `ExtractionRecipe`, `WebDocument`, `IngestDocumentUseCase` (uso avanzado).  
+Value objects de patrón: `ungraph.domain.value_objects.graph_pattern` (`NodeDefinition`, `RelationshipDefinition`).
 
 ## Referencias
 
-- [Guía de Inicio Rápido](../guides/sp-quickstart.md)
-- [Guía de Ingesta](../guides/sp-ingestion.md)
-- [Guía de Búsqueda](../guides/search.md)
+- [Inicio rápido](../guides/sp-quickstart.md) · [Ingesta](../guides/sp-ingestion.md) · [Búsqueda](../guides/search.md)
+- [Configuración](sp-configuration.md)
+- [Patrones de búsqueda](sp-search-patterns.md)

@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Convención de rama: `feature/<nombre-kebab>`. Commits: `feat(scope): …` — ver `docs/DEVELOPMENT_WORKFLOW.md`.
+        Convención de rama: `feature/<nombre-kebab>`. Commits: `feat(scope): …` — ver `docs/ops/DEVELOPMENT_WORKFLOW.md`.
   - type: textarea
     id: summary
     attributes:

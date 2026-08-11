@@ -10,15 +10,15 @@
 
 Ungraph es un framework Python para construir **grafos de conocimiento** desde texto no estructurado, persistidos en Neo4j, bajo el patrón **Extract–Transform–Inference (ETI)** con recuperación tipo **GraphRAG**. El núcleo actual (ET + búsqueda + embeddings) es sólido; las brechas prioritarias son tests versionados, CI alineado, contrato público explícito e inferencia estabilizada.
 
-**Plan maestro (lectura recomendada):** [`docs/PRODUCT.md`](../docs/PRODUCT.md) define finalidad y niveles **A / B / C** en resumen; [`docs/VISION_AND_TUTORIALS.md`](../docs/VISION_AND_TUTORIALS.md) **§3** desarrolla esos niveles y encaja tutoriales y §8 (aprendizaje del mejor grafo). **Prioridad de entrega:** cerrar y estabilizar **A + B**; **C** solo como horizonte en el plan maestro (mismo criterio en `PRODUCT` y `VISION`).
+**Plan maestro (lectura recomendada):** [`docs/product/PRODUCT.md`](../docs/product/PRODUCT.md) define finalidad y niveles **A / B / C** en resumen; [`docs/product/VISION_AND_TUTORIALS.md`](../docs/product/VISION_AND_TUTORIALS.md) **§3** desarrolla esos niveles y encaja tutoriales y §8 (aprendizaje del mejor grafo). **Prioridad de entrega:** cerrar y estabilizar **A + B**; **C** solo como horizonte en el plan maestro (mismo criterio en `PRODUCT` y `VISION`).
 
 **Este archivo** es el plan **técnico de ejecución**: skills, prioridades (**§8**) y módulo de visualización (**§7**).
 
 **Checkpoint de desarrollo (inferencia / pipeline):** [`docs/CHECKPOINT_INFERENCE_PIPELINE.md`](../docs/CHECKPOINT_INFERENCE_PIPELINE.md) — estado implementado, rutas de código y próximos pasos para retomar sin depender solo del plan en Cursor.
 
-**Horizonte nivel C (plan maestro, §8):** [`docs/ROADMAP_LEVEL_C.md`](../docs/ROADMAP_LEVEL_C.md) — fases C0–C5 (medición, eval–refinar, MCP, recomendación); oleadas H_I / familias Infer.
+**Horizonte nivel C (plan maestro, §8):** [`docs/experiment/ROADMAP_LEVEL_C.md`](../docs/experiment/ROADMAP_LEVEL_C.md) — fases C0–C5 (medición, eval–refinar, MCP, recomendación); oleadas H_I / familias Infer.
 
-**Playbook agente (Cursor):** skills en `.claude/skills/` (router `ungraph`, experimental `eti-experiment-science`); subagentes `.cursor/agents/ungraph-dev-skills.md` y `ungraph-eti-science.md`. Checklist vivo: [`docs/PLAN_MAESTRO.md`](../docs/PLAN_MAESTRO.md).
+**Playbook agente (Cursor):** skills en `.claude/skills/` (router `ungraph`, experimental `eti-experiment-science`); subagentes `.cursor/agents/ungraph-dev-skills.md` y `ungraph-eti-science.md`. Checklist vivo: [`docs/experiment/PLAN_MAESTRO.md`](../docs/experiment/PLAN_MAESTRO.md).
 
 ---
 
@@ -238,7 +238,7 @@ flowchart LR
 
 ### 7.8 Relación con el plan de producto
 
-Este módulo satisface historias del tipo: *“Como analista, quiero ver y filtrar el grafo por documento y exportar un fragmento para compartir”*. Marco de producto y prioridades: [`docs/PRODUCT.md`](../docs/PRODUCT.md).
+Este módulo satisface historias del tipo: *“Como analista, quiero ver y filtrar el grafo por documento y exportar un fragmento para compartir”*. Marco de producto y prioridades: [`docs/product/PRODUCT.md`](../docs/product/PRODUCT.md).
 
 ---
 

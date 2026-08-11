@@ -7,7 +7,7 @@ description: Define el alcance operativo de un MVP ETI en Ungraph alineado a dom
 
 Este skill cruza el pipeline **Extract → Transform → Inference** con las tres capas prometidas por la librería. Usa siempre rutas reales bajo `ungraph/` (no `src/` legacy en docs antiguos).
 
-**Plan maestro (A / B / C):** el MVP ETI aquí descrito alinea el **nivel A** (núcleo) y buena parte del **nivel B** (inferencia productiva). El cierre **medible/falsable** (scorecard, DoE, H_I) vive en [`docs/PLAN_MAESTRO.md`](../../../docs/PLAN_MAESTRO.md) § checklist + skill **eti-experiment-science**; oleadas en [`docs/ROADMAP_LEVEL_C.md`](../../../docs/ROADMAP_LEVEL_C.md). MCP/recomendación (C3–C4) no son gate de H_I.
+**Plan maestro (A / B / C):** el MVP ETI aquí descrito alinea el **nivel A** (núcleo) y buena parte del **nivel B** (inferencia productiva). El cierre **medible/falsable** (scorecard, DoE, H_I) vive en [`docs/experiment/PLAN_MAESTRO.md`](../../../docs/experiment/PLAN_MAESTRO.md) § checklist + skill **eti-experiment-science**; oleadas en [`docs/experiment/ROADMAP_LEVEL_C.md`](../../../docs/experiment/ROADMAP_LEVEL_C.md). MCP/recomendación (C3–C4) no son gate de H_I.
 
 ## Mapa de capas ↔ responsabilidad MVP
 

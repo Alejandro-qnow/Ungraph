@@ -1,210 +1,59 @@
-# Arquitectura del Sistema
+# Arquitectura Ungraph (capas ↔ ETI)
 
-## Visión General
+**Idioma:** español (canónico `sp-*`).
 
-Ungraph sigue los principios de **Clean Architecture** y **Domain-Driven Design (DDD)** para garantizar mantenibilidad, testabilidad y extensibilidad.
+Audiencia: developer / research. Espina epistémica: [`eti-spine.md`](eti-spine.md). Linaje Clean Architecture aplicado a Ungraph: [`../theory/sp-clean-architecture.md`](../theory/sp-clean-architecture.md). How-to: [`../guides/sp-quickstart.md`](../guides/sp-quickstart.md).
 
-## Estructura de Capas
+## Motivation
 
-```
-src/
-├── domain/              # Capa más interna - NO depende de nada externo
-│   ├── entities/        # Entidades de negocio (Chunk, Document, File, Page)
-│   ├── value_objects/   # Objetos de valor inmutables (GraphPattern, Embedding)
-│   ├── repositories/    # Interfaces (abstracciones) - NO implementaciones
-│   └── services/        # Interfaces de servicios del dominio
-│
-├── application/         # Casos de uso - depende SOLO de domain
-│   └── use_cases/       # Orquestación de flujos de trabajo
-│
-├── infrastructure/      # Implementaciones concretas
-│   ├── repositories/    # Implementaciones (Neo4jChunkRepository)
-│   └── services/        # Implementaciones (LangChain, HuggingFace, Neo4j)
-│
-├── core/                # Configuración compartida
-│   └── configuration.py # Gestión de configuración global
-│
-└── utils/               # Utilidades temporales (en proceso de migración)
-```
+Sin una frontera clara entre *qué es conocimiento candidato* y *cómo se persiste o recupera*, el grafo se confunde con el framework. El problema no es solo mantenibilidad de software: es proteger el **contrato epistémico** (unidades de evidencia, representaciones, proposiciones ancladas) frente a Neo4j, LangChain o un motor NER concreto — para poder sustituir implementaciones y seguir midiendo las mismas Y (I26).
 
-## Principios de Arquitectura
+## Theory
 
-### 1. Regla de Dependencias
+Clean Architecture (Martin) y DDD sitúan entidades y puertos en el centro; los adaptadores (DB, LLM, buscadores) orbitan. En Ungraph esa regla se lee sobre la espina ETI:
 
-**NUNCA** importar desde capas externas hacia capas internas:
+| Capa software | Rol | Encaje ETI |
+|---------------|-----|------------|
+| **domain** | Entidades (`Chunk`, `Entity`, …), value objects (`GraphPattern`), puertos (`InferenceService`, repositorios) | Contrato de artefactos E/T/I; sin frameworks |
+| **application** | Casos de uso (ingesta, búsqueda); orquestación; composition root | Secuencia Extract→Transform→Inference→persist/retrieve |
+| **infrastructure** | Neo4j, spaCy/LLM, embeddings, loaders | Adaptadores; **consumidores** del contrato, no dueños del significado |
+| **core / utils** | Config compartida; utilidades en migración | Soporte; no redefinir el dominio |
 
-```python
-# ❌ PROHIBIDO: domain importa de infrastructure
-from infrastructure.repositories.neo4j_chunk_repository import Neo4jChunkRepository
+**Regla de dependencias:** `infrastructure` → `application` → `domain`. Nunca `domain` → Neo4j/LangChain.
 
-# ✅ CORRECTO: domain solo tiene interfaces
-from domain.repositories.chunk_repository import ChunkRepository
+GraphRAG, MCP e índices Neo4j viven como **Interface** sobre el almacén; no redefinen Inference (ver [`../theory/sp-graphrag.md`](../theory/sp-graphrag.md), [`../theory/sp-neo4j.md`](../theory/sp-neo4j.md)).
 
-# ✅ CORRECTO: infrastructure implementa interfaces de domain
-from domain.repositories.chunk_repository import ChunkRepository
-class Neo4jChunkRepository(ChunkRepository):
-    ...
+### is vs will be
+
+| | |
+|--|--|
+| **is** | Capas domain/application/infrastructure; slot Infer en dominio; wrappers de infraestructura; evaluación en `ungraph/evaluation/` como sonda experimental |
+| **will be** | Objetos Belief/Claim + EVI en dominio; menos lógica en `utils/`; Interface MCP tipada sobre use cases (I24) |
+
+## In Ungraph
+
+Mapa mental (sin tutorial de código):
+
+```text
+Extract     → loaders / señales de fuente          (infra → puertos)
+Transform   → chunking, embeddings, File–Page–Chunk
+Inference   → InferenceService → Entity/Relation/Fact
+Interface   → búsqueda / GraphRAG / (MCP will be) sobre Neo4j
 ```
 
-**Dirección de dependencias:**
-- `infrastructure` → `application` → `domain` ✅
-- `domain` → `infrastructure` ❌ PROHIBIDO
-- `domain` → `application` ❌ PROHIBIDO
+- Detalle del slot: [`inference-slot.md`](inference-slot.md)
+- Patrones y grafo léxico: [`sp-graph-patterns.md`](sp-graph-patterns.md), [`sp-lexical-graphs.md`](sp-lexical-graphs.md)
+- Ejemplos de inyección de dependencias y anti-patrones de import: [`../theory/sp-clean-architecture.md`](../theory/sp-clean-architecture.md)
+- Contrato público: [`../api/sp-public-api.md`](../api/sp-public-api.md)
 
-### 2. Entidades de Dominio
+Rutas de paquete solo como *probe*; la verdad del claim científico está en scorecards, no en el diagrama de carpetas.
 
-**Características:**
-- Usan `@dataclass` para estructuras de datos
-- Contienen SOLO datos y lógica de negocio básica
-- NO conocen frameworks externos (Neo4j, LangChain, etc.)
-- Pueden tener validaciones y métodos de dominio
+## Open claims (falseables)
 
-**Ejemplo:**
-```python
-from dataclasses import dataclass
-from typing import Dict, Any
+### Claim H_arch_slot_isolation
 
-@dataclass
-class Chunk:
-    id: str
-    page_content: str
-    metadata: Dict[str, Any]
-    
-    def get_filename(self) -> str:
-        return self.metadata.get('filename')
-```
-
-### 3. Value Objects
-
-**Características:**
-- Inmutables (`frozen=True`)
-- Se comparan por valor, no por referencia
-- Validaciones en `__post_init__`
-- Sin identidad propia
-
-**Ejemplo:**
-```python
-@dataclass(frozen=True)
-class GraphPattern:
-    name: str
-    description: str
-    node_definitions: List[NodeDefinition]
-    
-    def __post_init__(self):
-        if not self.name:
-            raise ValueError("Pattern name cannot be empty")
-```
-
-### 4. Interfaces (Repositorios y Servicios)
-
-**Ubicación:** `domain/repositories/` y `domain/services/`
-
-**Características:**
-- Usan `ABC` (Abstract Base Class) con `@abstractmethod`
-- Definen QUÉ operaciones se necesitan, no CÓMO
-- Están en el dominio porque el dominio define sus necesidades
-
-**Ejemplo:**
-```python
-from abc import ABC, abstractmethod
-from domain.entities.chunk import Chunk
-
-class ChunkRepository(ABC):
-    @abstractmethod
-    def save(self, chunk: Chunk) -> None:
-        pass
-```
-
-### 5. Implementaciones Concretas
-
-**Ubicación:** `infrastructure/repositories/` y `infrastructure/services/`
-
-**Características:**
-- Implementan interfaces del dominio
-- Pueden usar cualquier framework (Neo4j, LangChain, etc.)
-- Son intercambiables (puedes tener múltiples implementaciones)
-
-**Ejemplo:**
-```python
-from domain.repositories.chunk_repository import ChunkRepository
-from domain.entities.chunk import Chunk
-from neo4j import GraphDatabase
-
-class Neo4jChunkRepository(ChunkRepository):
-    def __init__(self, driver: GraphDatabase):
-        self.driver = driver
-    
-    def save(self, chunk: Chunk) -> None:
-        # Implementación usando Neo4j
-        ...
-```
-
-### 6. Casos de Uso
-
-**Ubicación:** `application/use_cases/`
-
-**Características:**
-- Dependen SOLO de interfaces del dominio
-- Orquestan el flujo de trabajo
-- Reciben dependencias por inyección (no las crean)
-- Son fáciles de testear (mockeas las dependencias)
-
-**Ejemplo:**
-```python
-from domain.entities.chunk import Chunk
-from domain.repositories.chunk_repository import ChunkRepository
-from domain.services.chunking_service import ChunkingService
-
-class IngestDocumentUseCase:
-    def __init__(
-        self,
-        chunking_service: ChunkingService,  # Interfaz
-        chunk_repository: ChunkRepository     # Interfaz
-    ):
-        self.chunking_service = chunking_service
-        self.chunk_repository = chunk_repository
-    
-    def execute(self, document: Document) -> List[Chunk]:
-        chunks = self.chunking_service.chunk(document)
-        self.chunk_repository.save_batch(chunks)
-        return chunks
-```
-
-### 7. Composition Root
-
-**Ubicación:** `application/dependencies.py`
-
-**Responsabilidad:** Crear y configurar todas las dependencias
-
-**Ejemplo:**
-```python
-from infrastructure.repositories.neo4j_chunk_repository import Neo4jChunkRepository
-from infrastructure.services.langchain_chunking_service import LangChainChunkingService
-from application.use_cases.ingest_document import IngestDocumentUseCase
-from src.utils.graph_operations import graph_session
-
-def create_ingest_document_use_case() -> IngestDocumentUseCase:
-    """Factory: crea y configura el caso de uso"""
-    driver = graph_session()
-    repository = Neo4jChunkRepository(driver)
-    chunking_service = LangChainChunkingService()
-    
-    return IngestDocumentUseCase(
-        chunking_service=chunking_service,
-        chunk_repository=repository
-    )
-```
-
-## Ventajas de esta Arquitectura
-
-1. **Testabilidad**: Fácil crear mocks de las interfaces
-2. **Mantenibilidad**: Separación clara de responsabilidades
-3. **Extensibilidad**: Fácil agregar nuevas implementaciones
-4. **Independencia**: El dominio no depende de frameworks externos
-5. **Flexibilidad**: Puedes cambiar implementaciones sin afectar el dominio
-
-## Referencias
-
-- [Clean Architecture by Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- [Domain-Driven Design by Eric Evans](https://www.domainlanguage.com/ddd/)
-- [SOLID Principles](https://en.wikipedia.org/wiki/SOLID)
+- **Enunciado:** Mantener `InferenceService` (y entidades de artefacto) libres de Neo4j/LangChain en `domain/` permite swap de familia Infer sin reescribir Transform ni el scorecard.
+- **Predicción observable:** Family-wave `ner` vs `pattern` sobre la misma recipe Capa 0 cambia Y de capa B sin cambiar código de chunking/embed.
+- **Protocolo mínimo:** [`inference-slot.md`](inference-slot.md); [`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md) (family-wave).
+- **Falsación:** Si para cambiar de familia hay que tocar persistencia o el contrato de `Chunk`/scorecard, el aislamiento de capas no sostiene el slot.
+- **Reproducibilidad:** Reports family-wave + inspección de dependencias de dominio (tests de arquitectura / review).

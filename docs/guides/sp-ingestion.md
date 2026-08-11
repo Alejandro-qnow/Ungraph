@@ -1,207 +1,155 @@
-# Guía de Ingesta de Documentos
+# Ingesta de documentos
 
-Esta guía explica cómo ingerir documentos en el grafo de conocimiento usando Ungraph.
+Pasos para materializar documentos en Neo4j con la API pública.  
+Audiencia: developer. Argumento ETI (no duplicar aquí): [`../concepts/eti-spine.md`](../concepts/eti-spine.md) · Extract [`../concepts/extraction.md`](../concepts/extraction.md) · Transform [`../concepts/transformation.md`](../concepts/transformation.md) · slot Infer [`../concepts/inference-slot.md`](../concepts/inference-slot.md).
 
-## Conceptos Básicos
+## Prerrequisitos
 
-### Flujo de Ingesta
+1. Neo4j configurado ([`../api/sp-configuration.md`](../api/sp-configuration.md)).
+2. `pip install ungraph` (extras de formato según necesidad, p. ej. PDF vía stack Docling del paquete).
+3. Archivo accesible en disco (`.md`, `.txt`, `.docx`, `.pdf`, `.html`/`.htm`).
 
-```
-Archivo → Documento → Chunks → Embeddings → Grafo Neo4j
-```
+**Resultado observable al final:** lista de `Chunk` y topología léxica File → Page → Chunk (patrón por defecto).
 
-1. **Cargar archivo**: Se carga el archivo usando `DocumentLoaderService`
-2. **Limpiar texto**: Opcionalmente se limpia el texto usando `TextCleaningService`
-3. **Dividir en chunks**: Se divide el documento en chunks usando `ChunkingService`
-4. **Generar embeddings**: Se generan embeddings para cada chunk usando `EmbeddingService`
-5. **Persistir en grafo**: Se guarda en Neo4j usando `ChunkRepository`
-
-## Uso Básico
-
-### Ingerir un Solo Documento
+## Uso básico
 
 ```python
 import ungraph
 
-# Ingerir documento con parámetros por defecto
 chunks = ungraph.ingest_document("mi_documento.md")
-
-print(f"✅ Documento ingerido: {len(chunks)} chunks creados")
+print(len(chunks), chunks[0].id)
 ```
 
-### Parámetros de Ingesta
+## Parámetros (`is`)
+
+Firma estable: [`../api/sp-public-api.md`](../api/sp-public-api.md).
 
 ```python
 chunks = ungraph.ingest_document(
     "documento.md",
-    chunk_size=1000,        # Tamaño de cada chunk
-    chunk_overlap=200,      # Solapamiento entre chunks
-    clean_text=True,        # Limpiar texto antes de procesar
-    database="neo4j",       # Base de datos Neo4j (opcional)
-    embedding_model="sentence-transformers/all-MiniLM-L6-v2"  # Modelo de embedding
+    chunk_size=1000,
+    chunk_overlap=200,
+    clean_text=True,
+    database=None,              # default: settings
+    embedding_model=None,       # default: settings
+    pattern=None,               # default: FILE_PAGE_CHUNK
+    extraction_recipe=None,     # HTML: XPath/CSS opcional
+    source_url=None,            # provenance HTML / crawl
+    retrieval_optimization=False,
 )
 ```
 
-## Obtener Recomendaciones de Chunking
+| Parámetro | Efecto observable |
+|-----------|-------------------|
+| `chunk_size` / `chunk_overlap` | Número y solape de chunks |
+| `clean_text` | Texto normalizado antes del chunking |
+| `pattern` | Topología de nodos/rels (ver [patrones personalizados](sp-custom-patterns.md)) |
+| `retrieval_optimization` | Vista de recuperación derivada (`RetrievalChunk`) cuando el repo Neo4j lo soporta |
+| `extraction_recipe` / `source_url` | HTML: extracción acotada + URL de provenance |
 
-Ungraph puede analizar tu documento y recomendar la mejor estrategia de chunking:
+**Errores típicos:** `FileNotFoundError`, `ValueError` (archivo no procesable), `RuntimeError` (Neo4j).
+
+## Flujo (probe, no teoría)
+
+```text
+archivo → Document → Chunks → embeddings → Neo4j
+         └─ Inference (slot; según UNGRAPH_INFERENCE_MODE)
+```
+
+La recuperación GraphRAG **consume** este almacén; no define el conocimiento. Ver [`../theory/sp-graphrag.md`](../theory/sp-graphrag.md).
+
+## Recomendación de chunking
 
 ```python
-import ungraph
+rec = ungraph.suggest_chunking_strategy("documento.md")
+print(rec.strategy, rec.chunk_size, rec.chunk_overlap)
+print(rec.explanation)
 
-# Obtener recomendación
-recommendation = ungraph.suggest_chunking_strategy("documento.md")
-
-print(f"Estrategia recomendada: {recommendation.strategy}")
-print(f"Chunk size: {recommendation.chunk_size}")
-print(f"Chunk overlap: {recommendation.chunk_overlap}")
-print(f"Explicación: {recommendation.explanation}")
-print(f"Score de calidad: {recommendation.quality_score:.2f}")
-
-# Usar la recomendación
 chunks = ungraph.ingest_document(
     "documento.md",
-    chunk_size=recommendation.chunk_size,
-    chunk_overlap=recommendation.chunk_overlap
+    chunk_size=rec.chunk_size,
+    chunk_overlap=rec.chunk_overlap,
 )
 ```
 
-## Formatos Soportados
+`quality_score` / `alternatives` son salida del recomendador, no validación PRODUCT [§5](../product/PRODUCT.md).
 
-### Markdown (.md)
+## Formatos
 
 ```python
-chunks = ungraph.ingest_document("documento.md")
+ungraph.ingest_document("documento.md")
+ungraph.ingest_document("documento.txt")
+ungraph.ingest_document("documento.docx")
+ungraph.ingest_document("documento.pdf")
 ```
 
-### Texto Plano (.txt)
+Encoding de texto: detección automática (UTF-8 y fallbacks). PDF: extracción vía Docling del stack del paquete (texto/estructura según el loader).
+
+HTML:
 
 ```python
-chunks = ungraph.ingest_document("documento.txt")
+# opcional: ExtractionRecipe + source_url — ver API pública
+chunks = ungraph.ingest_document("pagina.html", source_url="https://ejemplo.org/pagina")
 ```
 
-El sistema detecta automáticamente el encoding del archivo (UTF-8, Windows-1252, Latin-1, etc.).
-
-### Word (.docx)
+## Varios archivos
 
 ```python
-chunks = ungraph.ingest_document("documento.docx")
-```
-
-### PDF (.pdf)
-
-```python
-chunks = ungraph.ingest_document("documento.pdf")
-```
-
-El sistema usa `langchain-docling` (IBM Docling) para extraer texto y metadatos de PDFs, incluyendo información sobre estructura del documento, tablas e imágenes.
-
-## Ejemplo Completo
-
-```python
-import ungraph
 from pathlib import Path
-
-# 1. Configurar (si no usas variables de entorno)
-ungraph.configure(
-    neo4j_uri="bolt://localhost:7687",
-    neo4j_password="tu_contraseña"
-)
-
-# 2. Obtener recomendación
-recommendation = ungraph.suggest_chunking_strategy("documento.md")
-print(f"Usando: {recommendation.strategy}")
-
-# 3. Ingerir con parámetros recomendados
-chunks = ungraph.ingest_document(
-    "documento.md",
-    chunk_size=recommendation.chunk_size,
-    chunk_overlap=recommendation.chunk_overlap,
-    clean_text=True
-)
-
-# 4. Verificar resultados
-print(f"✅ {len(chunks)} chunks creados")
-for i, chunk in enumerate(chunks[:3], 1):  # Mostrar primeros 3
-    print(f"\nChunk {i}:")
-    print(f"  ID: {chunk.id}")
-    print(f"  Contenido: {chunk.page_content[:100]}...")
-```
-
-## Ingerir Múltiples Documentos
-
-```python
 import ungraph
-from pathlib import Path
 
-# Lista de archivos a ingerir
-archivos = [
-    "doc1.md",
-    "doc2.txt",
-    "doc3.docx",
-    "doc4.pdf"
-]
-
-for archivo in archivos:
+for path in Path("./docs_src").glob("*.md"):
     try:
-        chunks = ungraph.ingest_document(archivo)
-        print(f"✅ {archivo}: {len(chunks)} chunks")
+        chunks = ungraph.ingest_document(path)
+        print(path.name, len(chunks))
     except Exception as e:
-        print(f"❌ Error con {archivo}: {e}")
+        print(path.name, "ERROR", e)
 ```
 
-## Estructura del Grafo Creado
+## Topología creada (patrón por defecto)
 
-Después de ingerir, el grafo tiene esta estructura:
-
-```
+```text
 File -[:CONTAINS]-> Page -[:HAS_CHUNK]-> Chunk
-                    Chunk -[:NEXT_CHUNK]-> Chunk
+Chunk -[:NEXT_CHUNK]-> Chunk
 ```
 
-**Nodos:**
-- **File**: Representa el archivo físico
-  - Propiedades: `filename`, `createdAt`
-- **Page**: Representa una página dentro del archivo
-  - Propiedades: `filename`, `page_number`
-- **Chunk**: Representa un fragmento de texto
-  - Propiedades: `chunk_id`, `page_content`, `embeddings`, `embeddings_dimensions`
-  - Opcionales: `is_unitary`, `chunk_id_consecutive`, `embedding_encoder_info`
+| Elemento | Propiedades habituales (`is`) |
+|----------|-------------------------------|
+| File | `filename`, `createdAt` |
+| Page | `filename`, `page_number` |
+| Chunk | `chunk_id`, `page_content`, embeddings / dimensiones |
 
-**Relaciones:**
-- `File -[:CONTAINS]-> Page`: Un archivo contiene páginas
-- `Page -[:HAS_CHUNK]-> Chunk`: Una página tiene chunks
-- `Chunk -[:NEXT_CHUNK]-> Chunk`: Chunks consecutivos están relacionados
+Concepto: [`../concepts/sp-lexical-graphs.md`](../concepts/sp-lexical-graphs.md) · [`../concepts/sp-graph-patterns.md`](../concepts/sp-graph-patterns.md).
 
-## Solución de Problemas
+## Inference en la ingesta
 
-### Error: UnicodeDecodeError
+| | |
+|--|--|
+| **is** | Slot configurado por `UNGRAPH_INFERENCE_MODE`: `ner` (default), `pattern`, `llm` (requiere OpenAI/`UNGRAPH_OPENAI_*`); ver configuración |
+| **will be** | `hybrid` (NER+LLM) — `NotImplementedError` hoy; depuración EVI / beliefs first-class — [`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md) |
 
-**Problema:** El archivo tiene un encoding diferente a UTF-8.
+No confundir “hubo extracción NER/LLM” con “conocimiento validado” (PRODUCT §5).
 
-**Solución:** El sistema detecta automáticamente el encoding. Si persiste el error, verifica el archivo manualmente.
+## Solución de problemas
 
-### Error: AuthError al conectar a Neo4j
+### UnicodeDecodeError
 
-**Problema:** Las credenciales de Neo4j son incorrectas.
+Normaliza el archivo a UTF-8 o revisa el encoding real.
 
-**Solución:** Verifica las variables de entorno o la configuración programática:
+### AuthError / Neo4j
 
 ```python
 from ungraph.core.configuration import get_settings
-settings = get_settings()
-print(f"URI: {settings.neo4j_uri}")
-print(f"User: {settings.neo4j_user}")
+s = get_settings()
+print(s.neo4j_uri, s.neo4j_user, s.neo4j_database)
 ```
 
-### Error: Documento muy grande
+### Documento muy grande
 
-**Problema:** El documento es demasiado grande para procesar de una vez.
-
-**Solución:** Considera dividir el documento manualmente o usar un `chunk_size` más pequeño.
+Reduce `chunk_size` o parte el archivo antes de ingerir.
 
 ## Referencias
 
-- [Guía de Inicio Rápido](sp-quickstart.md)
-- [API Pública](../api/sp-public-api.md)
-- [Patrones de Grafo](../concepts/sp-graph-patterns.md)
+- [Inicio rápido](sp-quickstart.md) · [Búsqueda](search.md) · [Patrones](sp-custom-patterns.md)
+- [API pública](../api/sp-public-api.md)
+- [Configuración](../api/sp-configuration.md)

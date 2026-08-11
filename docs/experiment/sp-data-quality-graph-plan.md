@@ -1,10 +1,16 @@
 # Plan: calidad de datos, atributos `dq_*` y capa Pydantic sobre el grafo
 
-**Estado:** plan de trabajo (no implementación completa en el núcleo al cierre de este documento).  
-**Última revisión:** 2026-04-13  
-**Encaje con producto:** nivel **C** (evolutivo) en [PRODUCT.md](../PRODUCT.md) — calidad avanzada, gobernanza y metadatos; coherente con el ciclo construir–evaluar–refinar.
+**Capa ZEN:** `experiment/` (plan medible / trayectoria). **No** es guía ejecutable.
 
-Este documento fija **decisiones de diseño**, **convenciones** y **fases** para implementar de forma coherente una capa de calidad de datos sobre fuentes no o semiestructuradas, su proyección al modelo de grafo que persiste Ungraph, y una capa de validación tipo **ORM basado en Pydantic**. Sirve para retomar el trabajo cuando el momento lo amerite sin renegociar el rumbo desde cero.
+| | |
+|--|--|
+| **is** | Persistencia File→Page→Chunk; `Entity.quality_score` (confianza de extracción, no DQ de fuente); sin convención general `dq_*` en el núcleo. |
+| **will be** | Propiedades `dq_*` consultables en grafo, perfilado de fuente, capa Pydantic de validación — nivel **C** (fuera del cierre A+B). |
+| **Estado** | Plan de trabajo (no implementación completa en el núcleo). |
+| **Última revisión** | 2026-08-11 (toque tanda B; relocated from `guides/` en Oleada 2 ZEN). |
+| **Producto** | Nivel **C** en [PRODUCT.md](../product/PRODUCT.md); horizonte en [ROADMAP_LEVEL_C.md](ROADMAP_LEVEL_C.md). Criterio “validado”: PRODUCT §5 — este plan no es medición. |
+
+Este documento fija **decisiones de diseño**, **convenciones** y **fases** para una capa de calidad sobre fuentes no o semiestructuradas, su proyección al grafo Ungraph y validación tipo **ORM Pydantic**. No sustituye guías de uso, el programa de gates ([PLAN_MAESTRO.md](PLAN_MAESTRO.md)) ni claims medidos en `validation/`.
 
 ---
 
@@ -29,7 +35,7 @@ Este documento fija **decisiones de diseño**, **convenciones** y **fases** para
 
 | Necesidad | Dónde mirar |
 |-----------|-------------|
-| Qué es Ungraph y niveles A/B/C | [PRODUCT.md](../PRODUCT.md) |
+| Qué es Ungraph y niveles A/B/C | [PRODUCT.md](../product/PRODUCT.md) |
 | Índice general de docs | [README.md](../README.md) |
 | Patrón léxico por defecto `FILE_PAGE_CHUNK` (concepto) | [concepts/sp-graph-patterns.md](../concepts/sp-graph-patterns.md) |
 | Esquema “tipo inferencia” (Document, Entity, Fact) como referencia de skill | `.claude/skills/kg-schema/SKILL.md` |
@@ -43,7 +49,7 @@ Este documento fija **decisiones de diseño**, **convenciones** y **fases** para
 
 - No hay convención general **`dq_*`** en propiedades Neo4j como parte del núcleo.
 - La entidad `Entity` ya incluye `quality_score` (dominio distinto: confianza de extracción, no perfil de fuente).
-- El producto ya enmarca **evaluación y métricas** como evolución deseada ([PRODUCT.md](../PRODUCT.md), historias §5.5).
+- El producto ya enmarca **evaluación y métricas** como evolución deseada ([PRODUCT.md](../product/PRODUCT.md) §6.5; criterio de validación §5).
 
 ---
 
@@ -121,7 +127,7 @@ Los nombres finales deben aprobarse al implementar el primer milestone para no m
 ### 6.2 Principios
 
 - No acoplar la definición de métricas a un solo proveedor de embeddings o LLM.
-- Versionar el esquema DQ para poder re-ejecutar evaluaciones y comparar runs (alineado con historias de reproducibilidad en [PRODUCT.md](../PRODUCT.md)).
+- Versionar el esquema DQ para poder re-ejecutar evaluaciones y comparar runs (alineado con historias de reproducibilidad en [PRODUCT.md](../product/PRODUCT.md)).
 
 ---
 
@@ -178,10 +184,23 @@ Las fases son ordenables; cada una debería cerrar con tests y una nota breve en
 
 ## 11. Enlaces cruzados
 
-- [PRODUCT.md](../PRODUCT.md) — niveles de producto y visión de evaluación.
-- [VISION_AND_TUTORIALS.md](../VISION_AND_TUTORIALS.md) — aprendizaje y refinamiento del grafo.
+- [PRODUCT.md](../product/PRODUCT.md) — niveles A/B/C; §5 cuándo cuenta como validado.
+- [VISION_AND_TUTORIALS.md](../product/VISION_AND_TUTORIALS.md) — aprendizaje y refinamiento del grafo (§8).
+- [ROADMAP_LEVEL_C.md](ROADMAP_LEVEL_C.md) — DQ como fase C, no promesa B.
 - [concepts/sp-graph-patterns.md](../concepts/sp-graph-patterns.md) — patrones léxicos vs conocimiento.
 - Skill `kg-schema` (`.claude/skills/kg-schema/SKILL.md`) — actualizar cuando el esquema DQ entre en DDL/índices.
+
+---
+
+## Open claim (falseable)
+
+### Claim H_dq_graph_queryable
+
+- **Enunciado:** Tras F3, un documento de prueba ingerido expone ≥3 propiedades `dq_*` acordadas en File o Chunk, consultables por Cypher sin romper `MERGE` existentes.
+- **Predicción observable:** `MATCH` post-ingesta devuelve scores versionados (`dq_profile_schema_version`, `dq_assessed_at`, al menos un score de integridad o legibilidad).
+- **Protocolo mínimo:** fixture de ingesta + test de integración Neo4j; diccionario §5.2 congelado en el mismo PR.
+- **Falsación:** Si no hay propiedades pobladas o colisionan con `quality_score` de Entity sin calificar, F3 no cierra.
+- **Reproducibilidad:** test versionado + este plan actualizado; no afirmar “validado” PRODUCT §5 hasta confrontar fuentes/métricas externas si el claim de producto lo exige.
 
 ---
 

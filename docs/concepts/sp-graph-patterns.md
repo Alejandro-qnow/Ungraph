@@ -1,226 +1,52 @@
-# Patrones de Grafo
+# Patrones de grafo — mapeo declarativo (no tutorial API)
 
-## Introducción
+**Idioma:** español (canónico `sp-*`).
 
-Los patrones de grafo permiten definir estructuras de conocimiento de manera declarativa y reutilizable. En lugar de tener código hardcodeado para cada estructura, puedes definir patrones que describen cómo deben organizarse los nodos y relaciones en el grafo.
+Audiencia: research / developer. Espina: [`eti-spine.md`](eti-spine.md).  
+Pasos ejecutables: [`../guides/sp-custom-patterns.md`](../guides/sp-custom-patterns.md) (esta página **no** duplica la guía).
 
-## Lexical Graphs vs Knowledge Graphs
+## Motivation
 
-Antes de profundizar en los patrones, es importante entender dos conceptos fundamentales:
+Persistir texto en Neo4j sin un **contrato de forma** deja la topología implícita en Cypher ad hoc: cada ingesta reinventar labels, direcciones y provenance. El problema epistémico no es “escribir menos código”, sino hacer **reproducible y auditable** qué unidades de evidencia existen y cómo se enlazan *antes* de Inference.
 
-- **Lexical Graph (Grafo Léxico)**: Estructura que organiza texto y captura relaciones lingüísticas. Se enfoca en la estructura del lenguaje y facilita la búsqueda semántica. El patrón `FILE_PAGE_CHUNK` es un ejemplo de Lexical Graph.
+Un patrón declarativo actúa como **ORM de grafo** (esquema tipado de nodos/relaciones): fija el mapeo documento → estructura, separa *qué* se materializa de *cómo* se ejecuta Cypher, y permite comparar Transform bajo factor controlado (I16 CommonKADS: patrón ≈ tarea de conocimiento; I18 chunking/topología como superficie experimental).
 
-- **Knowledge Graph (Grafo de Conocimiento)**: Estructura que representa conocimiento factual y relaciones entre entidades del dominio. Se enfoca en hechos verificables y esquemas estructurados.
+GraphRAG consume esa topología (I04–I05); no la define. Confundir “patrón de recuperación” con “patrón de materialización” mezcla Interface con Transform.
 
-**En Ungraph**: La mayoría de los patrones implementados son **Lexical Graphs** porque organizan texto no estructurado para búsqueda y recuperación. Ver [Lexical Graphs](./sp-lexical-graphs.md) para más detalles.
+## Theory
 
-## Conceptos Básicos
+### Qué es un patrón (fenómeno)
 
-### NodeDefinition
+| Concepto | Rol | No es |
+|----------|-----|-------|
+| **GraphPattern** | Declaración de labels, propiedades requeridas/opcionales, índices y tipos de relación | Un motor Infer ni un scorecard |
+| **Nodo / relación tipados** | Contrato de forma del almacén | Ontología de dominio completa |
+| **Patrón léxico** (p. ej. File–Page–Chunk) | Topología de Transform + provenance | Knowledge graph de hechos |
+| **Patrón de búsqueda** | Interface GraphRAG sobre el store | Sustituto de creencias depuradas |
 
-Define un tipo de nodo en el patrón:
+Linaje: esquemas tipados en KBC / DeepDive (features → creencias; whitepaper E1); catálogos GraphRAG como *consumidores* de forma (I05); PROV-O (I14) para linaje cuando el patrón fija File/Page/Chunk. Ontology learning (I17) puede *sugerir* patrones — trayectoria, no hecho.
 
-```python
-from ungraph.domain.value_objects.graph_pattern import NodeDefinition
+### is vs will be
 
-file_node = NodeDefinition(
-    label="File",
-    required_properties={"filename": str},
-    optional_properties={"createdAt": int},
-    indexes=["filename"]
-)
-```
+| | |
+|--|--|
+| **is** | Value objects `GraphPattern` / `NodeDefinition` / `RelationshipDefinition` en dominio; patrón predefinido `FILE_PAGE_CHUNK`; validación de forma; ingesta acepta `pattern=…` (probe en API/guides) |
+| **will be** | Patrones tipados de *conocimiento* (entidades/rels de dominio) como salida estable de Infer; promoción bronze→gold por patrón; sugerencia automática de esquema (I17) |
 
-**Características:**
-- `label`: Label del nodo en Neo4j (debe empezar con mayúscula)
-- `required_properties`: Propiedades obligatorias {nombre: tipo}
-- `optional_properties`: Propiedades opcionales {nombre: tipo}
-- `indexes`: Lista de propiedades a indexar para búsquedas rápidas
+## In Ungraph
 
-### RelationshipDefinition
+- **Capa ETI:** el patrón materializa sobre todo **Transform** (topología léxica + índices). Extract entrega unidades; Infer añade candidatos de conocimiento *sobre* o *junto a* esa base — ver [`transformation.md`](transformation.md), [`inference.md`](inference.md).
+- **Léxico vs conocimiento:** File–Page–Chunk es grafo léxico ([`sp-lexical-graphs.md`](sp-lexical-graphs.md)), no WordNet ni KG de dominio.
+- **Interface:** patrones de retrieval (basic, parent–child, …) presuponen forma léxica/KG; detalle en [`../theory/sp-graphrag.md`](../theory/sp-graphrag.md), contrato en [`../api/sp-search-patterns.md`](../api/sp-search-patterns.md).
+- **Cómo crear/usar un patrón:** solo en [`../guides/sp-custom-patterns.md`](../guides/sp-custom-patterns.md) — aquí no hay tutorial API.
+- **Programa medible:** factorizar patrón/topología en DoE vía [`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md) (H_chunk / Transform), no como marketing de “todos los patrones validados”.
 
-Define una relación entre nodos:
+## Open claims (falseables)
 
-```python
-from ungraph.domain.value_objects.graph_pattern import RelationshipDefinition
+### Claim H_pattern_declarative
 
-contains_rel = RelationshipDefinition(
-    from_node="File",
-    to_node="Page",
-    relationship_type="CONTAINS",
-    direction="OUTGOING"
-)
-```
-
-**Características:**
-- `from_node`: Label del nodo origen
-- `to_node`: Label del nodo destino
-- `relationship_type`: Tipo de relación (debe empezar con mayúscula)
-- `direction`: "OUTGOING" o "INCOMING"
-- `properties`: Propiedades opcionales de la relación
-
-### GraphPattern
-
-Un patrón completo que combina nodos y relaciones:
-
-```python
-from ungraph.domain.value_objects.graph_pattern import GraphPattern
-
-pattern = GraphPattern(
-    name="FILE_PAGE_CHUNK",
-    description="File contiene Pages, Pages contienen Chunks",
-    node_definitions=[file_node, page_node, chunk_node],
-    relationship_definitions=[contains_rel, has_chunk_rel]
-)
-```
-
-## Patrón Predefinido: FILE_PAGE_CHUNK
-
-Este es el patrón por defecto usado en Ungraph. Es un **Lexical Graph** que organiza texto no estructurado para búsqueda semántica.
-
-```
-File -[:CONTAINS]-> Page -[:HAS_CHUNK]-> Chunk
-                    Chunk -[:NEXT_CHUNK]-> Chunk
-```
-
-### ¿Por qué es un Lexical Graph?
-
-Este patrón es un Lexical Graph porque:
-- **Organiza texto estructuralmente**: Divide documentos en chunks relacionados
-- **Captura relaciones lingüísticas**: Los chunks están conectados por relaciones que reflejan la estructura del texto
-- **Facilita búsqueda semántica**: Los embeddings en cada chunk permiten búsqueda por similitud semántica
-- **Soporta patrones GraphRAG**: Es compatible con Basic Retriever y Parent-Child Retriever
-
-### Estructura
-
-- **File**: Representa un archivo físico
-  - Propiedades: `filename`, `createdAt` (opcional)
-- **Page**: Representa una página dentro del archivo
-  - Propiedades: `filename`, `page_number`
-- **Chunk**: Representa un fragmento de texto con embeddings
-  - Propiedades: `chunk_id`, `page_content`, `embeddings`, `embeddings_dimensions`
-  - Opcionales: `is_unitary`, `chunk_id_consecutive`, `embedding_encoder_info`
-
-### Relaciones
-
-- `File -[:CONTAINS]-> Page`: Un archivo contiene páginas
-- `Page -[:HAS_CHUNK]-> Chunk`: Una página tiene chunks
-- `Chunk -[:NEXT_CHUNK]-> Chunk`: Chunks consecutivos están relacionados (permite navegación secuencial)
-
-### Uso en GraphRAG
-
-Este patrón es compatible con:
-- ✅ **Basic Retriever**: Búsqueda vectorial directa en chunks
-- ✅ **Parent-Child Retriever**: Puede evolucionar a estructura padre-hijo
-- ✅ **Metadata Filtering**: Filtrado por propiedades de File/Page
-
-Ver [Lexical Graphs](./sp-lexical-graphs.md) para más información sobre cómo funciona este patrón en GraphRAG.
-
-## Crear Patrones Personalizados
-
-### Ejemplo: Patrón Simple (Solo Chunks)
-
-```python
-from ungraph.domain.value_objects.graph_pattern import (
-    GraphPattern,
-    NodeDefinition
-)
-
-simple_pattern = GraphPattern(
-    name="SIMPLE_CHUNK",
-    description="Solo chunks, sin estructura File-Page",
-    node_definitions=[
-        NodeDefinition(
-            label="Chunk",
-            required_properties={
-                "chunk_id": str,
-                "content": str
-            },
-            indexes=["chunk_id"]
-        )
-    ],
-    relationship_definitions=[]
-)
-```
-
-### Ejemplo: Patrón con Relaciones Personalizadas
-
-```python
-entity_node = NodeDefinition(
-    label="Entity",
-    required_properties={"name": str, "type": str},
-    indexes=["name"]
-)
-
-chunk_node = NodeDefinition(
-    label="Chunk",
-    required_properties={"chunk_id": str, "content": str},
-    indexes=["chunk_id"]
-)
-
-# Relación: Chunk menciona Entity
-mentions_rel = RelationshipDefinition(
-    from_node="Chunk",
-    to_node="Entity",
-    relationship_type="MENTIONS",
-    properties={"count": int},  # Propiedad en la relación
-    direction="OUTGOING"
-)
-
-lexical_pattern = GraphPattern(
-    name="LEXICAL_GRAPH",
-    description="Grafo léxico con entidades y chunks",
-    node_definitions=[entity_node, chunk_node],
-    relationship_definitions=[mentions_rel]
-)
-```
-
-## Validaciones
-
-Los patrones se validan automáticamente:
-
-1. **Labels y Relationship Types**: Deben empezar con mayúscula y contener solo letras, números y underscores
-2. **Propiedades**: Los nombres deben ser válidos identificadores Python
-3. **Relaciones**: Deben referenciar nodos que existen en el patrón
-4. **Índices**: Solo pueden indexar propiedades que existen
-
-## Uso de Patrones
-
-### En Ingesta
-
-```python
-import ungraph
-from ungraph.domain.value_objects.predefined_patterns import FILE_PAGE_CHUNK_PATTERN
-
-# Usar patrón predefinido
-chunks = ungraph.ingest_document(
-    "documento.md",
-    pattern=FILE_PAGE_CHUNK_PATTERN
-)
-
-# O usar patrón personalizado
-chunks = ungraph.ingest_document(
-    "documento.md",
-    pattern=simple_pattern
-)
-```
-
-### Validar un Patrón
-
-```python
-from ungraph.infrastructure.services.neo4j_pattern_service import Neo4jPatternService
-
-service = Neo4jPatternService()
-is_valid = service.validate_pattern(my_pattern)
-
-if is_valid:
-    print("Patrón válido")
-else:
-    print("Patrón inválido")
-```
-
-## Referencias
-
-- [GraphRAG Pattern Catalog](https://graphrag.com/reference/)
-- [Neo4j Cypher Manual - Patterns](https://neo4j.com/docs/cypher-manual/current/patterns/)
-- [Clean Architecture - Value Objects](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- **Enunciado:** Fijar topología vía `GraphPattern` (frente a Cypher ad hoc equivalente) mejora reproducibilidad de métricas de Transform/Capa 0 a igual Extract e Infer.
+- **Predicción observable:** Con recipe Capa 0 congelada salvo forma del patrón, scorecards (`n_chunks`, integridad File–Page–Chunk, `evidence_coverage` estructural) coinciden entre corridas wipe/seed; la variante ad hoc sin patrón diverge o no audita propiedades requeridas.
+- **Protocolo mínimo:** Fixture de dominio P0; ingesta con `FILE_PAGE_CHUNK` vs script Cypher paralelo; comparar scorecard / integridad de secuencia. Enlace: [`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md), [`transformation.md`](transformation.md).
+- **Falsación:** Si ambas rutas producen grafos y Y idénticas *sin* contrato de propiedades/índices, o el patrón no bloquea formas inválidas, el claim de “ORM epistémico” queda acotado a ergonomía de código.
+- **Reproducibilidad:** `ExperimentRun` + patrón versionado (nombre + hash de definiciones) en metadata del run.

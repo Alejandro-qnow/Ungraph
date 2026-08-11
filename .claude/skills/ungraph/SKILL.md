@@ -43,7 +43,7 @@ Si el prompt no encaja claramente en ningún skill, responde con:
 Proyecto: **Ungraph 0.1.5** — framework Python para grafos de conocimiento sobre Neo4j.
 Patrón central: **Extract → Transform → Inference (ETI)** + recuperación **GraphRAG**.
 Arquitectura: `domain / application / infrastructure` (Clean Architecture).
-Brechas prioritarias (ver checklist en `docs/PLAN_MAESTRO.md`): runner online H_I · Y Neo4j/top-k · tests ETI en CI · doc I/O Infer.
+Brechas prioritarias (ver checklist en `docs/experiment/PLAN_MAESTRO.md`): runner online H_I · Y Neo4j/top-k · tests ETI en CI · doc I/O Infer.
 Subagentes: **ungraph-dev-skills** (orquestación), **ungraph-eti-science** (rigor experimental / oleada-2).
 
 ## Ejemplo de uso

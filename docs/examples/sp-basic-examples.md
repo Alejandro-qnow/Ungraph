@@ -1,149 +1,158 @@
-# Ejemplos Básicos
+# Ejemplos básicos
 
-Ejemplos simples de uso de Ungraph.
+Mínimos reproductibles sobre la API pública (`import ungraph`).  
+Audiencia: developer. How-to narrado: [`../guides/sp-quickstart.md`](../guides/sp-quickstart.md). Contrato: [`../api/sp-public-api.md`](../api/sp-public-api.md). Espina: [`../concepts/eti-spine.md`](../concepts/eti-spine.md).
 
-## Ejemplo 1: Ingerir un Documento
+Estos snippets demuestran **ingesta léxica + búsqueda como interfaz**. No son scorecard ni validación PRODUCT [§5](../product/PRODUCT.md).
+
+## Prerrequisitos
+
+1. Python 3.10+, paquete instalado (`pip install ungraph` o entorno del repo).
+2. Neo4j accesible; `.env` o `ungraph.configure` ([`../api/sp-configuration.md`](../api/sp-configuration.md)).
+3. Índices creados (ingesta o `ungraph setup --database-init` vía CLI).
+
+**Resultado observable global:** `import ungraph` ok; tras cada ejemplo, `len(...) > 0` o impresión de `score` / `chunk_id` / `content`.
+
+## Fixture / datos de ejemplo
+
+Usar un fixture versionado del repo (preferido):
+
+| Archivo | Rol |
+|---------|-----|
+| [`../../tests/fixtures/topology_alpha.md`](../../tests/fixtures/topology_alpha.md) | Texto corto con término **topology** para asserts full-text |
+| [`../../tests/fixtures/topology_beta.md`](../../tests/fixtures/topology_beta.md) | Segundo documento mínimo |
+
+Desde la raíz del repo:
 
 ```python
-import ungraph
-
-# Ingerir documento
-chunks = ungraph.ingest_document("mi_documento.md")
-
-print(f"✅ Documento ingerido: {len(chunks)} chunks creados")
+FIXTURE = "tests/fixtures/topology_alpha.md"
 ```
 
-## Ejemplo 2: Buscar Información
+Si no tienes el árbol de tests, genera un `.md` local UTF-8 con ≥2 párrafos y un término único que luego busques.
+
+## 1. Configurar e ingerir
 
 ```python
 import ungraph
 
-# Buscar
-results = ungraph.search("tema de interés", limit=5)
-
-# Mostrar resultados
-for result in results:
-    print(f"Score: {result.score:.3f}")
-    print(f"Contenido: {result.content[:200]}...")
-    print("---")
-```
-
-## Ejemplo 3: Búsqueda Híbrida
-
-```python
-import ungraph
-
-# Búsqueda híbrida
-results = ungraph.hybrid_search(
-    "inteligencia artificial",
-    limit=10,
-    weights=(0.3, 0.7)
-)
-
-# Procesar resultados
-for result in results:
-    print(f"Score: {result.score:.3f}")
-    print(f"Contenido: {result.content}")
-    print("=" * 80)
-```
-
-## Ejemplo 4: Obtener Recomendación de Chunking
-
-```python
-import ungraph
-
-# Obtener recomendación
-recommendation = ungraph.suggest_chunking_strategy("documento.md")
-
-print(f"Estrategia: {recommendation.strategy}")
-print(f"Chunk size: {recommendation.chunk_size}")
-print(f"Chunk overlap: {recommendation.chunk_overlap}")
-print(f"Explicación: {recommendation.explanation}")
-
-# Usar la recomendación
-chunks = ungraph.ingest_document(
-    "documento.md",
-    chunk_size=recommendation.chunk_size,
-    chunk_overlap=recommendation.chunk_overlap
-)
-```
-
-## Ejemplo 5: Pipeline Completo
-
-```python
-import ungraph
-
-# 1. Configurar
 ungraph.configure(
     neo4j_uri="bolt://localhost:7687",
-    neo4j_password="tu_contraseña"
+    neo4j_user="neo4j",
+    neo4j_password="tu_contraseña",
 )
 
-# 2. Obtener recomendación
-recommendation = ungraph.suggest_chunking_strategy("documento.md")
-
-# 3. Ingerir
+FIXTURE = "tests/fixtures/topology_alpha.md"
 chunks = ungraph.ingest_document(
-    "documento.md",
-    chunk_size=recommendation.chunk_size,
-    chunk_overlap=recommendation.chunk_overlap
+    FIXTURE,
+    chunk_size=400,
+    chunk_overlap=80,
 )
-
-# 4. Buscar
-results = ungraph.hybrid_search("tema", limit=5)
-
-# 5. Mostrar resultados
-for result in results:
-    print(result.content)
+print(len(chunks), chunks[0].id, chunks[0].page_content[:120])
 ```
 
-## Ejemplo 6: Basic Retriever con Lexical Graph
+**Resultado observable:** `len(chunks) > 0`; cada `Chunk` tiene `id` y `page_content`.
 
-El Basic Retriever es el patrón más básico de GraphRAG. Requiere un Lexical Graph (como `FILE_PAGE_CHUNK`) y funciona buscando similitud directamente en los chunks.
+**is:** Extract → Transform léxico (`FILE_PAGE_CHUNK` por defecto) + embeddings según settings. El slot Inference depende de `UNGRAPH_INFERENCE_MODE` — [`../concepts/inference-slot.md`](../concepts/inference-slot.md).
+
+## 2. Búsqueda por texto
+
+```python
+results = ungraph.search("topology", limit=5)
+for r in results:
+    print(r.score, r.chunk_id, r.content[:160])
+```
+
+**Resultado observable:** lista de `SearchResult` con `score`, `chunk_id`, `content` (tras ingerir el fixture que contiene “topology”).
+
+## 3. Búsqueda híbrida
+
+```python
+results = ungraph.hybrid_search(
+    "topology",
+    limit=5,
+    weights=(0.3, 0.7),  # (texto, vector)
+)
+for r in results:
+    print(r.score, r.content[:160])
+    if r.previous_chunk_content:
+        print("prev:", r.previous_chunk_content[:80])
+    if r.next_chunk_content:
+        print("next:", r.next_chunk_content[:80])
+```
+
+**Resultado observable:** mismos campos; vecinos opcionales en `previous_chunk_content` / `next_chunk_content`.
+
+Vectorial sola: `ungraph.vector_search("topology", limit=5)` — firma en API.
+
+## 4. Chunking sugerido (opcional)
+
+```python
+rec = ungraph.suggest_chunking_strategy(FIXTURE)
+print(rec.strategy, rec.chunk_size, rec.chunk_overlap)
+print(rec.explanation)
+
+chunks = ungraph.ingest_document(
+    FIXTURE,
+    chunk_size=rec.chunk_size,
+    chunk_overlap=rec.chunk_overlap,
+)
+print("chunks:", len(chunks))
+```
+
+`quality_score` del recomendador es heurística local, **no** scorecard experimental ([PRODUCT §5](../product/PRODUCT.md)).
+
+## 5. Pipeline mínimo (configure → ingest → search)
 
 ```python
 import ungraph
 
-# 1. Crear Lexical Graph (ingerir documento)
-print("📄 Ingiriendo documento...")
-chunks = ungraph.ingest_document(
-    "documento_tecnico.md",
-    chunk_size=1000,
-    chunk_overlap=200
+ungraph.configure(
+    neo4j_uri="bolt://localhost:7687",
+    neo4j_password="tu_contraseña",
 )
-print(f"✅ {len(chunks)} chunks creados en el Lexical Graph\n")
 
-# 2. Buscar usando Basic Retriever
-query = "inteligencia artificial y sus aplicaciones"
-print(f"🔍 Buscando: '{query}'\n")
+FIXTURE = "tests/fixtures/topology_alpha.md"
+chunks = ungraph.ingest_document(FIXTURE, chunk_size=400, chunk_overlap=80)
+print("chunks:", len(chunks))
 
-results = ungraph.search(query, limit=5)
-
-# 3. Mostrar resultados
-print(f"📊 Encontrados {len(results)} resultados:\n")
-for i, result in enumerate(results, 1):
-    print(f"{'='*80}")
-    print(f"Resultado {i}")
-    print(f"{'='*80}")
-    print(f"Score de similitud: {result.score:.4f}")
-    print(f"Chunk ID: {result.chunk_id}")
-    print(f"\nContenido:")
-    print(f"{result.content[:500]}...")
-    print()
+results = ungraph.hybrid_search("topology", limit=5)
+for r in results:
+    print(r.score, r.content[:200])
 ```
 
-**Cuándo usar Basic Retriever:**
-- ✅ La información está en chunks específicos y bien definidos
-- ✅ No necesitas contexto adicional más allá del chunk encontrado
-- ✅ Quieres la búsqueda más rápida y simple
+**Resultado observable:** `len(chunks) > 0` y al menos un hit con “topology” (o score listado).
 
-**Cuándo NO usar Basic Retriever:**
-- ❌ Necesitas contexto completo de una sección → Usa **Parent-Child Retriever**
-- ❌ Necesitas filtrar por metadatos → Usa **Metadata Filtering**
+## 6. Basic retriever como patrón nombrado
 
-## Referencias
+Equivalente tipado a full-text vía `search_with_pattern` (mismo tipo `SearchResult`):
 
-- [Guía de Inicio Rápido](../guides/sp-quickstart.md)
-- [Guía de Ingesta](../guides/sp-ingestion.md)
-- [Guía de Búsqueda](../guides/search.md)
-- [Patrones de Búsqueda GraphRAG](../api/sp-search-patterns.md)
+```python
+results = ungraph.search_with_pattern(
+    "topology",
+    pattern_type="basic",
+    limit=5,
+)
+for r in results:
+    print(r.score, r.chunk_id, r.content[:160])
+```
+
+Concepto léxico (no duplicar aquí): [`../concepts/sp-lexical-graphs.md`](../concepts/sp-lexical-graphs.md). Contrato de patrones: [`../api/sp-search-patterns.md`](../api/sp-search-patterns.md). How-to: [`../guides/search.md`](../guides/search.md).
+
+## is / will be
+
+| | |
+|--|--|
+| **is** | `configure`, `ingest_document`, `search` / `vector_search` / `hybrid_search`, `suggest_chunking_strategy`, `search_with_pattern(..., pattern_type="basic")` en `main` |
+| **will be** | Depuración EVI, creencias first-class, ranking confrontable — [`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md), [PRODUCT §5](../product/PRODUCT.md) |
+
+No afirmar “mejor retrieval” ni precisión sin ExperimentRun en `validation/`.
+
+## Open claims
+
+N/A (página de mínimos reproductibles). Hipótesis medibles: plan maestro / research.
+
+## Siguiente
+
+- Avanzados: [`sp-advanced-examples.md`](sp-advanced-examples.md)
+- Notebooks: [`sp-notebooks.md`](sp-notebooks.md)
+- Guías: [quickstart](../guides/sp-quickstart.md) · [ingesta](../guides/sp-ingestion.md) · [búsqueda](../guides/search.md)

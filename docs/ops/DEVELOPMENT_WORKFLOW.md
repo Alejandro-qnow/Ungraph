@@ -95,7 +95,7 @@ Así el “plan maestro” se puede **seccionar** sin mezclar research con relea
 
 ## 6. Pull requests
 
-- Plantilla en [`.github/PULL_REQUEST_TEMPLATE.md`](../.github/PULL_REQUEST_TEMPLATE.md).
+- Plantilla en [`.github/PULL_REQUEST_TEMPLATE.md`](../../.github/PULL_REQUEST_TEMPLATE.md).
 - Formularios de **issue** por tipo: ver §8.
 - PR pequeños, un tema principal por PR cuando sea posible.
 - Referenciar issues: `Closes #123`.
@@ -106,7 +106,7 @@ Así el “plan maestro” se puede **seccionar** sin mezclar research con relea
 
 - El directorio **`tests/`** debe estar **versionado** con el código; no listar `tests/` en `.gitignore` (artefactos locales: `.pytest_cache/`, `__pycache__/`, ya ignorados por otras reglas).
 - Seguir el estilo del módulo tocado; **tests** para lógica nueva o regresiones.
-- Marcadores pytest: `unit` / `integration` / `e2e` / `eval` / `openai` según [`pytest.ini`](../pytest.ini).
+- Marcadores pytest: `unit` / `integration` / `e2e` / `eval` / `openai` según [`pytest.ini`](../../pytest.ini).
 - Sin secretos en el repo; variables `UNGRAPH_*` / Neo4j solo en entorno o CI.
 - **CI:** `flake8` corre sobre `ungraph/` y `tests/`; `black`/`isort` sobre `tests/` hasta un PR de formateo unificado de `ungraph/`.
 
@@ -114,7 +114,7 @@ Así el “plan maestro” se puede **seccionar** sin mezclar research con relea
 
 ## 8. Issues (plantillas)
 
-En [`.github/ISSUE_TEMPLATE/`](../.github/ISSUE_TEMPLATE/) hay formularios por tipo:
+En [`.github/ISSUE_TEMPLATE/`](../../.github/ISSUE_TEMPLATE/) hay formularios por tipo:
 
 | Plantilla | Uso |
 |-----------|-----|
@@ -146,6 +146,6 @@ Las plantillas añaden `triage` hasta que el equipo asigne prioridad / milestone
 
 ## 9. Referencias cruzadas
 
-- Plan de ejecución e índice: [`PLAN_MAESTRO.md`](PLAN_MAESTRO.md)
-- Producto y prioridades: [`PRODUCT.md`](PRODUCT.md)
-- Skills de agentes: [`agent/AGENT_SKILLS.md`](../agent/AGENT_SKILLS.md)
+- Plan de ejecución e índice: [`PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md)
+- Producto y prioridades: [`PRODUCT.md`](../product/PRODUCT.md)
+- Skills de agentes: [`agent/AGENT_SKILLS.md`](../../agent/AGENT_SKILLS.md)

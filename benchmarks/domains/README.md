@@ -2,7 +2,7 @@
 
 Pruebas end-to-end del patrón Extract→Transform→Inference sobre conocimiento real de un
 dominio, con métricas globales comparables entre arquitecturas. Ver el diseño en
-[`docs/BENCHMARK_ETI_DOMAINS.md`](../../docs/BENCHMARK_ETI_DOMAINS.md).
+[`docs/experiment/BENCHMARK_ETI_DOMAINS.md`](../../docs/experiment/BENCHMARK_ETI_DOMAINS.md).
 
 ## Estructura de un dominio
 
