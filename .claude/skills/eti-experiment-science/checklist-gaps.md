@@ -27,7 +27,7 @@ Bloqueantes históricos H_I / A5–D6 / E7 / wave1 técnico: **hechos** — ver 
 
 ## Ciencia abierta (post-cierre del PLAN)
 
-Diseño maestro: [`docs/experiment/EXPERIMENTAL_DESIGN_MULTICORPUS.md`](../../../docs/experiment/EXPERIMENTAL_DESIGN_MULTICORPUS.md) (packs, D0–D5, $C_k$ por celda).
+Diseño experimental: [`docs/experiment/EXPERIMENTAL_DESIGN.md`](../../../docs/experiment/EXPERIMENTAL_DESIGN.md) (planilla §4, traza §5, packs/D0–D5/$C_k$).
 
 | Gap | Acción |
 |-----|--------|

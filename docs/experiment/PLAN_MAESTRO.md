@@ -281,13 +281,13 @@ Detalle CLI y fases de producto: ops + [`../product/PRODUCT.md`](../product/PROD
 
 ### Claim H_bridge_complexity — **OPEN condicional (programa multicorpus)**
 
-- **Estado:** activar analyze cuando existan packs + probes calibrados + $C_k$ por celda ([`EXPERIMENTAL_DESIGN_MULTICORPUS.md`](EXPERIMENTAL_DESIGN_MULTICORPUS.md) M1+M3+M5).
+- **Estado:** activar analyze cuando existan packs + probes calibrados + $C_k$ por celda ([`EXPERIMENTAL_DESIGN.md`](EXPERIMENTAL_DESIGN.md) H7 / Diseños B–C).
 - **Enunciado:** Un proxy de complejidad no estructurada en cortes ETI correlaciona con error de Infer/tarea (esp. D3–D4) mejor que azar en ≥1 pack multi (idealmente ≥2 packs/dominios).
-- **Predicción / falsación / protocolo:** diseño maestro multicorpus §4 + skill `eti-experiment-science`.
+- **Predicción / falsación / protocolo:** [`EXPERIMENTAL_DESIGN.md`](EXPERIMENTAL_DESIGN.md) §3 H7 + skill `eti-experiment-science`.
 
 ### Programa post-cierre (puntero)
 
-Diseño experimental (multicorpus, dificultad de probes, complejidad por celda): [`EXPERIMENTAL_DESIGN_MULTICORPUS.md`](EXPERIMENTAL_DESIGN_MULTICORPUS.md) · track: [`RESEARCH_TRACK.md`](RESEARCH_TRACK.md).
+Diseño experimental (único contexto): [`EXPERIMENTAL_DESIGN.md`](EXPERIMENTAL_DESIGN.md) · track: [`RESEARCH_TRACK.md`](RESEARCH_TRACK.md).
 
 ---
 
