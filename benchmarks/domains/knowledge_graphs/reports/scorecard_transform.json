@@ -1,0 +1,71 @@
+{
+  "domain": "knowledge_graphs",
+  "scorecards": [
+    {
+      "domain": "knowledge_graphs",
+      "architecture": {
+        "chunking": "recursive",
+        "inference": "llm",
+        "rag": "hybrid"
+      },
+      "extract": {
+        "chunking_quality_score": 0.7077,
+        "strategy": "recursive",
+        "n_chunks": 3
+      },
+      "transform": {
+        "entity_recall": 0.7368,
+        "relation_pair_recall": 0.4444,
+        "n_entities": 19,
+        "n_relations": 13
+      },
+      "reasoning": {
+        "f1": 0.6,
+        "hallucination_rate": 0.0321,
+        "real_recall": 0.6667,
+        "acceptance_precision": 0.5455,
+        "distractor_rejection_rate": 0.9679,
+        "llm_critic": true,
+        "n_candidates": 165
+      },
+      "rag_qa": {},
+      "efficiency": {
+        "latency_s": 231.03
+      },
+      "composite_score": 0.7381
+    },
+    {
+      "domain": "knowledge_graphs",
+      "architecture": {
+        "chunking": "recursive",
+        "inference": "ner",
+        "rag": "hybrid"
+      },
+      "extract": {
+        "chunking_quality_score": 0.7077,
+        "strategy": "recursive",
+        "n_chunks": 3
+      },
+      "transform": {
+        "entity_recall": 0.7368,
+        "relation_pair_recall": 0.3333,
+        "n_entities": 19,
+        "n_relations": 11
+      },
+      "reasoning": {
+        "f1": 0.6,
+        "hallucination_rate": 0.0321,
+        "real_recall": 0.6667,
+        "acceptance_precision": 0.5455,
+        "distractor_rejection_rate": 0.9679,
+        "llm_critic": false,
+        "n_candidates": 165
+      },
+      "rag_qa": {},
+      "efficiency": {
+        "latency_s": 24.67
+      },
+      "composite_score": 0.7203
+    }
+  ]
+}

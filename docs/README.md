@@ -1,39 +1,49 @@
 # Documentación de Ungraph
 
-Documentación completa de la librería Ungraph para construcción de grafos de conocimiento.
+Documentación de la librería Ungraph (grafos de conocimiento, ETI, GraphRAG como interfaz).
 
-## 📚 Índice
+**Principio rector de estructura:** [research/DOCUMENTARY_ZEN.md](research/DOCUMENTARY_ZEN.md)  
+(secuencia: fundamento → experimentación → medición → estandarización → uso).
 
-### Conceptos Fundamentales
-- [Introducción a Ungraph](concepts/sp-introduction.md) - Visión general y propósito
-- [Arquitectura del Sistema](concepts/sp-architecture.md) - Clean Architecture y estructura
-- [Patrones de Grafo](concepts/sp-graph-patterns.md) - Sistema de patrones configurables
+## Sitio MkDocs
 
-### Guías de Uso
-- [Guía de Inicio Rápido](guides/sp-quickstart.md) - Primeros pasos
-- [Ingesta de Documentos](guides/sp-ingestion.md) - Cómo ingerir documentos
-- [Búsqueda en el Grafo](guides/search.md) - Patrones de búsqueda disponibles
-- [Patrones Personalizados](guides/sp-custom-patterns.md) - Crear patrones propios
+```bash
+uv sync --extra docs
+uv run mkdocs serve -a 127.0.0.1:8000
+```
 
-### Referencia de API
-- [API Pública](api/sp-public-api.md) - Funciones principales de la librería
-- [Patrones de Búsqueda GraphRAG](api/sp-search-patterns.md) - Referencia completa
-- [Configuración](api/sp-configuration.md) - Gestión de configuración
+Entrada del sitio: [index.md](index.md). Config: `mkdocs.yml`.
 
-### Ejemplos
-- [Ejemplos Básicos](examples/basic-examples.md) - Ejemplos simples
-- [Ejemplos Avanzados](examples/advanced-examples.md) - Casos de uso complejos
-- [Notebooks](examples/notebooks.md) - Jupyter notebooks disponibles
+## Índice por capa (alineado a index)
 
-### Teoría y Referencias
-- [GraphRAG](theory/sp-graphrag.md) - Fundamentos teóricos de GraphRAG
-- [Neo4j y Cypher](theory/sp-neo4j.md) - Conceptos de Neo4j y queries Cypher
-- [Clean Architecture](theory/sp-clean-architecture.md) - Principios arquitectónicos aplicados
+### Empezar (usar)
+- [Inicio rápido](guides/sp-quickstart.md) → [API pública](api/sp-public-api.md)
+- Opcional: [ingesta](guides/sp-ingestion.md) · [búsqueda](guides/search.md) · [patrones](guides/sp-custom-patterns.md)
+- [Tutoriales → guías](tutoriales/README.md)
+- Ejemplos: [básicos](examples/sp-basic-examples.md) · [avanzados](examples/sp-advanced-examples.md) · [notebooks](examples/sp-notebooks.md)
 
----
+### Fundamento (entender)
+- [Espina ETI](concepts/eti-spine.md) · [Extracción](concepts/extraction.md) · [Transformación](concepts/transformation.md) · [Inferencia](concepts/inference.md)
+- [Slot Infer](concepts/inference-slot.md) · [Arquitectura](concepts/sp-architecture.md)
+- [Patrones de grafo](concepts/sp-graph-patterns.md) · [Grafos léxicos](concepts/sp-lexical-graphs.md)
+- [Research](research/README.md) · [Teoría GraphRAG](theory/sp-graphrag.md)
 
-**Última actualización:** 2025
+### Experimentación
+- [Plan maestro](experiment/PLAN_MAESTRO.md)
+- [Benchmark ETI / DoE](experiment/BENCHMARK_ETI_DOMAINS.md)
+- [Roadmap nivel C](experiment/ROADMAP_LEVEL_C.md)
 
+### Medición
+- [Validación](validation/sp-validation_summary.md) — criterio de “validado”: [PRODUCT §5](product/PRODUCT.md)
 
+### Estandarización
+- [API pública](api/sp-public-api.md) · [Configuración](api/sp-configuration.md)
+- [Patrones de búsqueda](api/sp-search-patterns.md)
 
+### Producto / ops (secundario)
+- [Producto](product/PRODUCT.md) · [Visión y tutoriales](product/VISION_AND_TUTORIALS.md)
+- [Flujo de trabajo](ops/DEVELOPMENT_WORKFLOW.md) · [CONTRIBUTING](../CONTRIBUTING.md)
+- [Instalación e inferencia](ops/INSTALLATION_INFERENCE.md)
 
+### Archive
+- Checkpoints e históricos en [`archive/`](archive/) (fuera de nav principal).

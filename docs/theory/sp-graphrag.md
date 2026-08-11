@@ -1,156 +1,58 @@
-# GraphRAG: Fundamentos Teóricos
+# GraphRAG como interfaz (no como definición de conocimiento)
 
-## ¿Qué es GraphRAG?
+**Idioma:** español (canónico `sp-*`).
 
-GraphRAG (Graph Retrieval-Augmented Generation) es un enfoque avanzado de RAG que utiliza grafos de conocimiento para mejorar la recuperación y generación de información.
+Audiencia: research / developer. Espina ETI: [`../concepts/eti-spine.md`](../concepts/eti-spine.md). Patrones de uso: [`../guides/search.md`](../guides/search.md), [`../concepts/sp-graph-patterns.md`](../concepts/sp-graph-patterns.md).
 
-**Idea central**: Valerse de las relaciones entre la data a ser recuperada en el RAG. En lugar de buscar solo por similitud vectorial, GraphRAG aprovecha la estructura del grafo para enriquecer la búsqueda y recuperación.
+## Motivation
 
-## Conceptos Fundamentales
+GraphRAG mejora la **recuperación** sobre corpora privados al usar estructura de grafo y, a menudo, resúmenes de comunidad (Edge et al. 2024; I04). El riesgo epistémico es redefinir “conocimiento” como *mejor hit@k*. Un sistema puede recuperar bien sin mantener creencias revisables, confianza ni refutación. En Ungraph, GraphRAG es **consumidor** del almacén producido por ETI — Capa 1 (y generación en query-time), no el sustituto de Inference ni de depuración.
 
-### RAG Tradicional vs GraphRAG
+## Theory
 
-**RAG Tradicional:**
-- Usa búsqueda vectorial simple
-- No considera relaciones entre documentos
-- Limitado a similitud semántica
+La literatura distingue spines distintos:
 
-**GraphRAG:**
-- Usa estructura del grafo para enriquecer búsqueda
-- Considera relaciones entre entidades
-- Combina múltiples señales (texto, vectorial, estructura)
+| Spine | Énfasis | Límite para Ungraph |
+|-------|---------|---------------------|
+| **RAG clásico** | Chunk → embed → retrieve → generate | Transform+Interface; Inference de KG débil o ausente |
+| **GraphRAG (Microsoft / surveys)** | Indexación con entidades/comunidades; local/global search (I04, I05; Peng et al.) | Fuerte en Extract+Transform(index); el “razonar” suele ser generación en consulta, no revisión de beliefs |
+| **KBC / NELL / DeepDive** | Creencias con confianza, error analysis, never-ending (I01, I02) | Ciclo de depuración que GraphRAG no exige |
+| **ETI Ungraph** | Acumular candidatos → proponer/verificar → (will be) depurar → exponer vía retrieval | GraphRAG = Interface sobre el store |
 
-## Tipos de Grafos en GraphRAG
+**Lexical graph** (File–Page–Chunk) es representación de Transform para provenance y expansión. **Knowledge graph** (entidades/relaciones tipadas) es salida de Inference. Ambos pueden alimentar patrones GraphRAG; ninguno es “GraphRAG” por sí solo.
 
-### Lexical Graphs (Grafos Léxicos)
+Anclas: whitepaper §3.1 (E6–E8), matriz I04–I05. No inventar resultados de benchmark aquí.
 
-Estructuras que organizan texto y capturan relaciones lingüísticas. Se enfocan en la estructura del lenguaje y facilitan la búsqueda semántica.
+### is vs will be
 
-**Características**:
-- Organizan texto en chunks relacionados
-- Contienen embeddings para búsqueda semántica
-- Relaciones estructurales (CONTAINS, HAS_CHUNK, NEXT_CHUNK)
-- Compatibles con patrones básicos de GraphRAG
+| | |
+|--|--|
+| **is** | Búsqueda text / vector / hybrid; `search_with_pattern` con patrones basic/parent_child/… según prerequisitos de grafo; evaluación opcional de recuperación; comunidades/GDS **parciales** según extra/entorno |
+| **will be** | Community summaries ricos como Transform+Interface medidos E2E; Self-RAG/CoVe como depuración (I06); MCP tools sobre use cases (I24) — sin afirmar EVI en producción |
 
-**En Ungraph**: El patrón `FILE_PAGE_CHUNK` es un Lexical Graph. Ver [Lexical Graphs](../concepts/sp-lexical-graphs.md) para más detalles.
+## In Ungraph
 
-### Knowledge Graphs (Grafos de Conocimiento)
+Orden epistémico → interfaz:
 
-Estructuras que representan conocimiento factual y relaciones entre entidades del dominio. Se enfocan en hechos verificables y esquemas estructurados.
+1. Materializar Capa 0 (ETI) — ver [`../concepts/eti-spine.md`](../concepts/eti-spine.md).
+2. Recuperar (Capa 1) sin redefinir facts anclados.
+3. Comparar Y de retrieval **aparte** de Y de Infer ([`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md)).
 
-**Características**:
-- Representan entidades y relaciones del dominio
-- Esquemas estructurados conocidos
-- Relaciones semánticas (AUTOR_DE, PARTE_DE, etc.)
-- Requieren estrategias especiales para recuperación (Templates de Cypher, Generación Dinámica)
+| Patrón (referencia) | Prerrequisito típico | Estado (honesto) |
+|---------------------|----------------------|------------------|
+| Basic / vector | `Chunk` + índice vector | Implementado |
+| Full-text / híbrido | Índices text + vector | Implementado |
+| Parent–child | Jerarquía Page–Chunk | Parcial |
+| Metadata / graph-enhanced / local / community | Grafo + (opcional) GDS | Parcial / exploratorio |
 
-## Patrones de Búsqueda GraphRAG
+Detalle de API y pasos: [`../api/`](../api/sp-public-api.md), [`../guides/search.md`](../guides/search.md). Grafo léxico: [`../concepts/sp-lexical-graphs.md`](../concepts/sp-lexical-graphs.md). Neo4j como store: [`sp-neo4j.md`](sp-neo4j.md).
 
-### 1. Basic Retriever (Recuperación Básica)
+## Open claims (falseables)
 
-**También conocido como**: Recuperador Ingenuo, RAG Básico, RAG Típico
+### Claim H_graphrag_interface
 
-**Patrón de grafo requerido**: Lexical Graph
-
-**Cómo funciona**:
-- La pregunta del usuario se vectoriza usando el mismo modelo de embeddings que los chunks
-- Se ejecuta búsqueda de similitud en los embeddings de los chunks
-- Se recuperan los `k` chunks más similares
-
-**Cuándo usar**: Cuando la información solicitada se encuentra en nodos específicos relacionados con temas distribuidos en uno o más chunks, pero no en un número elevado de ellos.
-
-**No requiere consulta adicional**: La búsqueda de similitud se realiza directamente sobre los nodos.
-
-**Referencia:** [GraphRAG Basic Retriever](https://graphrag.com/reference/graphrag/basic-retriever/)
-
-### 2. Parent-Child Retriever
-
-**También conocido como**: Recuperador Padre-Documento
-
-**Patrón de grafo requerido**: Lexical Graph con estructura jerárquica
-
-**Evolución del Lexical Graph**: Divide documentos grandes en partes más pequeñas (chunks) para crear embeddings más significativos. Se crea una jerarquía donde:
-- **Chunks pequeños (hijos)**: Contienen texto embebido y embeddings (mejor representación vectorial)
-- **Chunks grandes (padres)**: Solo se usan para contexto en generación de respuestas
-
-**Relaciones**: `PART_OF`, `HAS_CHILD`
-
-**Cómo funciona**:
-- Busca en chunks pequeños (mejor matching vectorial, menos ruido)
-- Recupera el chunk padre (contexto completo para generación)
-
-**Cuándo usar**: Cuando muchos temas en un chunk afectan negativamente la calidad de los vectores, pero necesitas contexto completo para generar respuestas.
-
-**Referencia:** [GraphRAG Parent-Child Retriever](https://graphrag.com/reference/graphrag/parent-child-retriever/)
-
-### 3. Hypothetical Question Retriever
-
-**Idea**: Generar preguntas hipotéticas para cada chunk usando un LLM para mejorar el matching entre preguntas del usuario y contenido disponible.
-
-**Cómo funciona**:
-- Se usa un LLM para generar preguntas y respuestas para cada chunk
-- La búsqueda de similitud se efectúa en las preguntas generadas
-- Se encuentran las preguntas más similares y se devuelven los chunks correspondientes
-
-**Cuándo usar**: Cuando la similitud entre los vectores de la pregunta del usuario y los vectores de los chunks es baja. Este procedimiento incrementa la similitud entre el usuario y el texto disponible.
-
-**Requisito**: Requiere más procesamiento por parte del LLM al precisar generar preguntas por chunk.
-
-**Referencia:** [GraphRAG Hypothetical Question Retriever](https://graphrag.com/reference/graphrag/hypothetical-question-retriever/)
-
-### 4. Community Summary Retriever
-
-Encuentra comunidades de nodos relacionados y genera resúmenes.
-
-**Referencia:** [GraphRAG Community Summary Retriever](https://graphrag.com/reference/graphrag/community-summary-retriever/)
-
-### 5. Graph-Enhanced Vector Search
-
-Combina búsqueda vectorial con estructura del grafo.
-
-**Referencia:** [GraphRAG Graph-Enhanced Vector Search](https://graphrag.com/reference/graphrag/graph-enhanced-vector-search/)
-
-### 6. Domain Graphs (Grafos de Dominio)
-
-Grafos estructurados con esquemas conocidos. No podemos conocer de antemano qué estructura tendrán las entidades, muchas veces obedecen a una estructura proveniente de datos estructurados (como cuando se mapea de una base de datos relacional al grafo).
-
-**Estrategias de recuperación**:
-- **Templates de Cypher**: Conjunto de queries por defecto que pueden ser populados a partir de las preguntas de los usuarios. El LLM extrae parámetros y decide qué template usar.
-- **Generación Dinámica de Cypher**: El LLM genera queries Cypher dinámicamente basado en la pregunta del usuario.
-
-**Cuándo usar**: Cuando tienes datos estructurados con esquemas conocidos y necesitas recuperación determinista de datos estructurados.
-
-## Investigación y Papers
-
-### Papers Principales
-
-1. **Retrieval-Augmented Generation with Graphs (GraphRAG)**
-   - Microsoft Research
-   - [Link](https://graphrag.com/appendices/research/)
-
-2. **Graph Retrieval-Augmented Generation: A Survey**
-   - Revisión completa del estado del arte
-   - [Link](https://graphrag.com/appendices/research/)
-
-### Conceptos Clave de los Papers
-
-- **Knowledge Graphs**: Estructura de conocimiento explícita
-- **Graph Traversal**: Navegación por relaciones del grafo
-- **Community Detection**: Identificación de comunidades relacionadas
-- **Hybrid Retrieval**: Combinación de múltiples señales
-
-## Aplicaciones
-
-### Casos de Uso
-
-1. **Documentación Técnica**: Búsqueda semántica en documentación
-2. **Investigación Académica**: Exploración de papers relacionados
-3. **Knowledge Bases**: Bases de conocimiento empresariales
-4. **Q&A Systems**: Sistemas de pregunta-respuesta mejorados
-
-## Referencias
-
-- [GraphRAG Documentation](https://graphrag.com/)
-- [GraphRAG Pattern Catalog](https://graphrag.com/reference/)
-- [GraphRAG Research Papers](https://graphrag.com/appendices/research/)
-- [Neo4j GraphRAG Guide](https://go.neo4j.com/rs/710-RRC-335/images/Developers-Guide-GraphRAG.pdf)
+- **Enunciado:** Variar solo factores de recuperación (k, text/vector/hybrid/pattern) con artefacto ETI congelado mueve Y de Capa 1 sin alterar la *existencia* de facts anclados de Capa 0.
+- **Predicción observable:** Métricas de facts/`evidence_coverage` estables ante swap de retrieval; hit@k o `answer_correctness` @ top-k pueden cambiar.
+- **Protocolo mínimo:** Bloquear `capa0_artifact.json`; factorizar solo retrieval; scorecard desagregado. Enlace: Claim H_spine_interface en [`../concepts/eti-spine.md`](../concepts/eti-spine.md), [`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md).
+- **Falsación:** Si cambiar solo retrieval altera conteos de facts anclados sin re-ingesta, el aislamiento Interface↔ETI está roto.
+- **Reproducibilidad:** Filas DoE con factores de retrieval etiquetados.

@@ -1,200 +1,138 @@
-# Patrones Avanzados de Búsqueda GraphRAG
+# Patrones avanzados de búsqueda
 
-## Introducción
+Contrato de `search_with_pattern` para patrones que requieren extras.  
+Audiencia: developer. Básicos: [`sp-search-patterns.md`](sp-search-patterns.md). Interface GraphRAG: [`../theory/sp-graphrag.md`](../theory/sp-graphrag.md).
 
-Los patrones avanzados de búsqueda requieren módulos opcionales y proporcionan capacidades más sofisticadas para recuperar información del grafo.
+## Instalación
 
-**Instalación**:
 ```bash
-# Para patrones avanzados con Graph Data Science
-pip install ungraph[gds]
-
-# Para visualización de grafos
+pip install ungraph[gds]   # patrones GDS / graph-enhanced / local / community
+# opcional viz (fuera de este contrato de búsqueda):
 pip install ungraph[ynet]
-
-# Para todas las extensiones
-pip install ungraph[all]
 ```
 
-## Patrones Avanzados Disponibles
+También hace falta el plugin **Neo4j GDS** en el servidor para algoritmos de comunidad. Sin el extra Python, `pattern_type` avanzado puede fallar con `ImportError` / patrón desconocido.
 
-### 1. Graph-Enhanced Vector Search ⭐ RECOMENDADO
+## Firma (igual que básicos)
 
-**Requisitos**: `ungraph[gds]` y entidades extraídas en el grafo
+```python
+results = ungraph.search_with_pattern(
+    query_text: str,
+    pattern_type: str,
+    limit: int = 5,
+    database: Optional[str] = None,
+    embedding_model: Optional[str] = None,
+    **kwargs,
+) -> List[SearchResult]
+```
 
-**Cómo funciona**:
-1. Busca chunks similares usando embeddings (búsqueda vectorial)
-2. Extrae entidades mencionadas en esos chunks
-3. Hace traversal del grafo desde esas entidades para encontrar chunks relacionados
-4. Retorna contexto enriquecido con información relacionada
+Resultados siempre como `SearchResult`. Contexto ampliado → `next_chunk_content` cuando aplica.
 
-**Ventajas**:
-- Encuentra información relacionada que no está en el chunk original
-- Conecta conceptos a través de entidades
-- Proporciona contexto más completo para el LLM
+## Patrones (`is` con prerequisitos)
 
-**Ejemplo**:
+### `graph_enhanced` / `graph_enhanced_vector`
+
+**Requisitos:** `ungraph[gds]`; embeddings; entidades con `(:Chunk)-[:MENTIONS]->(:Entity)` cuando el grafo las tenga (p. ej. tras Inference).
+
+**kwargs:** `max_traversal_depth` (int); `query_vector` opcional (si no, se genera embedding de `query_text`).
+
 ```python
 import ungraph
 
-# Búsqueda Graph-Enhanced
 results = ungraph.search_with_pattern(
     "machine learning",
     pattern_type="graph_enhanced",
     limit=5,
-    max_traversal_depth=2  # Profundidad de relaciones a explorar
+    max_traversal_depth=2,
 )
-
-for result in results:
-    print(f"Score: {result.score}")
-    print(f"Contenido: {result.content[:200]}...")
-    if result.next_chunk_content:
-        print(f"Contexto relacionado: {result.next_chunk_content[:200]}...")
+for r in results:
+    print(r.score, r.content[:200])
+    print("contexto:", (r.next_chunk_content or "")[:200])
 ```
 
-**Query Cypher generado**:
-```cypher
-// 1. Búsqueda vectorial inicial
-CALL db.index.vector.queryNodes('chunk_embeddings', 5, $query_vector)
-YIELD node as initial_chunk, score as initial_score
-
-// 2. Encontrar entidades mencionadas
-OPTIONAL MATCH (initial_chunk)-[:MENTIONS]->(entity:Entity)
-
-// 3. Encontrar otros chunks relacionados a través de entidades
-OPTIONAL MATCH path = (entity)<-[:MENTIONS]-(related_chunk:Chunk)
-WHERE related_chunk <> initial_chunk
-
-// 4. Retornar contexto enriquecido
-RETURN {
-    central_chunk: {...},
-    related_chunks: [...],
-    neighbor_chunks: [...]
-} as result
-```
+Flujo (esquema): vector search → entidades `MENTIONS` → chunks relacionados → proyección a `SearchResult`.
 
 ---
 
-### 2. Local Retriever
+### `local` / `local_retriever`
 
-**Requisitos**: `ungraph[gds]` (opcional, funciona sin GDS pero mejor con él)
+**Requisitos:** `ungraph[gds]` (mejor con GDS; el código del patrón vive en el extra avanzado).
 
-**Cómo funciona**:
-1. Busca chunk central usando full-text search
-2. Encuentra comunidad local (chunks relacionados por relaciones del grafo)
-3. Agrupa chunks relacionados y genera contexto
+**kwargs:** `community_threshold` (tamaño mínimo), `max_depth`.
 
-**Ventajas**:
-- Optimizado para comunidades pequeñas y focalizadas
-- Más rápido que Community Summary
-- Útil para exploración de conocimiento específico
-
-**Ejemplo**:
 ```python
-import ungraph
-
 results = ungraph.search_with_pattern(
     "neural networks",
     pattern_type="local",
     limit=5,
-    community_threshold=3,  # Tamaño mínimo de comunidad
-    max_depth=1  # Profundidad de relaciones
+    community_threshold=3,
+    max_depth=1,
 )
-
-for result in results:
-    print(f"Score: {result.score}")
-    print(f"Contenido central: {result.content[:200]}...")
-    if result.next_chunk_content:
-        print(f"Resumen de comunidad: {result.next_chunk_content[:200]}...")
+for r in results:
+    print(r.score, r.content[:200])
+    print("comunidad:", (r.next_chunk_content or "")[:200])
 ```
 
 ---
 
-### 3. Community Summary Retriever (GDS)
+### `community_summary` / `community_summary_gds`
 
-**Requisitos**: `ungraph[gds]` y Neo4j GDS plugin instalado
+**Requisitos:** `ungraph[gds]` + plugin GDS; comunidades detectadas en el grafo (propiedad tip. `community_id`).
 
-**Cómo funciona**:
-1. Usa algoritmos de detección de comunidades (Louvain, Leiden) de GDS
-2. Detecta comunidades de chunks relacionados
-3. Genera resúmenes de cada comunidad
-4. Busca en los resúmenes en lugar de chunks individuales
+**kwargs:** `min_community_size` (default tip. 5).
 
-**Ventajas**:
-- Encuentra temas relacionados aunque estén en diferentes chunks
-- Resúmenes capturan el contexto completo de un tema
-- Reduce ruido al buscar en resúmenes
-
-**Pre-requisitos**:
-Antes de usar este patrón, debes detectar comunidades:
+Pre-paso (probe de servicio GDS):
 
 ```python
-from infrastructure.services.gds_service import GDSService
+from ungraph.infrastructure.services.gds_service import GDSService
 
-gds_service = GDSService()
-stats = gds_service.detect_communities(
+gds = GDSService()
+stats = gds.detect_communities(
     graph_name="chunk-graph",
     algorithm="louvain",
-    write_property="community_id"
+    write_property="community_id",
 )
-print(f"Detectadas {stats['community_count']} comunidades")
+print(stats)
 ```
 
-**Ejemplo**:
+Búsqueda:
+
 ```python
 import ungraph
 
-# Primero detectar comunidades (una vez)
-from infrastructure.services.gds_service import GDSService
-gds_service = GDSService()
-gds_service.detect_communities()
-
-# Luego buscar usando Community Summary
 results = ungraph.search_with_pattern(
     "machine learning",
     pattern_type="community_summary",
     limit=3,
-    min_community_size=5
+    min_community_size=5,
 )
-
-for result in results:
-    print(f"Score: {result.score}")
-    print(f"Contenido: {result.content[:200]}...")
-    if result.next_chunk_content:
-        print(f"Resumen de comunidad: {result.next_chunk_content[:200]}...")
+for r in results:
+    print(r.score, r.content[:200])
+    print("resumen:", (r.next_chunk_content or "")[:200])
 ```
 
----
+## Índices y datos
 
-## Comparación de Patrones
+| Necesidad | Artefacto |
+|-----------|-----------|
+| Básicos + local | full-text `chunk_content` |
+| `graph_enhanced` | vector `chunk_embeddings` + `Entity`/`MENTIONS` |
+| `community_summary` | `community_id` (u otra propiedad escrita por GDS) |
 
-| Patrón | Requisitos | Velocidad | Precisión | Contexto | Uso |
-|--------|-----------|-----------|-----------|----------|-----|
-| Basic | Ninguno | ⚡⚡⚡ | ⭐⭐ | ⭐ | Búsquedas simples |
-| Metadata Filtering | Ninguno | ⚡⚡⚡ | ⭐⭐⭐ | ⭐ | Filtrar por propiedades |
-| Parent-Child | Ninguno | ⚡⚡ | ⭐⭐⭐ | ⭐⭐ | Contexto jerárquico |
-| Graph-Enhanced | ungraph[gds] | ⚡ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | Búsquedas avanzadas |
-| Local | ungraph[gds] | ⚡⚡ | ⭐⭐⭐ | ⭐⭐⭐ | Comunidades pequeñas |
-| Community Summary | ungraph[gds] + GDS | ⚡ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | Temas relacionados |
+## Cuándo elegir qué (operativo, no scorecard)
 
----
+| Patrón | Prerequisito extra | Nota de uso |
+|--------|--------------------|-------------|
+| `basic` / `metadata_filtering` | ninguno | primer recurso |
+| `parent_child` | topología padre–hijo | contexto jerárquico léxico |
+| `graph_enhanced` | `[gds]` + entidades | expansion por `MENTIONS` |
+| `local` | `[gds]` | vecindario acotado |
+| `community_summary` | `[gds]` + GDS + comunidades | temas agrupados |
 
-## Mejores Prácticas
+No hay métricas de “precisión” en este contrato; evaluación medible → [`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md) / `validation/` bajo PRODUCT §5.
 
-1. **Empezar simple**: Usa `basic` o `metadata_filtering` primero
-2. **Ajustar según necesidad**: Si necesitas más contexto, usa `parent_child`
-3. **Para búsquedas avanzadas**: Usa `graph_enhanced` cuando tengas entidades extraídas
-4. **Para temas relacionados**: Usa `community_summary` cuando necesites encontrar información distribuida
-5. **Performance**: Los patrones avanzados son más lentos pero proporcionan mejor contexto
+## Referencias
 
----
-
-## Requisitos de Índices
-
-**Índices básicos** (siempre requeridos):
-- `chunk_content`: Full-text index
-- `chunk_embeddings`: Vector index
-
-**Índices adicionales** (para patrones avanzados):
-- Nodos `Entity` con relaciones `MENTIONS` (para Graph-Enhanced)
-- Propiedad `community_id` en chunks (para Community Summary, requiere GDS)
+- [Patrones básicos](sp-search-patterns.md)
+- [API pública](sp-public-api.md)
+- [Guía de búsqueda](../guides/search.md)

@@ -1,0 +1,32 @@
+{
+  "meta": {
+    "design_id": "hi-wave-2",
+    "method": "H_I_contrast",
+    "n_runs": 2,
+    "seed": 0,
+    "factor_names": [
+      "inference"
+    ],
+    "rationale": "Oleada-2: Transform fijo; inference none vs ner (Neo4j+spaCy)."
+  },
+  "rows": [
+    {
+      "chunking": "recursive",
+      "chunk_size": 1000,
+      "chunk_overlap": 200,
+      "rag": "text",
+      "top_k": 5,
+      "inference": "none",
+      "design_row_id": "hi-0-none"
+    },
+    {
+      "chunking": "recursive",
+      "chunk_size": 1000,
+      "chunk_overlap": 200,
+      "rag": "text",
+      "top_k": 5,
+      "inference": "ner",
+      "design_row_id": "hi-1-ner"
+    }
+  ]
+}

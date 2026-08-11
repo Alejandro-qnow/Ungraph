@@ -1,0 +1,95 @@
+{
+  "run_id": "68ffecb7-b7cc-46a7-8b0c-892291ae0a65",
+  "created_at_utc": "2026-08-10T18:33:36Z",
+  "domain": "knowledge_graphs",
+  "architecture": {
+    "chunking": "recursive",
+    "chunk_size": 1000,
+    "chunk_overlap": 200,
+    "inference": "ner",
+    "rag": "text",
+    "top_k": 5,
+    "mode": "online"
+  },
+  "pipeline_params": {
+    "chunking": "recursive",
+    "chunk_size": 1000,
+    "chunk_overlap": 200,
+    "inference": "ner",
+    "rag": "text",
+    "top_k": 5,
+    "mode": "online"
+  },
+  "scorecard": {
+    "domain": "knowledge_graphs",
+    "architecture": {
+      "chunking": "recursive",
+      "chunk_size": 1000,
+      "chunk_overlap": 200,
+      "inference": "ner",
+      "rag": "text",
+      "top_k": 5,
+      "mode": "online"
+    },
+    "extract": {
+      "n_chunks": 3,
+      "chunking_quality_score": 1.0,
+      "hit_at_k": 1.0,
+      "mrr": null
+    },
+    "transform": {
+      "entity_recall": 0.4737,
+      "n_gold_entities": 19,
+      "n_hit_entities": 9,
+      "n_graph_entities": 12,
+      "relation_pair_recall": 0.3333,
+      "n_gold_pairs": 9,
+      "n_hit_pairs": 3,
+      "evidence_coverage": 1.0,
+      "n_facts": 17,
+      "n_with_provenance": 17
+    },
+    "reasoning": {
+      "f1": 0.6316,
+      "hallucination_rate": 0.0256,
+      "real_recall": 0.6667,
+      "acceptance_precision": 0.6,
+      "distractor_rejection_rate": 0.9744
+    },
+    "rag_qa": {
+      "answer_correctness": 1.0,
+      "n_probes": 5,
+      "n_correct": 5,
+      "eval_mode": "topk_retrieved"
+    },
+    "efficiency": {
+      "latency_s": 4.8959,
+      "latency_wipe_s": 0.0368,
+      "latency_ingest_s": 4.6741,
+      "latency_transform_s": 0.0221,
+      "latency_reasoning_s": 0.1108,
+      "latency_rag_s": 0.0517
+    },
+    "composite_score": 0.7746
+  },
+  "retrieval_metrics": [],
+  "efficiency": {
+    "latency_s": 4.8959,
+    "latency_wipe_s": 0.0368,
+    "latency_ingest_s": 4.6741,
+    "latency_transform_s": 0.0221,
+    "latency_reasoning_s": 0.1108,
+    "latency_rag_s": 0.0517
+  },
+  "git_sha": "33af9d7",
+  "seed": 0,
+  "gold_path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\gold.json",
+  "corpus_paths": [
+    "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\corpus\\kg_survey.md"
+  ],
+  "design_id": "hi-wave-2",
+  "design_row_id": "hi-1-ner",
+  "notes": "online H_I domain pipeline (Neo4j + spaCy|none)",
+  "composite_score": 0.7746,
+  "graph_stats": null
+}

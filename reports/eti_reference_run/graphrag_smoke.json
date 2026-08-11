@@ -1,0 +1,38 @@
+[
+  {
+    "query": "Who works at Acme Robotics?",
+    "hits": 2,
+    "top_scores": [
+      0.1913,
+      0.1718
+    ],
+    "top_snippets": [
+      "Alice Chen is a staff research engineer at Acme Robotics, a startup based in Mountain View, California. She reports to Dr. Sam Okonkwo, VP of Engineering. Acme Robotics specializes in autonomous wareh",
+      "in autonomous warehouse systems and signed a pilot contract with Northwind Logistics in March 2024. Mountain View is part of the San Francisco Bay Area. Alice previously worked on perception pipelines"
+    ]
+  },
+  {
+    "query": "Where is Acme Robotics based?",
+    "hits": 2,
+    "top_scores": [
+      0.6454,
+      0.1718
+    ],
+    "top_snippets": [
+      "Alice Chen is a staff research engineer at Acme Robotics, a startup based in Mountain View, California. She reports to Dr. Sam Okonkwo, VP of Engineering. Acme Robotics specializes in autonomous wareh",
+      "in autonomous warehouse systems and signed a pilot contract with Northwind Logistics in March 2024. Mountain View is part of the San Francisco Bay Area. Alice previously worked on perception pipelines"
+    ]
+  },
+  {
+    "query": "Who does Alice Chen report to?",
+    "hits": 2,
+    "top_scores": [
+      0.3844,
+      0.0859
+    ],
+    "top_snippets": [
+      "Alice Chen is a staff research engineer at Acme Robotics, a startup based in Mountain View, California. She reports to Dr. Sam Okonkwo, VP of Engineering. Acme Robotics specializes in autonomous wareh",
+      "in autonomous warehouse systems and signed a pilot contract with Northwind Logistics in March 2024. Mountain View is part of the San Francisco Bay Area. Alice previously worked on perception pipelines"
+    ]
+  }
+]

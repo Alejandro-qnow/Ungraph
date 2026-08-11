@@ -1,0 +1,42 @@
+{
+  "design_meta": {
+    "design_id": "D-optimal-b8-s1",
+    "method": "D-optimal",
+    "rationale": "To identify influential factors with 3 factors with a budget of 8 runs and a 'linear' model, the best compromise under your priorities is D-optimal (7 runs).",
+    "summary": "Recommendation: D-optimal\n----------------------------------------------\nTo identify influential factors with 3 factors with a budget of 8 runs and a 'linear' model, the best compromise under your priorities is D-optimal (7 runs).\n\nEvaluated alternatives:\n        method  runs  D_eff  G_eff  SPV_mean  in_budget  supports_model\nFull factorial    16  100.0   18.6     10.54      False            True\n     D-optimal     7    NaN    NaN       NaN       True           False\n\nCaveats:\n  - No catalog design fits the budget (8) and supports the model; recommending the smallest viable option (D-optimal, 7 runs). Increase the budget or reduce the model.\n  - Recommendation is conditional on model_order='linear' (and effect_size=1.0 for power).\n  - \"Best\" is a multi-objective trade-off (runs vs precision vs prediction): adjust 'priorities' for your case.\n  - After the first experimental wave, use propose_next_runs / augment_design to choose the next batch (sequential DoE) instead of restarting from scratch.\n  - Categorical factors present: RSM designs (Box-Behnken/CCD) assume continuous factors; prefer full factorial or D-optimal.",
+    "budget": 8,
+    "seed": 1,
+    "n_runs": 7,
+    "factor_names": [
+      "chunk_size",
+      "top_k",
+      "rag"
+    ],
+    "wave": "h_chunk",
+    "doe_path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\doe_h_chunk.yaml",
+    "fixed": {
+      "inference": "ner",
+      "chunking": "recursive",
+      "chunk_overlap": 200,
+      "mode": "online"
+    },
+    "response_primary": "answer_correctness"
+  },
+  "analysis": {
+    "response": "answer_correctness",
+    "main_effects": {
+      "chunk_size": 0.00030016667997428335,
+      "top_k": 0.22145530043241202,
+      "rag_vector": 0.2622930541192372
+    },
+    "pvalues": {
+      "chunk_size": 0.2722284012349398,
+      "top_k": 0.2722284012244153,
+      "rag_vector": 0.6850376424742943
+    },
+    "retained_factors": [],
+    "r_squared": 0.5625000000000002,
+    "n_runs": 7,
+    "notes": "ning\u00fan efecto \u2192 recortar filosof\u00eda / ampliar presupuesto o revisar Y; no inflar el espacio de factores"
+  }
+}

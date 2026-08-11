@@ -1,116 +1,48 @@
 # Introducción a Ungraph
 
-## ¿Qué es Ungraph?
+**Idioma:** español (canónico `sp-*`).
 
-Ungraph es una librería Python para convertir datos no estructurados en grafos de conocimiento usando Neo4j. Proporciona un pipeline completo para:
+Audiencia: developer / research que necesita *qué es* Ungraph en términos ETI — no el recorrido de instalación. Pasos ejecutables: [`../guides/sp-quickstart.md`](../guides/sp-quickstart.md).
 
-1. **Cargar documentos** (Markdown, TXT, Word, PDF)
-2. **Dividirlos en chunks inteligentes** con recomendaciones automáticas
-3. **Generar embeddings** usando modelos de HuggingFace
-4. **Persistirlos en un grafo de conocimiento** (Neo4j)
-5. **Buscar información** usando búsqueda híbrida (texto + vectorial)
+## Motivation
 
-## Concepto Fundamental
+Convertir texto no estructurado en un grafo consultable no basta para llamar al resultado **conocimiento**. Un índice recuperable puede devolver fragmentos útiles sin sostener creencias con evidencia, confianza ni criterio de refutación. Ungraph organiza esa tensión como pipeline **Extract → Transform → Inference (ETI)** hacia un almacén epistémico en Neo4j; GraphRAG y la búsqueda son **interfaz** sobre ese almacén, no la definición de “conocer”.
 
-Ungraph parte de la premisa de que toda data no estructurada puede organizarse en entidades fundamentales usando un **Lexical Graph**:
+## Theory
 
-```
-File → Page → Chunk
-```
+Ungraph se ancla en la espina ETI validada como principio organizador moderno cuando Inference no se reduce a “correr un NER” y se admite depuración continua (whitepaper RQ1; NELL/DeepDive I01–I02). Tres lecturas que no deben confundirse:
 
-Con relaciones:
-- `File -[:CONTAINS]-> Page`
-- `Page -[:HAS_CHUNK]-> Chunk`
-- `Chunk -[:NEXT_CHUNK]-> Chunk` (chunks consecutivos)
+| Lectura | Qué es | Qué no es |
+|---------|--------|-----------|
+| **Almacén epistémico** | Candidatos (hechos/entidades) con provenance y, en trayectoria, confianza/curación | Un dump de triples “limpios” one-shot |
+| **Grafo léxico** | Topología documental File→Page→Chunk (Transform) | El grafo de creencias del dominio |
+| **GraphRAG / búsqueda** | Consumidor (Capa 1): text / vector / hybrid / patrones | Sustituto de Extract–Transform–Inference |
 
-**¿Qué es un Lexical Graph?** Es una estructura que organiza texto y captura relaciones lingüísticas, facilitando la búsqueda semántica. El patrón `FILE_PAGE_CHUNK` implementa un Lexical Graph que es compatible con patrones de GraphRAG como Basic Retriever y Parent-Child Retriever.
+Linaje y matriz: [`../research/WHITEPAPER_UNGRAPH_IMRAD.md`](../research/WHITEPAPER_UNGRAPH_IMRAD.md), [`../research/INSPIRATION_MATRIX.md`](../research/INSPIRATION_MATRIX.md).
 
-Ver [Lexical Graphs](./sp-lexical-graphs.md) para más detalles.
+### is vs will be
 
-## Características Principales
+| | |
+|--|--|
+| **is** | Librería Python; ETI modular; patrones de grafo; persistencia Neo4j; búsqueda text/vector/hybrid; Infer enchufable (`ner`/`pattern`/+LLM); scorecards experimentales en seed |
+| **will be** | Beliefs first-class, EVI, promoción bronze→gold, MCP/IDE tools como Interface — ver producto/visión y Open claims en research |
 
-### ✅ Pipeline Completo
-- Carga de múltiples formatos (Markdown, TXT, Word, PDF)
-- Detección automática de encoding
-- Limpieza de texto
-- Chunking inteligente con recomendaciones
-- Generación de embeddings
-- Persistencia en Neo4j
+## In Ungraph
 
-### ✅ Búsqueda Avanzada
-- Búsqueda por texto (full-text search)
-- Búsqueda vectorial (similarity search)
-- Búsqueda híbrida (combinación de ambas)
-- Patrones GraphRAG avanzados (Parent-Child, Community, etc.)
+- **Espina y fases:** [`eti-spine.md`](eti-spine.md) · [`extraction.md`](extraction.md) · [`transformation.md`](transformation.md) · [`inference.md`](inference.md) · [`inference-slot.md`](inference-slot.md)
+- **Arquitectura (capas ↔ ETI):** [`sp-architecture.md`](sp-architecture.md)
+- **Grafo léxico / patrones:** [`sp-lexical-graphs.md`](sp-lexical-graphs.md) · [`sp-graph-patterns.md`](sp-graph-patterns.md)
+- **Cómo usarlo (fuera de concepts):** [`../guides/sp-quickstart.md`](../guides/sp-quickstart.md) · [`../guides/sp-ingestion.md`](../guides/sp-ingestion.md) · [`../guides/search.md`](../guides/search.md) · [`../api/sp-public-api.md`](../api/sp-public-api.md)
+- **Programa medible:** [`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md)
 
-### ✅ Arquitectura Limpia
-- Clean Architecture para mantenibilidad
-- Separación clara de responsabilidades
-- Fácil de testear y extender
-- Código profesional y documentado
+El patrón `FILE_PAGE_CHUNK` materializa el Lexical Graph (Transform). La proposición tipada Entity/Relation/Fact vive en el **slot Infer**, no en el loader.
 
-### ✅ Sistema de Patrones
-- Patrones de grafo configurables
-- Patrones predefinidos listos para usar
-- Creación de patrones personalizados
-- Validación automática
+## Open claims (falseables)
 
-## Casos de Uso
+### Claim H_intro_spine
 
-### Caso 1: Documentación Técnica
-Convertir documentación técnica en un grafo de conocimiento para búsqueda semántica.
-
-### Caso 2: Investigación Académica
-Organizar papers y artículos académicos en un grafo para exploración de conocimiento.
-
-### Caso 3: Knowledge Base Empresarial
-Construir una base de conocimiento empresarial a partir de documentos internos.
-
-## Instalación
-
-```bash
-pip install ungraph
-```
-
-O desde el código fuente:
-
-```bash
-git clone https://github.com/tu-usuario/ungraph.git
-cd ungraph
-pip install -e .
-```
-
-## Uso Básico
-
-```python
-import ungraph
-
-# 1. Ingerir un documento
-chunks = ungraph.ingest_document("documento.md")
-print(f"✅ Documento dividido en {len(chunks)} chunks")
-
-# 2. Buscar información
-results = ungraph.search("consulta de ejemplo", limit=5)
-for result in results:
-    print(f"Score: {result.score:.3f}")
-    print(f"Contenido: {result.content[:200]}...")
-
-# 3. Búsqueda híbrida
-results = ungraph.hybrid_search(
-    "inteligencia artificial",
-    limit=10,
-    weights=(0.4, 0.6)  # Más peso a búsqueda vectorial
-)
-```
-
-## Requisitos
-
-- Python 3.12+
-- Neo4j 5.x
-- Dependencias listadas en `pyproject.toml`
-
-## Referencias
-
-- [README Principal](../../README.md)
-- [Guía de Inicio Rápido](../guides/sp-quickstart.md)
-- [Arquitectura del Sistema](sp-architecture.md)
+- **Enunciado:** Presentar Ungraph como ETI + almacén epistémico (con retrieval como Interface) predice mejor discriminación ET vs ETI que presentarlo solo como “RAG sobre Neo4j”.
+- **Predicción observable:** Bajo Transform fijo, `inference=ner` supera `inference=none` en recall anclado y no colapsa probe-QA @ top-k (gate H_I del plan).
+- **Protocolo mínimo:** Ver Claim H_spine_ETI en [`eti-spine.md`](eti-spine.md) y [`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md).
+- **Falsación:** Si el framing “solo retrieval” basta para explicar las Y de Capa 0 (existencia de facts anclados) sin Infer, el claim de espina epistémica se acota.
+- **Reproducibilidad:** `hi_wave_verdict.json` + scorecards del runner DoE.

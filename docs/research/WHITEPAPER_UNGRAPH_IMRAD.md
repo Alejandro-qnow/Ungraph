@@ -1,0 +1,378 @@
+# Ungraph: Mining and Generating Knowledge through Accumulative Graphs
+
+**Working whitepaper (IMRaD)**  
+**Version:** 0.1-draft  
+**Date:** 2026-07-27  
+**Package of reference:** `ungraph` 0.1.5  
+**Status:** Research justification for product trajectory (not a peer-reviewed publication)
+
+---
+
+## Abstract
+
+**Background.** Frameworks that turn unstructured corpora into Neo4j graphs often stop at extraction and retrieval. That yields searchable structure, not necessarily *knowledge*—beliefs with evidence, confidence, and revision. **Objective.** Justify a product trajectory for Ungraph as a library for *mining and generating knowledge*: accumulate candidate beliefs (including spurious ones), then depurate them iteratively via questions, critique, and formal checks. **Methods.** (1) Narrative synthesis of ≥30 papers on knowledge engineering, GraphRAG, neurosymbolic reasoning, abduction, provenance, and continuous KG refinement; (2) targeted validation of the Extract–Transform–Inference (ETI) pattern against ≥20 pipeline/KBC/RAG papers; (3) competitive reading of adjacent products (CodeGraph, context-graph demos); (4) mapping of inspirations into a product matrix. **Results.** ETI remains a coherent modern spine when *Inference* is broadened beyond NER/LLM triples to include abductive hypothesis generation, symbolic verification, and continuous refinement. The distinctive gap versus code graphs and decision-trace demos is an *epistemic store*: claims with provenance, support/challenge, and bronze→gold curation. **Conclusions.** Ungraph should prioritize accumulation and depuración over premature “clean production”; GraphRAG and MCP are consumers of that store, not substitutes for knowledge engineering.
+
+**Keywords:** knowledge engineering; ETI; GraphRAG; belief refinement; neurosymbolic AI; abduction; provenance; Neo4j
+
+---
+
+## 1. Introduction
+
+### 1.1 Problem
+
+Large language models (LLMs), used as inference engines inside IDEs such as Cursor or Claude-based agents, excel at proposing structure from text. They do not, by themselves, maintain a disciplined lifecycle of *what is believed, why, with what confidence, and what would refute it*. Adjacent tooling splits the space:
+
+- **Code graphs** (e.g. CodeGraph) index symbols, calls, and impact—the *artifact* topology.
+- **Context / decision graphs** (e.g. Neo4j context-graph demos) record *why a decision was taken*—event clock, precedents, confidence—usually from seeded enterprise scenarios.
+- **GraphRAG systems** improve retrieval over private corpora via entity graphs and community summaries, without necessarily treating triples as revisable beliefs.
+
+A **code graph is not a knowledge graph of the justifications that produce that code** (formulas, trade-offs, domain hypotheses). Equally, a retrieval index is not knowledge engineering.
+
+### 1.2 Product thesis
+
+Ungraph’s near-term mission is not “perfect production extracts,” but **efficient, scalable accumulation of knowledge candidates**, followed by **continuous depuración**: questions from new angles, critique loops, ontology/logic checks, and promotion across quality layers (bronze → silver → gold). Spurious data is allowed if tagged and scored; truth is an *arrived-at hypothesis*, not the first LLM parse.
+
+### 1.3 Research questions
+
+| ID | Question |
+|----|----------|
+| RQ1 | Does the ETI (Extract–Transform–Inference) pattern still make sense as a modern organizing principle for knowledge mining libraries? |
+| RQ2 | Which scientific lineages (KBC, GraphRAG, NeSy, abduction, provenance, continuous refinement) should define Ungraph’s objects and loops? |
+| RQ3 | How should product vision separate *artifact graphs*, *retrieval graphs*, and *epistemic / context graphs*? |
+
+### 1.4 Contributions of this whitepaper
+
+1. IMRaD justification for Ungraph’s knowledge-mining trajectory.  
+2. Validation of ETI against ≥20 contemporary and classical sources.  
+3. Curated inspiration matrix (papers + products → Ungraph capabilities).  
+4. A product vision sketch: accumulative epistemic graph + ETI spine + GraphRAG/MCP as interfaces.
+
+---
+
+## 2. Methods
+
+### 2.1 Scope and stance
+
+This is a **narrative evidence review** and product-design synthesis, not a meta-analysis with effect sizes. We deliberately avoid treating Ungraph’s current implementation as proven science; code is a *probe*, literature is the *constraint set*.
+
+### 2.2 Search and selection
+
+Sources were gathered via open web/scholarly search (July 2026) across:
+
+- Knowledge base construction (KBC) and automatic KG construction surveys  
+- GraphRAG and RAG surveys / Microsoft GraphRAG  
+- Neurosymbolic LLM+logic (Logic-LM, LINC, OWL consistency loops)  
+- Abductive hypothesis discovery and multi-agent scientific discovery  
+- Provenance (PROV-O), evidence/argumentation graphs (EVI, Dung)  
+- Continuous KG refinement and confidence propagation  
+- Document transform/chunking for RAG indexing  
+- Product READMEs: CodeGraph; johnymontana/context-graph-demo  
+
+**Inclusion.** Papers or standards that speak to (a) staged construction of structured knowledge from text, (b) inference beyond surface extraction, (c) revision/confidence/evidence, or (d) agentic IDE use of graphs.  
+**Exclusion.** Pure UI demos without transferable mechanisms; marketing claims without methodological content.
+
+### 2.3 ETI validation protocol
+
+For RQ1 we map each cited pipeline paper to three slots:
+
+| Slot | Ungraph working definition |
+|------|----------------------------|
+| **Extract** | Load and surface signals from sources (docs, HTML, rich layouts, optional multimodal) |
+| **Transform** | Normalize into reusable units: clean text, chunks, embeddings, lexical topology (e.g. File→Page→Chunk) |
+| **Inference** | Propose and/or verify structured knowledge: entities, relations, facts, hypotheses, logical consequences, refinements |
+
+A pattern “holds” if modern literature still factors systems into (i) acquisition of evidence units, (ii) representation suitable for retrieval/reasoning, and (iii) a stage that *adds or validates* knowledge not merely copied from text. We record **alignments**, **renames**, and **gaps** (especially where Inference is underspecified as “run an LLM once”).
+
+### 2.4 Inspiration matrix method
+
+Each inspiration item is tagged:
+
+- **Role:** *is* (already reflected in Ungraph) / *will be* (planned trajectory) / *borrow* (mechanism to adapt) / *contrast* (deliberately not copy)  
+- **Layer:** Extract / Transform / Inference / Depuración / Interface (GraphRAG, MCP, IDE)  
+- **Object:** Belief/Claim, Evidence, Hypothesis, Pattern, Metric, etc.
+
+### 2.5 Limitations of methods
+
+Selection bias toward English, high-visibility arXiv/ACM works; incomplete full-text reading for some items (abstract + survey synthesis). Product comparisons are architectural, not empirical benchmarks.
+
+---
+
+## 3. Results
+
+### 3.1 Does ETI still make sense? (RQ1)
+
+**Verdict:** Yes—as a *spine*, not as a closed three-box product. Modern literature almost always reinvents a three-phase story under different names. The risk is shrinking **Inference** to “entity/relation extraction.” Ungraph should keep the name ETI but **widen Inference** and add an explicit **refinement / depuración** loop that literature treats as continuous, not one-shot.
+
+#### 3.1.1 Name variants that map onto ETI
+
+| Literature framing | Extract | Transform | Inference |
+|--------------------|---------|-----------|-----------|
+| DeepDive KBC (feature → factor graph → inference/learning) | Evidence/features from docs | Probabilistic engineering / grounding | Statistical inference → calibrated beliefs |
+| Auto KG construction surveys: acquisition → refinement → evolution | Entity/RE/coref | Fusion, schema alignment | Completion, dynamics, new predicates |
+| Extraction → Learning → Evaluation (MDPI 2025 survey) | IE from text | Learned graph reps | Reasoning + eval protocols |
+| Classical IE pipeline (coref → NER/NEL → RE → store) | Mentions & links | Canonicalization into graph store | Often weak; completion separate |
+| LLM KG builders (extract → aggregate → resolve) | Triples per chunk | Aggregate + normalize | Resolution/clustering as soft inference |
+| Enterprise ETL/ELT for KGs | Source pull | Ontology mapping / RDF materialization | OWL entailment / SHACL validation |
+| GraphRAG indexing | Entity/relation extraction | Community hierarchy + summaries | Query-time generation (not KG belief revision) |
+| OntoEKG-style ontology pipelines | Class/property extraction | RDF serialization | Entailment for taxonomy |
+
+#### 3.1.2 ETI evidence table (≥20 sources)
+
+| # | Source | Year | ETI alignment | Note for Ungraph |
+|---|--------|------|---------------|------------------|
+| E1 | Shin et al., *Feature Engineering for KBC* / DeepDive line | 2014+ | Strong | Extract = light ETL evidence; Inference = marginal probabilities—not crisp facts |
+| E2 | Ré et al., DeepDive CACM / declarative KBC | 2017 | Strong | Loop: ground → infer → error analysis (depuración) |
+| E3 | Ye et al., *Comprehensive Survey on Automatic KG Construction* (CSUR) | 2023 | Strong | Acquisition / refinement / evolution ≈ E+T / depuración / I+evolution |
+| E4 | *KG Construction: Extraction, Learning, Evaluation* (Appl. Sci.) | 2025 | Strong | Explicit Extraction–Learning–Evaluation triad |
+| E5 | Neo4j IE pipeline (coref, NER, RE, store) | 2020s | Partial | Stops at store; Inference thin |
+| E6 | Edge et al., *From Local to Global* (GraphRAG) | 2024 | Partial | Strong Extract+Transform(index); Inference mostly at query time |
+| E7 | Peng et al., GraphRAG Survey (TOIS/arXiv) | 2024–25 | Partial | G-Indexing / G-Retrieval / G-Generation formalizes retrieval spine |
+| E8 | Survey GraphRAG for customized LLMs (arXiv 2501.13958) | 2025 | Partial | Scale & domain customization pressures |
+| E9 | Efficient KG Construction for Large-Scale RAG (arXiv 2507.03226) | 2025 | Strong | Parallel LLM vs dependency-parser extract; Transform for hybrid retrieve |
+| E10 | KGGen (extract–aggregate–resolve) | 2025 | Strong | Resolution stage is modern “Inference-lite” |
+| E11 | Pan et al., Unifying LLMs and KGs (TKDE roadmap) | 2024 | Strong | LLM-augmented *completion* = Inference beyond extraction |
+| E12 | Neural-Symbolic Reasoning over KGs survey | 2024 | Strong | Inference as query/reasoning layer |
+| E13 | Survey augmenting KGs with LLMs | 2024 | Strong | Construction + completion + QA as coupled |
+| E14 | RAG for NLP survey (chunk → index → retrieve) | 2024 | Transform-heavy | Validates Transform as first-class (chunking/ANN) |
+| E15 | Semantic chunking cost study (arXiv 2410.13070) | 2024 | Transform | Chunk strategy is empirical, not dogma |
+| E16 | Systematic chunking & embedding sensitivity (arXiv 2603.06976) | 2026 | Transform | Large config space—Ungraph patterns must expose strategies |
+| E17 | Fonduer (richly formatted KBC) | 2018 | Extract+ | Layouts/tables/visual → Extract multimodal |
+| E18 | NELL / Never-Ending Learning | 2010–18 | Full loop | Continuous Extract+Inference+self-improve; confidence-weighted beliefs |
+| E19 | Continuous KG Refinement + confidence propagation | 2023 | Inference+ | Inference as ongoing refinement, not batch |
+| E20 | Logic-LM (LLM formulate + solver infer) | 2023 | Inference | Classical logic as Inference engine; LLM as parser |
+| E21 | LINC (LLM → FOL → prover) | 2023 | Inference | Same split: propose vs prove |
+| E22 | OWL/ontology consistency loop with LLMs (arXiv 2504.07640) | 2025 | Inference | Symbolic check + feedback to LLM |
+| E23 | LOGicalThought / defeasible ontological grounding | 2025 | Inference | Exceptions matter—non-monotonic Inference |
+| E24 | Methods for KG construction from text collections (arXiv 2603.25862) | 2026 | E+T | EEL + REL factorization still standard |
+| E25 | Ontology-guided extraction → governed rules (industry pattern) | 2020s | Full | Ontology as control plane across E–T–I |
+| E26 | metaphacts-style automated ETL for massive KGs | 2020s | E+T (+I via OWL) | ETL rename of Extract–Transform; Load≠Inference |
+
+**Synthesis for RQ1.** ETI is **modern** if:
+
+1. **Extract** includes loaders *and* rich/multimodal signals (Fonduer), not only plain text.  
+2. **Transform** is treated as a research surface (chunking, embeddings, lexical topology)—empirically consequential for GraphRAG.  
+3. **Inference** includes (a) IE/LLM extraction, (b) KG completion / multi-hop, (c) symbolic/defeasible checks, (d) continuous refinement and abduction—not a single `extract_entities` call.
+
+Ungraph’s naming choice (Inference instead of Load) is **scientifically preferable to ETL** for a knowledge-mining library: Load persists data; Inference *creates and validates beliefs*.
+
+### 3.2 Cross-cutting scientific lineages (RQ2)
+
+Condensed “best of” from the broader ≥30-paper sweep (companion conversation, July 2026):
+
+| Pillar | Exemplars | Product implication |
+|--------|-----------|---------------------|
+| Accumulation with scores | NELL; DeepDive | First-class Belief/Claim + confidence |
+| Abductive generation | Hypothesis discovery survey; HypoAgent; SciAgents; Graph of States | Hypothesis + question loops, not only triples |
+| Neurosymbolic verify | Logic-LM; LINC; OWL loops; LogT | Optional `logic` extra: solver/reasoner |
+| Autocritique | Self-RAG; CoVe; GraphRefine; Reflexion | Verification questions; edit not only delete |
+| Evidence epistemology | PROV-O; EVI; Dung AF; PROV-K | Support/challenge + provenance |
+| Retrieval interface | GraphRAG Edge; GraphRAG surveys | Patterns + canonical questions per ingest pattern |
+| Continuous depuración | Confidence propagation; belief revision | Bronze→gold jobs |
+| KE discipline | CommonKADS; ontology learning surveys | Ingest patterns as knowledge *tasks* |
+
+### 3.3 Inspiration matrix (papers & products → Ungraph)
+
+| ID | Inspiration | Role | Layer | Maps to Ungraph |
+|----|-------------|------|-------|-----------------|
+| I01 | NELL beliefs + confidence | **will be** / borrow | Inference + Depuración | `Claim` nodes, scores, never-ending ingest |
+| I02 | DeepDive calibrated probabilities + error analysis | borrow | Inference | Run diagnostics; threshold promotion |
+| I03 | Fonduer multimodal KBC | will be | Extract | HTML/PDF/layout; later vision embeddings |
+| I04 | Microsoft GraphRAG communities | **is** (partial) / borrow | Transform + Interface | Community summaries; local/global search patterns |
+| I05 | GraphRAG surveys (indexing/retrieval/generation) | borrow | Interface | Formalize pattern matrix in docs/API |
+| I06 | Self-RAG / CoVe | will be | Depuración | Critique & verification question protocols |
+| I07 | GraphRefine (edit triples) | will be | Depuración | Refine ops: delete/edit/rewrite |
+| I08 | Logic-LM / LINC | will be | Inference | Formalize claims → solver |
+| I09 | OWL consistency feedback | will be | Inference | Ontology profile as validator |
+| I10 | SciAgents (multi-agent critique) | will be | Inference | Mining agents: propose/critique/novelty |
+| I11 | HypoAgent / abduction surveys | will be | Inference | Domain questions → hypotheses over KG |
+| I12 | Graph of States | borrow | Inference | Guard against evidence fabrication / drift |
+| I13 | Continuous confidence propagation | will be | Depuración | Background refinement jobs |
+| I14 | PROV-O | **is** (partial) | All | Expand wasDerivedFrom → full PROV |
+| I15 | EVI / Dung argumentation | will be | Depuración | `supports` / `challenges` edges |
+| I16 | CommonKADS | borrow | Product | Pattern = knowledge task template |
+| I17 | Ontology learning surveys | will be | Transform/Inference | Suggest schema, don’t only populate |
+| I18 | Chunking empirics (semantic vs structural) | **is** / will be | Transform | Explicit chunk strategies in patterns |
+| I19 | KGGen aggregate+resolve | borrow | Inference | Consolidation pipeline (already nascent) |
+| I20 | CodeGraph | **contrast** | Interface | Integrate as *source*, don’t become code index |
+| I21 | context-graph-demo (decision traces) | borrow / contrast | Inference | Adopt Decision/Reasoning nodes; remain a *library*, not a bank demo |
+| I22 | Foundation Capital “context graphs” framing | borrow | Product | State clock vs event clock in docs |
+| I23 | Medallion (bronze/silver/gold) data engineering | will be | Depuración | CurationState lifecycle |
+| I24 | MCP + IDE agents (Cursor/Claude) | will be | Interface | Tools over use cases; no business logic in MCP |
+| I25 | spaCy NER + LLMGraphTransformer | **is** | Inference | Keep dual engines; tag `extraction_method` |
+| I26 | Clean Architecture (Ungraph layers) | **is** | Product | Domain owns Claim/Hypothesis contracts |
+
+### 3.4 Product vision (RQ3)
+
+#### 3.4.1 One-sentence mission
+
+**Ungraph mines and generates knowledge** by accumulating provisional structured beliefs from unstructured sources into Neo4j, then iteratively depurating them—via GraphRAG questions, agentic critique, and optional symbolic checks—until hypotheses are well-supported.
+
+#### 3.4.2 Three graphs, one library
+
+```
+Artifact graph (optional input)     Epistemic graph (Ungraph core)      Retrieval graph (index views)
+  CodeGraph / ASTs          →         Claims, Evidence, Hypotheses  →     Chunks, communities, vectors
+  “what the system is”                “what we believe & why”             “how we ask”
+```
+
+#### 3.4.3 Lifecycle
+
+1. **Accumulate (bronze):** Extract + Transform + provisional Inference; allow noise; always tag method & score.  
+2. **Question (plata entry):** Pattern-default questions + mining questions answered via GraphRAG.  
+3. **Critique & verify:** CoVe-like questions; support/challenge; optional Logic-LM/OWL.  
+4. **Promote (oro):** Thresholds + human/policy gates; decision/reasoning traces for event clock.  
+5. **Expose:** CLI/API/MCP for IDEs; never duplicate domain rules in the adapter.
+
+#### 3.4.4 ETI as implemented contract (widened)
+
+| Phase | Must produce | Modern add-ons |
+|-------|--------------|----------------|
+| Extract | Source documents / CIR / multimodal signals | Agentic parse for hard layouts |
+| Transform | Chunks, embeddings, lexical topology, pattern binding | Strategy registry; quality metrics of segmentation |
+| Inference | Entities, relations, facts **and** hypotheses/questions | Symbolic verify; consolidation; abductive mining |
+| *(cross-cutting)* Depuración | Confidence updates, edits, promotions | Background jobs; argumentation edges |
+
+#### 3.4.5 Non-goals (self-critical)
+
+- Not a replacement for CodeGraph.  
+- Not a vertical banking decision product.  
+- Not “GraphRAG clone.”  
+- Not guaranteeing gold-standard truth without policy and compute budget.
+
+---
+
+## 4. Discussion
+
+### 4.1 Why accumulation-first is not anti-quality
+
+NELL and DeepDive show that scalable knowledge systems **expect** false candidates and invest in confidence, coupling constraints, and error analysis. Premature insistence on production-clean graphs starves the statistical and abductive machinery that needs volume. Medallion layers make that engineering-explicit.
+
+### 4.2 Where Ungraph is weak today (honest)
+
+Relative to the matrix: Inference is still largely IE (spaCy/LLM); depuración, argumentation, symbolic solvers, and hypothesis objects are thin or stubbed (e.g. CLI `infer`). GraphRAG and lexical topology are further ahead. The whitepaper therefore **reorders priority**: epistemic objects and refinement loops before multimodal polish—unless Extract quality blocks accumulation entirely.
+
+### 4.3 ETI naming risk
+
+“Inference” confuses ML inference with logical inference. Mitigation in docs/API: speak of **Inference stage** with submodes `ie | abduct | complete | verify | refine`. The acronym stays; the semantics widen.
+
+### 4.4 IDEs and classical logic
+
+Cursor/Claude-class agents are excellent **proposers** and tool orchestrators. Literature (Logic-LM, LINC, OWL loops) argues they should not be the sole **judges**. Ungraph’s scalable design: LLM proposes into the graph; solvers and evidence graphs dispose.
+
+### 4.5 Threats to validity
+
+Narrative review; fast-moving arXiv; product READMEs change quickly. Empirical Ungraph benchmarks (extraction DeepEval, retrieval, structural stats) must later stress-test this vision.
+
+---
+
+## 5. Conclusions
+
+1. **ETI remains a valid modern spine** when mapped to acquisition → representation → knowledge addition/validation, and when Inference is not reduced to one-shot IE (**§3.1**, sources E1–E26).  
+2. **Mission fit:** mining/generating knowledge requires NELL-like accumulation, Peirce-like abductive loops, NeSy verification, and PROV/EVI epistemology—not only GraphRAG indexing.  
+3. **Product differentiation:** epistemic graph between artifact graphs and retrieval interfaces; bronze→gold depuración; patterns that ship default questions.  
+4. **Next research/engineering work:** (a) domain objects Claim/Evidence/Hypothesis; (b) verification protocol; (c) paper→module map in the repo; (d) deepen Top-10 readings into design ADRs.
+
+---
+
+## Acknowledgments
+
+This draft consolidates an internal product conversation (2026-07-27) and open literature review. It does not claim endorsement by cited authors or organizations.
+
+---
+
+## References
+
+> Numbering groups **[E]** ETI-validation set and **[G]** general knowledge-mining set. Some items appear in both roles.
+
+### ETI / pipeline / KBC / transform
+
+1. Shin, J., et al. (2015). *Incremental Knowledge Base Construction Using DeepDive*. VLDB / related DeepDive feature-engineering line (see also arXiv:1407.6439).  
+2. De Sa, C., et al. (2017). *DeepDive: Declarative Knowledge Base Construction*. *Communications of the ACM* / SIGMOD Record lineage.  
+3. Ye, H., et al. (2023). *A Comprehensive Survey on Automatic Knowledge Graph Construction*. *ACM Computing Surveys*. https://doi.org/10.1145/3618295  
+4. Authors of Appl. Sci. survey (2025). *Knowledge Graph Construction: Extraction, Learning, and Evaluation*. *Applied Sciences* 15(7):3727. https://doi.org/10.3390/app15073727  
+5. Neo4j. *From text to a knowledge graph: The information extraction pipeline*. Developer blog.  
+6. Edge, D., et al. (2024). *From Local to Global: A GraphRAG Approach to Query-Focused Summarization*. arXiv:2404.16130.  
+7. Peng, B., et al. (2024/2025). *Graph Retrieval-Augmented Generation: A Survey*. *ACM TOIS* / arXiv:2408.08921. https://doi.org/10.1145/3777378  
+8. Survey authors (2025). *A Survey of Graph Retrieval-Augmented Generation for Customized Large Language Models*. arXiv:2501.13958.  
+9. Authors (2025). *Efficient Knowledge Graph Construction and Retrieval from Unstructured Text for Large-Scale RAG Systems*. arXiv:2507.03226.  
+10. Mo, B., et al. (2025). *KGGen: Extracting Knowledge Graphs from Plain Text with Language Models*. NeurIPS / arXiv:2502.09956.  
+11. Pan, S., et al. (2024). *Unifying Large Language Models and Knowledge Graphs: A Roadmap*. *IEEE TKDE*.  
+12. Survey authors (2024). *Neural-Symbolic Reasoning over Knowledge Graphs: A Survey from a Query Perspective*. arXiv:2412.10390.  
+13. Survey authors (2024). *A survey on augmenting knowledge graphs (KGs) with large language models (LLMs)*. *Discover Artificial Intelligence*. https://doi.org/10.1007/s44163-024-00175-8  
+14. Fan et al. / RAG NLP survey lineage (2024). *Retrieval-Augmented Generation for Natural Language Processing: A Survey*. arXiv:2407.13193.  
+15. Authors (2024). *Is Semantic Chunking Worth the Computational Cost?* arXiv:2410.13070.  
+16. Authors (2026). *A Systematic Investigation of Document Chunking Strategies and Embedding Sensitivity*. arXiv:2603.06976.  
+17. Wu, S., et al. (2018). *Fonduer: Knowledge Base Construction from Richly Formatted Data*. SIGMOD.  
+18. Mitchell, T., et al. (2018). *Never-Ending Learning*. *CACM*; Carlson et al. (2010) NELL AAAI.  
+19. Authors (2023). *Continuous Knowledge Graph Refinement with Confidence Propagation*. *IEEE Access*. https://doi.org/10.1109/ACCESS.2023.3283925  
+20. Pan, L., et al. (2023). *Logic-LM: Empowering Large Language Models with Symbolic Solvers for Faithful Logical Reasoning*. EMNLP Findings.  
+21. Olausson, T., et al. (2023). *LINC: A Neurosymbolic Approach for Logical Reasoning…*. EMNLP.  
+22. Authors (2025). *Enhancing Large Language Models through Neuro-Symbolic Integration and Ontological Reasoning*. arXiv:2504.07640.  
+23. Authors (2025). *LOGicalThought: Logic-Based Ontological Grounding of LLMs…*. arXiv:2510.01530.  
+24. Authors (2026). *Methods for Knowledge Graph Construction from Text Collections*. arXiv:2603.25862.  
+25. Industry pattern notes on ontology-guided extraction → governed rules (2020s synthesis).  
+26. metaphacts. *Building massive knowledge graphs using automated ETL pipelines* (engineering pattern note).
+
+### Knowledge mining, depuración, epistemology, agents
+
+27. Asai, A., et al. (2024). *Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection*. ICLR.  
+28. Yan, S.-Q., et al. *CRAG: Corrective Retrieval Augmented Generation* (lineage).  
+29. Dhuliawala, S., et al. *Chain-of-Verification Reduces Hallucination in Large Language Models*.  
+30. Shinn, N., et al. *Reflexion: Language Agents with Verbal Reinforcement Learning*.  
+31. GraphRefine / *LLMs as Knowledge Graph Refiners* (ACL 2026 lineage).  
+32. Authors (2025). *From Reasoning to Learning: Hypothesis Discovery and Rule Learning with LLMs*. arXiv:2505.21935.  
+33. Authors (2026). *Wiring the ‘Why’: A Unified Taxonomy and Survey of Abductive Reasoning in LLMs*. arXiv:2604.08016.  
+34. Authors (2026). *Graph of States: Solving Abductive Tasks with Large Language Models*. arXiv:2603.21250.  
+35. Authors (2026). *HypoAgent: An Agentic Framework for Interactive Abductive Hypothesis Generation over Knowledge Graphs*. arXiv:2605.31370.  
+36. Ghafarollahi, A., & Buehler, M. (2024). *SciAgents: Automating Scientific Discovery…*. arXiv:2409.05556 / *Advanced Materials*.  
+37. Lebo, T., et al. (2013). *PROV-O: The PROV Ontology*. W3C Recommendation.  
+38. EVI Evidence Graph Ontology (extension of PROV; argumentation-inspired).  
+39. Dung, P. M. (1995). *On the acceptability of arguments and its fundamental role in nonmonotonic reasoning…*.  
+40. PROV-K / provenance-driven nanopublications (2025 Digital Libraries lineage).  
+41. Wong, W., et al. (2012). *Ontology learning from text: A look back and into the future*. *ACM CSUR*.  
+42. Asim, M. N., et al. Survey of ontology learning techniques and applications.  
+43. CommonKADS methodology (Schreiber et al.; commonkads.org).  
+44. Dong, X., et al. (2014). *Knowledge Vault* (Google) — multi-source fusion / priors.  
+45. AutoKG (2023). arXiv:2311.14740.  
+46. Dagstuhl Report 25291 (2025). *(Actual) Neurosymbolic AI: Combining Deep Learning and Knowledge Graphs*.  
+47. Authors (2025). *Advancing Symbolic Integration in Large Language Models…*. arXiv:2510.21425.
+
+### Products (architectural references)
+
+48. McHenry, C. *CodeGraph* — https://github.com/colbymchenry/codegraph  
+49. Montana, W. (johnymontana). *context-graph-demo* — https://github.com/johnymontana/context-graph-demo  
+50. Neo4j Labs / related *create-context-graph* and agent-memory materials (companion ecosystem).
+
+### Internal Ungraph documents
+
+51. Ungraph `docs/product/PRODUCT.md`, `docs/product/VISION_AND_TUTORIALS.md`, `docs/experiment/ROADMAP_LEVEL_C.md`, `docs/archive/CHECKPOINT_INFERENCE_PIPELINE.md`, `docs/experiment/PLAN_MAESTRO.md` (2025–2026).  
+52. Internal notes `project/Notas.md` (2026-07-27) — accumulation, depuración, medallion, agentic critique.
+
+---
+
+## Appendix A — Quick reference: ETI widened
+
+```
+Extract  → evidence units from sources (text, layout, optional media)
+Transform → chunks, vectors, lexical graph, pattern binding
+Inference → IE + hypothesis + completion + symbolic verify + consolidate
+Depurar  → confidence, support/challenge, promote bronze→gold (cross-cutting)
+Expose   → GraphRAG / API / CLI / MCP (consumers)
+```
+
+## Appendix B — Suggested Top-10 deep reads (next iteration)
+
+1. NELL (CACM 2018)  
+2. Hypothesis discovery survey (arXiv:2505.21935)  
+3. Logic-LM + LINC  
+4. Edge et al. GraphRAG  
+5. SciAgents  
+6. Self-RAG  
+7. EVI + PROV-O  
+8. Continuous confidence propagation  
+9. Fonduer  
+10. Ye et al. Auto KG construction survey (CSUR)
+
+---
+
+*End of whitepaper draft 0.1.*

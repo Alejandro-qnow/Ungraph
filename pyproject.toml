@@ -116,9 +116,17 @@ dev = [
     "pytest-timeout>=2.3",
 ]
 
-# Experimentos y evaluación
+# Documentación de desarrollador (MkDocs Material)
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+]
+
+# Experimentos: DoE (doekit) + tracing opcional (opik)
 experiments = [
+    "doekit>=0.7.1",
     "opik>=1.9.66",
+    "pyyaml>=6.0",
 ]
 
 # Todas las extensiones

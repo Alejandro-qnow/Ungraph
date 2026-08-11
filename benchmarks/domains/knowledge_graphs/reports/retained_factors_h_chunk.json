@@ -1,0 +1,8 @@
+{
+  "retained_factors": [
+    "chunk_size"
+  ],
+  "response": "latency_s",
+  "notes": "",
+  "wave": "h_chunk"
+}

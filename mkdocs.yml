@@ -1,0 +1,102 @@
+site_name: Ungraph Docs
+site_description: Documentación para desarrolladores de Ungraph — ETI, GraphRAG y Neo4j
+site_url: http://127.0.0.1:8000/
+docs_dir: docs
+repo_url: https://github.com/qnow-tech/Ungraph
+repo_name: Ungraph
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  language: es
+  logo: assets/qnow-logo.png
+  favicon: assets/qnow-logo.png
+  palette:
+    - scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-7
+        name: Modo oscuro
+    - scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/brightness-4
+        name: Modo claro
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+
+plugins:
+  - search:
+      lang:
+        - es
+        - en
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+# Nav library-first (DOCUMENTARY_ZEN oleada 4)
+nav:
+  - Inicio: index.md
+  - Guías:
+      - Inicio rápido: guides/sp-quickstart.md
+      - Ingesta: guides/sp-ingestion.md
+      - Búsqueda: guides/search.md
+      - Patrones personalizados: guides/sp-custom-patterns.md
+      - Tutoriales → guías: tutoriales/README.md
+  - API:
+      - API pública: api/sp-public-api.md
+      - Configuración: api/sp-configuration.md
+      - Patrones de búsqueda: api/sp-search-patterns.md
+      - Patrones avanzados: api/sp-advanced-search-patterns.md
+  - Conceptos:
+      - Introducción: concepts/sp-introduction.md
+      - Espina ETI: concepts/eti-spine.md
+      - Extracción: concepts/extraction.md
+      - Transformación: concepts/transformation.md
+      - Inferencia: concepts/inference.md
+      - Slot Infer (I/O): concepts/inference-slot.md
+      - Arquitectura: concepts/sp-architecture.md
+      - Patrones de grafo: concepts/sp-graph-patterns.md
+      - Grafos léxicos: concepts/sp-lexical-graphs.md
+  - Teoría:
+      - GraphRAG: theory/sp-graphrag.md
+      - Neo4j: theory/sp-neo4j.md
+      - Clean Architecture: theory/sp-clean-architecture.md
+  - Research:
+      - Índice: research/README.md
+      - Principio ZEN: research/DOCUMENTARY_ZEN.md
+      - Whitepaper IMRaD: research/WHITEPAPER_UNGRAPH_IMRAD.md
+      - Matriz de inspiración: research/INSPIRATION_MATRIX.md
+      - Checklist de curación: research/CURATION_CHECKLIST.md
+  - Experimentación:
+      - Plan maestro: experiment/PLAN_MAESTRO.md
+      - Benchmark ETI / DoE: experiment/BENCHMARK_ETI_DOMAINS.md
+      - Roadmap nivel C: experiment/ROADMAP_LEVEL_C.md
+      - Plan calidad datos (dq_*): experiment/sp-data-quality-graph-plan.md
+  - Validación:
+      - Resumen: validation/sp-validation_summary.md
+  - Ops:
+      - Flujo de trabajo: ops/DEVELOPMENT_WORKFLOW.md
+      - Instalación e inferencia: ops/INSTALLATION_INFERENCE.md

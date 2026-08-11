@@ -1,0 +1,218 @@
+{
+  "domain": "knowledge_graphs",
+  "design_id": "chunk-wave-h",
+  "capa0_run_id": "68ffecb7-b7cc-46a7-8b0c-892291ae0a65",
+  "n_runs": 3,
+  "runs": [
+    {
+      "run_id": "a7f65b34-f17f-4baa-90ce-102d3e408dab",
+      "path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\a7f65b34-f17f-4baa-90ce-102d3e408dab.json",
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 512,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "text",
+        "top_k": 5,
+        "mode": "online"
+      },
+      "transform": {
+        "entity_recall": 0.4737,
+        "n_gold_entities": 19,
+        "n_hit_entities": 9,
+        "n_graph_entities": 12,
+        "relation_pair_recall": 0.3333,
+        "n_gold_pairs": 9,
+        "n_hit_pairs": 3,
+        "evidence_coverage": 1.0,
+        "n_facts": 24,
+        "n_with_provenance": 24
+      },
+      "rag_qa": {
+        "answer_correctness": 1.0,
+        "n_probes": 5,
+        "n_correct": 5,
+        "eval_mode": "topk_retrieved"
+      },
+      "extract": {
+        "n_chunks": 7,
+        "chunking_quality_score": 1.0,
+        "hit_at_k": 1.0,
+        "mrr": null
+      }
+    },
+    {
+      "run_id": "cb79fbc6-c9d7-423b-a413-3c4cf8b7f026",
+      "path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\cb79fbc6-c9d7-423b-a413-3c4cf8b7f026.json",
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1000,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "text",
+        "top_k": 5,
+        "mode": "online"
+      },
+      "transform": {
+        "entity_recall": 0.4737,
+        "n_gold_entities": 19,
+        "n_hit_entities": 9,
+        "n_graph_entities": 12,
+        "relation_pair_recall": 0.3333,
+        "n_gold_pairs": 9,
+        "n_hit_pairs": 3,
+        "evidence_coverage": 1.0,
+        "n_facts": 17,
+        "n_with_provenance": 17
+      },
+      "rag_qa": {
+        "answer_correctness": 1.0,
+        "n_probes": 5,
+        "n_correct": 5,
+        "eval_mode": "topk_retrieved"
+      },
+      "extract": {
+        "n_chunks": 3,
+        "chunking_quality_score": 1.0,
+        "hit_at_k": 1.0,
+        "mrr": null
+      }
+    },
+    {
+      "run_id": "d9781545-a425-41fe-928d-b1786b3e0b1f",
+      "path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\d9781545-a425-41fe-928d-b1786b3e0b1f.json",
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1500,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "text",
+        "top_k": 5,
+        "mode": "online"
+      },
+      "transform": {
+        "entity_recall": 0.4737,
+        "n_gold_entities": 19,
+        "n_hit_entities": 9,
+        "n_graph_entities": 12,
+        "relation_pair_recall": 0.3333,
+        "n_gold_pairs": 9,
+        "n_hit_pairs": 3,
+        "evidence_coverage": 1.0,
+        "n_facts": 15,
+        "n_with_provenance": 15
+      },
+      "rag_qa": {
+        "answer_correctness": 1.0,
+        "n_probes": 5,
+        "n_correct": 5,
+        "eval_mode": "topk_retrieved"
+      },
+      "extract": {
+        "n_chunks": 2,
+        "chunking_quality_score": 1.0,
+        "hit_at_k": 1.0,
+        "mrr": null
+      }
+    }
+  ],
+  "chunk_wave_verdict": {
+    "hypothesis": [
+      "H_chunk",
+      "H_T"
+    ],
+    "status": "COMPARED",
+    "capa0_run_id": "68ffecb7-b7cc-46a7-8b0c-892291ae0a65",
+    "fixed_inference": "ner",
+    "n_cells": 3,
+    "cells": [
+      {
+        "run_id": "a7f65b34-f17f-4baa-90ce-102d3e408dab",
+        "chunking": "recursive",
+        "chunk_size": 512,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "n_chunks": 7,
+        "hit_at_k": 1.0,
+        "gate": {
+          "entity_recall": 0.4737,
+          "relation_pair_recall": 0.3333,
+          "evidence_coverage": 1.0,
+          "answer_correctness": 1.0,
+          "n_facts": 24,
+          "n_graph_entities": 12
+        },
+        "latency_s": 14.1558,
+        "composite_score": 0.7746
+      },
+      {
+        "run_id": "cb79fbc6-c9d7-423b-a413-3c4cf8b7f026",
+        "chunking": "recursive",
+        "chunk_size": 1000,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "n_chunks": 3,
+        "hit_at_k": 1.0,
+        "gate": {
+          "entity_recall": 0.4737,
+          "relation_pair_recall": 0.3333,
+          "evidence_coverage": 1.0,
+          "answer_correctness": 1.0,
+          "n_facts": 17,
+          "n_graph_entities": 12
+        },
+        "latency_s": 6.1128,
+        "composite_score": 0.7746
+      },
+      {
+        "run_id": "d9781545-a425-41fe-928d-b1786b3e0b1f",
+        "chunking": "recursive",
+        "chunk_size": 1500,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "n_chunks": 2,
+        "hit_at_k": 1.0,
+        "gate": {
+          "entity_recall": 0.4737,
+          "relation_pair_recall": 0.3333,
+          "evidence_coverage": 1.0,
+          "answer_correctness": 1.0,
+          "n_facts": 15,
+          "n_graph_entities": 12
+        },
+        "latency_s": 5.8871,
+        "composite_score": 0.7746
+      }
+    ],
+    "h_chunk": {
+      "answer_correctness_spread": 0.0,
+      "hit_at_k_spread": 0.0,
+      "note": "Spread>0 \u21d2 Y de tarea/retrieval discriminan por chunk_size; spread=0 \u21d2 seed/probes demasiado f\u00e1ciles (no falsar a\u00fan)."
+    },
+    "h_t": {
+      "pairs": [
+        {
+          "chunk_size": 512,
+          "entity_recall": 0.4737,
+          "answer_correctness": 1.0,
+          "evidence_coverage": 1.0
+        },
+        {
+          "chunk_size": 1000,
+          "entity_recall": 0.4737,
+          "answer_correctness": 1.0,
+          "evidence_coverage": 1.0
+        },
+        {
+          "chunk_size": 1500,
+          "entity_recall": 0.4737,
+          "answer_correctness": 1.0,
+          "evidence_coverage": 1.0
+        }
+      ],
+      "note": "Pares proxy transform\u2192QA en las mismas celdas; N peque\u00f1o \u2014 no inferir causalidad; habilita oleada DoE posterior."
+    },
+    "pass": true,
+    "note": "H_chunk/H_T ejecutables con Y reales (Neo4j + top-k); veredicto descriptivo."
+  }
+}

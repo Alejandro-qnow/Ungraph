@@ -266,7 +266,76 @@ class Neo4jChunkRepository(ChunkRepository):
                 exc_info=True,
             )
             raise
-    
+
+    def list_all_chunk_ids(self, *, min_content_chars: int = 1) -> List[str]:
+        """
+        Todos los :Chunk con texto mínimo (tengan o no facts derivados). Para
+        re-minado forzado (``kmining --force``).
+        """
+        driver = self._get_driver()
+        q = """
+        MATCH (c:Chunk)
+        WHERE size(trim(toString(coalesce(c.page_content, '')))) >= $min_chars
+        RETURN c.chunk_id AS id
+        ORDER BY c.chunk_id
+        """
+        try:
+            with driver.session(database=self.database) as session:
+
+                def work(tx):
+                    return [r["id"] for r in tx.run(q, min_chars=min_content_chars)]
+
+                return session.execute_read(work)
+        except Exception as e:
+            logger.error("Error listing all chunk ids: %s", e, exc_info=True)
+            raise
+
+    def delete_derived_facts_for_chunk(self, chunk_id: str) -> int:
+        """
+        Borra derivaciones ``Extracted`` de un chunk (Fact + MENTIONS + relaciones
+        Entity->Entity con esa procedencia) preservando ``Curated``/``Invalid``.
+        Devuelve el número de :Fact eliminados. No borra :Entity (compartidas).
+        """
+        driver = self._get_driver()
+        # 1) Facts derivados del chunk (salvo revisados por humanos)
+        q_facts = """
+        MATCH (f:Fact)-[:DERIVED_FROM]->(c:Chunk {chunk_id: $id})
+        WHERE NOT coalesce(f.curation_state, 'Extracted') IN ['Curated', 'Invalid']
+        WITH collect(f) AS facts
+        FOREACH (x IN facts | DETACH DELETE x)
+        RETURN size(facts) AS deleted
+        """
+        # 2) MENTIONS del chunk (se recrean al re-guardar los facts vigentes)
+        q_mentions = """
+        MATCH (c:Chunk {chunk_id: $id})-[m:MENTIONS]->(:Entity)
+        DELETE m
+        """
+        # 3) Relaciones Entity->Entity con procedencia en este chunk (salvo revisadas)
+        q_rels = """
+        MATCH (:Entity)-[r]->(:Entity)
+        WHERE r.provenance_ref = $id
+          AND NOT coalesce(r.curation_state, 'Extracted') IN ['Curated', 'Invalid']
+        DELETE r
+        """
+        try:
+            with driver.session(database=self.database) as session:
+
+                def work(tx):
+                    deleted = tx.run(q_facts, id=chunk_id).single()["deleted"]
+                    tx.run(q_mentions, id=chunk_id)
+                    tx.run(q_rels, id=chunk_id)
+                    return deleted
+
+                return int(session.execute_write(work))
+        except Exception as e:
+            logger.error(
+                "Error deleting derived facts for chunk %s: %s",
+                chunk_id,
+                e,
+                exc_info=True,
+            )
+            raise
+
     def _record_to_chunk(self, record) -> Chunk:
         """Convierte un record de Neo4j a entidad Chunk."""
         from ungraph.domain.entities.chunk import Chunk

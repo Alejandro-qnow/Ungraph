@@ -1,0 +1,123 @@
+{
+  "domain": "knowledge_graphs",
+  "design_id": "family-wave-3",
+  "capa0_run_id": "68ffecb7-b7cc-46a7-8b0c-892291ae0a65",
+  "n_runs": 2,
+  "runs": [
+    {
+      "run_id": "2e263473-4ff8-455b-81a0-e0d70275867c",
+      "path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\2e263473-4ff8-455b-81a0-e0d70275867c.json",
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1000,
+        "chunk_overlap": 200,
+        "inference": "ner",
+        "rag": "text",
+        "top_k": 5,
+        "mode": "online"
+      },
+      "transform": {
+        "entity_recall": 0.4737,
+        "n_gold_entities": 19,
+        "n_hit_entities": 9,
+        "n_graph_entities": 12,
+        "relation_pair_recall": 0.3333,
+        "n_gold_pairs": 9,
+        "n_hit_pairs": 3,
+        "evidence_coverage": 1.0,
+        "n_facts": 17,
+        "n_with_provenance": 17
+      },
+      "rag_qa": {
+        "answer_correctness": 1.0,
+        "n_probes": 5,
+        "n_correct": 5,
+        "eval_mode": "topk_retrieved"
+      }
+    },
+    {
+      "run_id": "cf5d1a21-786f-4f59-8458-2bf94ae89510",
+      "path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\cf5d1a21-786f-4f59-8458-2bf94ae89510.json",
+      "architecture": {
+        "chunking": "recursive",
+        "chunk_size": 1000,
+        "chunk_overlap": 200,
+        "inference": "pattern",
+        "rag": "text",
+        "top_k": 5,
+        "mode": "online"
+      },
+      "transform": {
+        "entity_recall": 0.7368,
+        "n_gold_entities": 19,
+        "n_hit_entities": 14,
+        "n_graph_entities": 28,
+        "relation_pair_recall": 0.5556,
+        "n_gold_pairs": 9,
+        "n_hit_pairs": 5,
+        "evidence_coverage": 1.0,
+        "n_facts": 37,
+        "n_with_provenance": 37
+      },
+      "rag_qa": {
+        "answer_correctness": 1.0,
+        "n_probes": 5,
+        "n_correct": 5,
+        "eval_mode": "topk_retrieved"
+      }
+    }
+  ],
+  "family_wave_verdict": {
+    "hypothesis": "oleada-3_infer_families",
+    "status": "COMPARED",
+    "capa0_run_id": "68ffecb7-b7cc-46a7-8b0c-892291ae0a65",
+    "n_families": 2,
+    "families": [
+      {
+        "inference": "ner",
+        "family": "transductive_ner",
+        "run_id": "2e263473-4ff8-455b-81a0-e0d70275867c",
+        "missing": false,
+        "gate": {
+          "entity_recall": 0.4737,
+          "relation_pair_recall": 0.3333,
+          "evidence_coverage": 1.0,
+          "answer_correctness": 1.0,
+          "n_facts": 17,
+          "n_graph_entities": 12
+        },
+        "latency_s": 6.5298,
+        "composite_score": 0.7746
+      },
+      {
+        "inference": "pattern",
+        "family": "symbolic_lexical",
+        "run_id": "cf5d1a21-786f-4f59-8458-2bf94ae89510",
+        "missing": false,
+        "gate": {
+          "entity_recall": 0.7368,
+          "relation_pair_recall": 0.5556,
+          "evidence_coverage": 1.0,
+          "answer_correctness": 1.0,
+          "n_facts": 37,
+          "n_graph_entities": 28
+        },
+        "latency_s": 4.2812,
+        "composite_score": 0.8353
+      }
+    ],
+    "deltas_vs_baseline": {
+      "pattern": {
+        "vs": "ner",
+        "delta": {
+          "entity_recall": 0.2631,
+          "relation_pair_recall": 0.2223,
+          "evidence_coverage": 0.0,
+          "answer_correctness": 0.0
+        }
+      }
+    },
+    "pass": true,
+    "note": "Oleada-3: \u22652 familias Infer sobre recipe Capa 0; deltas vs ner son descriptivos (no gate de superioridad)."
+  }
+}

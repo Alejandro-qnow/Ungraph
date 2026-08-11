@@ -1,0 +1,220 @@
+{
+  "meta": {
+    "design_id": "D-optimal-b8-s0",
+    "method": "D-optimal",
+    "rationale": "To identify influential factors with 4 factors with a budget of 8 runs and a 'linear' model, the best compromise under your priorities is D-optimal (8 runs, D-efficiency 43.5%, G-efficiency 100.0%).",
+    "summary": "Recommendation: D-optimal\n----------------------------------------------\nTo identify influential factors with 4 factors with a budget of 8 runs and a 'linear' model, the best compromise under your priorities is D-optimal (8 runs, D-efficiency 43.5%, G-efficiency 100.0%).\n\nEvaluated alternatives:\n        method  runs  D_eff  G_eff  SPV_mean  in_budget  supports_model\nFull factorial    16  100.0   14.1     16.91      False            True\n     D-optimal     8   43.5  100.0      4.33       True            True\n\nCaveats:\n  - Recommendation is conditional on model_order='linear' (and effect_size=1.0 for power).\n  - \"Best\" is a multi-objective trade-off (runs vs precision vs prediction): adjust 'priorities' for your case.\n  - After the first experimental wave, use propose_next_runs / augment_design to choose the next batch (sequential DoE) instead of restarting from scratch.\n  - Categorical factors present: RSM designs (Box-Behnken/CCD) assume continuous factors; prefer full factorial or D-optimal.",
+    "budget": 8,
+    "seed": 0,
+    "n_runs": 8,
+    "factor_names": [
+      "chunking",
+      "chunk_size",
+      "inference",
+      "rag"
+    ],
+    "wave": 1,
+    "doe_path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\doe.yaml",
+    "fixed": {},
+    "response_primary": "composite_score"
+  },
+  "design": {
+    "schema": "doekit.Design/1",
+    "matrix": {
+      "columns": [
+        "chunking",
+        "chunk_size",
+        "inference",
+        "rag"
+      ],
+      "data": [
+        [
+          "markdown_header",
+          512.0,
+          "ner",
+          "text"
+        ],
+        [
+          "recursive",
+          1024.0,
+          "none",
+          "text"
+        ],
+        [
+          "markdown_header",
+          1024.0,
+          "none",
+          "vector"
+        ],
+        [
+          "recursive",
+          512.0,
+          "ner",
+          "vector"
+        ],
+        [
+          "recursive",
+          1024.0,
+          "ner",
+          "text"
+        ],
+        [
+          "markdown_header",
+          512.0,
+          "none",
+          "text"
+        ],
+        [
+          "recursive",
+          512.0,
+          "none",
+          "vector"
+        ],
+        [
+          "markdown_header",
+          1024.0,
+          "ner",
+          "vector"
+        ]
+      ]
+    },
+    "factors": [
+      {
+        "type": "categorical",
+        "name": "chunking",
+        "levels": [
+          "recursive",
+          "markdown_header"
+        ]
+      },
+      {
+        "type": "continuous",
+        "name": "chunk_size",
+        "low": 512.0,
+        "high": 1024.0
+      },
+      {
+        "type": "categorical",
+        "name": "inference",
+        "levels": [
+          "none",
+          "ner"
+        ]
+      },
+      {
+        "type": "categorical",
+        "name": "rag",
+        "levels": [
+          "text",
+          "vector"
+        ]
+      }
+    ],
+    "model": {
+      "response": null,
+      "terms": [
+        {
+          "kind": "intercept"
+        },
+        {
+          "kind": "main",
+          "name": "chunking"
+        },
+        {
+          "kind": "main",
+          "name": "chunk_size"
+        },
+        {
+          "kind": "main",
+          "name": "inference"
+        },
+        {
+          "kind": "main",
+          "name": "rag"
+        }
+      ]
+    },
+    "metadata": {
+      "kind": "OptimalDesign",
+      "criterion": "D",
+      "algorithm": "kl",
+      "n_starts": 6,
+      "selected_rows": [
+        7,
+        4,
+        17,
+        18,
+        10,
+        1,
+        12,
+        23
+      ],
+      "criteria": {
+        "D": 4.0,
+        "A": 0.2,
+        "T": 131072.5,
+        "G": 8.0,
+        "E": 0.070527,
+        "I": 1.714286
+      }
+    }
+  },
+  "rows": [
+    {
+      "chunking": "markdown_header",
+      "chunk_size": 512,
+      "inference": "ner",
+      "rag": "text",
+      "_design_row_id": "0"
+    },
+    {
+      "chunking": "recursive",
+      "chunk_size": 1024,
+      "inference": "none",
+      "rag": "text",
+      "_design_row_id": "1"
+    },
+    {
+      "chunking": "markdown_header",
+      "chunk_size": 1024,
+      "inference": "none",
+      "rag": "vector",
+      "_design_row_id": "2"
+    },
+    {
+      "chunking": "recursive",
+      "chunk_size": 512,
+      "inference": "ner",
+      "rag": "vector",
+      "_design_row_id": "3"
+    },
+    {
+      "chunking": "recursive",
+      "chunk_size": 1024,
+      "inference": "ner",
+      "rag": "text",
+      "_design_row_id": "4"
+    },
+    {
+      "chunking": "markdown_header",
+      "chunk_size": 512,
+      "inference": "none",
+      "rag": "text",
+      "_design_row_id": "5"
+    },
+    {
+      "chunking": "recursive",
+      "chunk_size": 512,
+      "inference": "none",
+      "rag": "vector",
+      "_design_row_id": "6"
+    },
+    {
+      "chunking": "markdown_header",
+      "chunk_size": 1024,
+      "inference": "ner",
+      "rag": "vector",
+      "_design_row_id": "7"
+    }
+  ]
+}

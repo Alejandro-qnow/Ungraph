@@ -1,0 +1,78 @@
+/*
+  Qnow brand tokens — fuente: colores publicados en https://qnow.tech/
+  (inline CSS del sitio + logo negro). No inventar hex fuera de esta lista
+  sin actualizar este archivo.
+
+  Roles:
+  - ink / surface: tipografía y fondos unificados del chrome
+  - primary (violeta): marca en títulos/hover (no fondo de header)
+  - accent (teal): enlaces, CTAs, énfasis científico/técnico
+  - soft: fondos suaves para callouts
+*/
+
+:root {
+  /* Neutrales */
+  --qnow-ink: #0d131a;
+  --qnow-ink-muted: #36344d;
+  --qnow-ink-soft: #727586;
+  /* Superficie canónica del sitio docs (chrome + página) */
+  --qnow-surface: #faf9fa;
+  --qnow-surface-soft: #f2f3f6;
+  --qnow-line: #d8dae0;
+
+  /* Primario — familia violeta Qnow */
+  --qnow-primary: #5025d1;
+  --qnow-primary-deep: #2f1c6a;
+  --qnow-primary-deeper: #1f1346;
+  --qnow-primary-bright: #673de6;
+  --qnow-primary-light: #8c85ff;
+  --qnow-primary-mist: #b39ef3;
+  --qnow-primary-wash: #ebe4ff;
+
+  /* Acento — teal / quantum-now */
+  --qnow-accent: #00b090;
+  --qnow-accent-deep: #008361;
+  --qnow-accent-wash: #def4f0;
+
+  /* Secundarios (sparingly: badges, admonitions) */
+  --qnow-blue: #357df9;
+  --qnow-blue-wash: #e3ebf9;
+  --qnow-amber: #fea419;
+  --qnow-amber-wash: #fff8e2;
+  --qnow-rose: #fc5185;
+  --qnow-rose-wash: #ffe8ef;
+
+  /* Alias Ungraph docs (consumidos por extra.css) */
+  --ungraph-ink: var(--qnow-ink);
+  --ungraph-accent: var(--qnow-accent);
+  --ungraph-primary: var(--qnow-primary);
+}
+
+/* Material for MkDocs — primary/accent custom */
+[data-md-color-scheme="default"] {
+  /* Primary Material = superficie clara; violeta Qnow queda en tipografía/acentos */
+  --md-primary-fg-color: var(--qnow-surface);
+  --md-primary-fg-color--light: var(--qnow-surface-soft);
+  --md-primary-fg-color--dark: var(--qnow-line);
+  --md-primary-bg-color: var(--qnow-ink);
+  --md-accent-fg-color: var(--qnow-accent);
+  --md-accent-fg-color--transparent: color-mix(in srgb, var(--qnow-accent) 10%, transparent);
+  --md-typeset-a-color: var(--qnow-accent-deep);
+  --md-default-fg-color: var(--qnow-ink);
+  --md-default-fg-color--light: var(--qnow-ink-muted);
+  --md-default-fg-color--lighter: var(--qnow-ink-soft);
+  --md-default-bg-color: var(--qnow-surface);
+  --md-footer-bg-color: var(--qnow-surface);
+  --md-footer-bg-color--dark: var(--qnow-surface);
+  --md-footer-fg-color: var(--qnow-ink-muted);
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: var(--qnow-primary-bright);
+  --md-primary-fg-color--light: var(--qnow-primary-light);
+  --md-primary-fg-color--dark: var(--qnow-primary-deep);
+  --md-accent-fg-color: var(--qnow-accent);
+  --md-accent-fg-color--transparent: color-mix(in srgb, var(--qnow-accent) 14%, transparent);
+  --md-typeset-a-color: var(--qnow-accent);
+  --md-default-bg-color: var(--qnow-primary-deeper);
+}

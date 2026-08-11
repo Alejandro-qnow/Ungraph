@@ -1,0 +1,84 @@
+{
+  "ner": {
+    "method": "ner",
+    "seconds": 0.039,
+    "chunks_processed": 2,
+    "entity_count": 14,
+    "relation_count": 39,
+    "unique_entity_names": 12,
+    "errors": 0,
+    "entity_names_sample": [
+      "2022",
+      "Acme",
+      "Acme Robotics",
+      "Alice Chen",
+      "California",
+      "Google",
+      "March 2024",
+      "Mountain View",
+      "Northwind Logistics",
+      "Sam Okonkwo",
+      "VP of Engineering",
+      "the San Francisco Bay Area"
+    ],
+    "deepeval_contextual_relevancy": {
+      "available": false,
+      "metric": "contextual_relevancy",
+      "reason": "deepeval not installed: No module named 'deepeval'"
+    }
+  },
+  "llm": {
+    "method": "llm+langgraph",
+    "seconds": 8.621,
+    "chunks_processed": 2,
+    "entity_count": 14,
+    "relation_count": 10,
+    "unique_entity_names": 13,
+    "errors": 0,
+    "entity_names_sample": [
+      "2022",
+      "Acme",
+      "Acme Robotics",
+      "Alice",
+      "Alice Chen",
+      "California",
+      "Google",
+      "March 2024",
+      "Mountain View",
+      "Northwind Logistics",
+      "Sam Okonkwo",
+      "San Francisco Bay Area",
+      "Vp Of Engineering"
+    ],
+    "deepeval_contextual_relevancy": {
+      "available": false,
+      "metric": "contextual_relevancy",
+      "reason": "deepeval not installed: No module named 'deepeval'"
+    }
+  },
+  "comparison": {
+    "entity_jaccard_normalized": 0.7857,
+    "delta_unique_entities": 1,
+    "delta_relations": -29,
+    "delta_seconds": 8.582
+  },
+  "gold_metrics": {
+    "ner": {
+      "entity_recall": 1.0,
+      "relation_pair_recall": 0.6667
+    },
+    "llm": {
+      "entity_recall": 1.0,
+      "relation_pair_recall": 1.0
+    }
+  },
+  "meta": {
+    "corpus": "D:\\projects\\Ungraph\\scripts\\data\\reference_corpus_en.txt",
+    "gold": "D:\\projects\\Ungraph\\scripts\\data\\reference_corpus_gold.json",
+    "chunks": 2,
+    "chunk_size": 300,
+    "chunk_overlap": 120,
+    "language": "en",
+    "notes": "Entity/recall scores are indicative only (weak gold). LLM path uses LangGraph extraction; spaCy relations are mostly CO_OCCURS_WITH. DeepEval contextual relevancy runs per chunk unless UNGRAPH_BENCHMARK_DEEPEVAL=0."
+  }
+}

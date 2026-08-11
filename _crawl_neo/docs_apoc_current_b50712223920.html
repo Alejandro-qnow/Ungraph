@@ -1,0 +1,2469 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, minimum-scale=1">
+    <meta name="msvalidate.01" content="B5163518CBE4A854B63801277FE5E35C" >
+    <meta name="google-site-verification" content="ucqagxjVuq0lJZeLKs0F5AppzK111lNt3IoxU6mzlJE" >
+    <meta name="robots" content="index, follow" >
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" >
+    <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" >
+
+    <meta property="og:locale" content="en_US" >
+    <meta property="og:type" content="article" >
+
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-WK23PSS');</script>
+    <title>APOC Core 2026.03 Documentation - APOC Core Documentation</title>
+    <link rel="canonical" href="https://neo4j.com/docs/apoc/current/">
+
+    <link rel="next" href="introduction/">
+
+      <meta name="description" content="This is the user guide for Neo4j APOC, authored by the Neo4j Docs Team.">
+<link rel="stylesheet" href="https://neo4j.com/wp-content/themes/neo4jweb/assets/neo4j-react-modules-assets/search-preact/chunkless/bundle.css" >
+<link rel="stylesheet" href="https://neo4j.com/wp-content/themes/neo4jweb/assets/neo4j-react-modules-assets/search-preact/chunkless/utilities.min.css" >
+
+
+<link rel="stylesheet" crossorigin href="https://neo4j.com/docs/assets/chatbot/index.css">
+
+    <link rel="preload" href="../../assets/fonts/fontawesome-webfont.woff2?v=4.7.0" as="font">
+    <link rel="stylesheet" href="../../assets/css/site.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="shortcut icon" href="https://neo4j.com/wp-content/themes/neo4jweb/favicon.ico" >
+
+
+    <meta property="neo:type" content="Docs">
+    <meta property="neo:site" content="Reference Docs">
+
+
+    <meta property="og:site_name" content="Neo4j Graph Data Platform" >
+    <meta property="article:publisher" content="https://www.facebook.com/neo4j.graph.database" >
+    <meta name="twitter:card" content="summary_large_image" >
+    <meta name="twitter:creator" content="@neo4j" >
+    <meta name="twitter:site" content="@neo4j" >
+    <meta property="og:type" content="article" >
+    <meta property="og:title" content="APOC Core 2026.03 Documentation - APOC Core Documentation" >
+    <meta property="og:locale" content="en_US" >
+    <meta property="og:image" content="https://dist.neo4j.com/wp-content/uploads/20240513110808/Neo4j-logo-social-preview.png" >
+    <meta property="og:description" content="This is the user guide for Neo4j APOC, authored by the Neo4j Docs Team." >
+    <meta property="og:url" content="https://neo4j.com/docs/apoc/2026.03/" >
+    <link rel="shortcut icon" href="https://neo4j.com/wp-content/themes/neo4jweb/favicon.ico" >
+  </head>
+  <body class="article docs">
+
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WK23PSS"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+
+<script>(function(f,b){if(!b.__SV){var e,g,i,h;window.mixpanel=b;b._i=[];b.init=function(e,f,c){function g(a,d){var b=d.split(".");2==b.length&&(a=a[b[0]],d=b[1]);a[d]=function(){a.push([d].concat(Array.prototype.slice.call(arguments,0)))}}var a=b;"undefined"!==typeof c?a=b[c]=[]:c="mixpanel";a.people=a.people||[];a.toString=function(a){var d="mixpanel";"mixpanel"!==c&&(d+="."+c);a||(d+=" (stub)");return d};a.people.toString=function(){return a.toString(1)+".people (stub)"};i="disable time_event track track_pageview track_links track_forms track_with_groups add_group set_group remove_group register register_once alias unregister identify name_tag set_config reset opt_in_tracking opt_out_tracking has_opted_in_tracking has_opted_out_tracking clear_opt_in_out_tracking start_batch_senders people.set people.set_once people.unset people.increment people.append people.union people.track_charge people.clear_charges people.delete_user people.remove".split(" ");
+for(h=0;h<i.length;h++)g(a,i[h]);var j="set set_once union unset remove delete".split(" ");a.get_group=function(){function b(c){d[c]=function(){call2_args=arguments;call2=[c].concat(Array.prototype.slice.call(call2_args,0));a.push([e,call2])}}for(var d={},e=["get_group"].concat(Array.prototype.slice.call(arguments,0)),c=0;c<j.length;c++)b(j[c]);return d};b._i.push([e,f,c])};b.__SV=1.2;e=f.createElement("script");e.type="text/javascript";e.async=!0;e.src="undefined"!==typeof MIXPANEL_CUSTOM_LIB_URL?
+MIXPANEL_CUSTOM_LIB_URL:"file:"===f.location.protocol&&"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js".match(/^\/\//)?"https://cdn.mxpnl.com/libs/mixpanel-2-latest.min.js":"//cdn.mxpnl.com/libs/mixpanel-2-latest.min.js";g=f.getElementsByTagName("script")[0];g.parentNode.insertBefore(e,g)}})(document,window.mixpanel||[]);
+mixpanel.init("4bfb2414ab973c741b6f067bf06d5575", {batch_requests: true})
+mixpanel.track("Page View", {
+    pathname: window.location.origin + window.location.pathname,
+    search: window.location.search,
+    hash: window.location.hash,
+    referrer: document.referrer,
+})
+</script>
+<header class="header">
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <a class="navbar-item" href="/">
+
+        <img class="navbar-logo" src="https://dist.neo4j.com/wp-content/uploads/20230926084108/Logo_FullColor_RGB_TransBG.svg" alt="Neo4j APOC Docs" >
+      </a>
+      <a href="/docs/" class="navbar-item no-left-padding" aria-label="Docs">
+        Docs
+      </a>
+
+      </div>
+
+      <button class="navbar-search search-button" data-target="topbar-nav" id="search_open_mobile" aria-label="Open Search">
+        <svg width="23px" height="23px" viewBox="0 0 23 23" version="1.1" class="fill-current float-right" id="searchx" role="button" title="Search Website">
+          <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round"
+            stroke-linejoin="round">
+            <g transform="translate(-2.000000, -2.000000)" stroke="#a0aec0" stroke-width="1.5">
+              <circle                 transform="translate(11.389364, 11.388564) rotate(-23.025000) translate(-11.389364, -11.388564) "
+                cx="11.3893642" cy="11.3885639" r="8.056"></circle>
+              <path d="M17.0853333,17.0844444 L23.3333333,23.3333333" ></path>
+            </g>
+          </g>
+        </svg>
+      </button>
+      <button class="navbar-burger" data-target="topbar-nav" aria-label="Mobile Navigation Button">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    
+    <div id="topbar-nav" class="navbar-menu">
+            <div class="navbar-end">
+
+
+        <div class="navbar-item has-dropdown is-hoverable docs">
+          <a class="navbar-link" href="/docs/">Docs</a>
+          <div class="navbar-dropdown">
+            <div class="navbar-item project">
+              <span class="project-name">Neo4j DBMS</span>
+              <ul class="project-links">
+                <li><a href="/docs/getting-started/current/" class="project-link">Getting Started</a></li>
+                <li><a href="/docs/operations-manual/current/" class="project-link">Operations</a></li>
+                <li><a href="/docs/migration-guide/current/" class="project-link">Migration and Upgrade</a></li>
+                <li><a href="/docs/status-codes/current/" class="project-link">Status Codes</a></li>
+                <li><a href="/docs/java-reference/current/" class="project-link">Java Reference</a></li>
+                <li><a href="/docs/kerberos-add-on/current/" class="project-link">Kerberos Add-on</a></li>
+              </ul>
+            </div>
+
+            <div class="navbar-item project">
+              <a class="project-name" href="/docs/aura/">Neo4j Aura</a>
+            </div>
+
+            <div class="navbar-item project">
+              <span class="project-name">Neo4j Tools</span>
+              <ul class="project-links">
+                <li><a href="/docs/bloom-user-guide/current/" class="project-link">Neo4j Bloom</a></li>
+                <li><a href="/docs/browser/" class="project-link">Neo4j Browser</a></li>
+                <li><a href="/docs/data-importer/current/" class="project-link">Neo4j Data Importer</a></li>
+                <li><a href="/docs/desktop-manual/current/" class="project-link">Neo4j Desktop</a></li>
+                <li><a href="/docs/ops-manager/current/" class="project-link">Neo4j Ops Manager</a></li>
+                <li><a href="/docs/neodash-commercial/current/" class="project-link">Neodash commercial</a></li>
+              </ul>
+            </div>
+
+            <div class="navbar-item project">
+              <span class="project-name">Neo4j Graph Data Science</span>
+              <ul class="project-links">
+                <li><a href="/docs/graph-data-science/current/" class="project-link">Neo4j Graph Data Science Library</a></li>
+                <li><a href="/docs/graph-data-science-client/current/" class="project-link">Neo4j Graph Data Science Client</a></li>
+              </ul>
+            </div>
+
+            <div class="navbar-item project">
+              <span class="project-name">Cypher Query Language</span>
+              <ul class="project-links">
+                <li><a href="/docs/cypher-manual/current/" class="project-link">Cypher</a></li>
+                <li><a href="/docs/cypher-cheat-sheet/current/" class="project-link">Cypher Cheat Sheet</a></li>
+                <li><a href="/docs/apoc/current/" class="project-link">APOC Library</a></li>
+              </ul>
+            </div>
+
+           <div class="navbar-item project">
+              <span class="project-name" href="/docs/genai">Generative AI</span>
+              <ul class="project-links">
+                <li><a href="/docs/neo4j-graphrag-python/current/" class="project-link">Neo4j GraphRAG for Python</a></li>
+                <li><a href="/docs/genai/tutorials/embeddings-vector-indexes/" class="project-link">Embeddings and vector indexes tutorial</a></li>
+                <li><a href="/docs/cypher-manual/current/genai-integrations/" class="project-link">GenAI integrations</a></li>
+                <li><a href="/docs/cypher-manual/current/indexes/semantic-indexes/vector-indexes/" class="project-link">Vector search indexes</a></li>
+                <li><a href="/docs/cypher-manual/current/functions/vector/" class="project-link">Vector search functions</a></li>
+                <li><a href="/docs/graphql/5/directives/indexes-and-constraints/#_vector_index_search" class="project-link">GraphQL vector index search documentation</a></li>
+              </ul>
+            </div>
+
+            <div class="navbar-item project">
+              <span class="project-name" href="/docs/create-applications">Create applications</span>
+              <ul class="project-links">
+                <li><a href="/docs/python-manual/current/" class="project-link">Python Driver</a></li>
+                <li><a href="/docs/go-manual/current/" class="project-link">Go Driver</a></li>
+                <li><a href="/docs/java-manual/current/" class="project-link">Java Driver</a></li>
+                <li><a href="/docs/jdbc-manual/current/" class="project-link">JDBC Driver</a></li>
+                <li><a href="/docs/javascript-manual/current/" class="project-link">JavaScript Driver</a></li>
+                <li><a href="/docs/dotnet-manual/current/" class="project-link">.Net Driver</a></li>
+                <li><a href="/docs/graphql-manual/current/" class="project-link">Neo4j GraphQL Library</a></li>
+                <li><a href="/docs/nvl/current/" class="project-link">Neo4j Visualization Library</a></li>
+                <li><a href="/docs/ogm-manual/current/" class="project-link">OGM Library</a></li>
+                <li><a href="https://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference" class="project-link">Spring Data Neo4j</a></li>
+                <li><a href="/docs/http-api/current/" class="project-link">HTTP API</a></li>
+                <li><a href="/docs/query-api/current/" class="project-link">Neo4j Query API</a></li>
+                <li><a href="/docs/bolt/current/" class="project-link">Bolt</a></li>
+              </ul>
+            </div>
+
+            <div class="navbar-item project">
+              <span class="project-name" href="/docs/connectors">Connect data sources</span>
+              <ul class="project-links">
+                <li><a href="/docs/spark/current/" class="project-link">Neo4j Connector for Apache Spark</a></li>
+                <li><a href="/docs/kafka/" class="project-link">Neo4j Connector for Apache Kafka</a></li>
+                <li><a href="/docs/cdc/" class="project-link">Change Data Capture (CDC)</a></li>
+                <li><a href="/docs/dataflow-bigquery/" class="project-link">BigQuery to Neo4j</a></li>
+                <li><a href="/docs/dataflow-google-cloud/" class="project-link">Google Cloud to Neo4j</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="navbar-item has-dropdown is-hoverable labs">
+          <a class="navbar-link" href="/labs/">Labs</a>
+          <div class="navbar-dropdown">
+            <div class="navbar-item project">
+              <a class="project-name" href="/labs/genai-ecosystem/">GenAI Ecosystem</a>
+              <ul class="project-links">
+                <li><a href="/labs/genai-ecosystem/llm-graph-builder/" class="project-link">LLM Knowledge Graph Builder</a></li>
+                <li><a href="/labs/genai-ecosystem/vector-search/" class="project-link">Vector Index &amp; Search</a></li>
+                <li><a href="/labs/genai-ecosystem/langchain/" class="project-link">LangChain</a></li>
+                <li><a href="/labs/genai-ecosystem/langchain-js/" class="project-link">LangChain.js</a></li>
+                <li><a href="/labs/genai-ecosystem/llamaindex/" class="project-link">LlamaIndex</a></li>
+                <li><a href="/labs/genai-ecosystem/haystack/" class="project-link">Haystack</a></li>
+                <li><a href="/labs/genai-ecosystem/dspy/" class="project-link">DSPy</a></li>
+              </ul>
+            </div>
+
+            <div class="navbar-item project">
+              <strong class="project-name" href="/labs/apoc/">Developer Tools</strong>
+              <ul class="project-links">
+                <li><a href="/labs/apoc/" class="project-link">APOC Extended</a></li>
+                <li><a class="project-link" href="/labs/aura-cli/">Aura CLI</a></li>
+                <li><a class="project-link" href="/labs/arrows/">arrows.app</a></li>
+                <li><a class="project-link" href="/labs/cypher-workbench/">Cypher Workbench</a></li>
+                <li><a class="project-link" href="/labs/etl-tool/">ETL Tool</a></li>
+                <li><a class="project-link" href="/labs/neodash/">NeoDash</a></li>
+              </ul>
+            </div>
+
+            <div class="navbar-item project">
+              <strong class="project-name">Frameworks &amp; Integrations</strong>
+              <ul class="project-links">
+                <li><a class="project-link" href="/labs/neo4j-needle-starterkit/">Needle Starter Kit</a></li>
+                <li><a class="project-link" href="/labs/liquibase/">Neo4j Plugin for Liquibase</a></li>
+                <li><a class="project-link" href="/labs/neo4j-migrations/">Neo4j Migrations</a></li>
+                <li><a class="project-link" href="/labs/neomodel/">neomodel</a></li>
+              </ul>
+            </div>
+            <div class="navbar-item project">
+              <a class="project-name" href="/labs/neosemantics/">RDF &amp; Linked Data</a>
+              <ul class="project-links">
+                <li><a href="/labs/neosemantics/" class="project-link">Neosemantics (Java)</a></li>
+                <li><a href="/labs/rdflib-neo4j/" class="project-link">RDFLib-Neo4j (Python)</a></li>
+              </ul>
+            </div>
+            <div class="navbar-item project">
+            </div>
+          </div>
+        </div>
+        <div class="navbar-item has-dropdown is-hoverable developer">
+          <a class="navbar-link" href="/developer/resources/">Get Help</a>
+          <div class="navbar-dropdown">
+            <div class="navbar-item project">
+              <a class="project-name" href="https://dev.neo4j.com/forum" target="_blank">Community Forum</a>
+            </div>
+            <div class="navbar-item project">
+              <a class="project-name" href="https://dev.neo4j.com/chat" target="_blank">Discord Chat</a>
+            </div>
+            <div class="navbar-item project">
+              <a class="project-name" href="http://support.neo4j.com" target="_blank">Product Support</a>
+            </div>
+            <div class="navbar-item project">
+              <a class="project-name" href="https://neo4j.com/blog/developer/" target="_blank">Neo4j Developer Blog</a>
+            </div>
+            <div class="navbar-item project">
+              <a class="project-name" href="/videos/" target="_blank">Neo4j Videos</a>
+            </div>
+          </div>
+        </div>
+        <div class="navbar-item has-dropdown is-hoverable developer">
+          <a class="navbar-link" href="https://graphacademy.neo4j.com/?ref=docs-nav">GraphAcademy</a>
+          <div class="navbar-dropdown">
+            <div class="navbar-item project">
+              <a class="project-name" href="https://graphacademy.neo4j.com/categories/beginners/?ref=docs-nav" target="_blank">Beginners Courses</a>
+              <ul class="project-links">
+                <li><a class="project-link" href="https://graphacademy.neo4j.com/courses/neo4j-fundamentals/?ref=docs-nav">Neo4j Fundamentals</a></li>
+                <li><a class="project-link" href="https://graphacademy.neo4j.com/courses/cypher-fundamentals/?ref=docs-nav">Cypher Fundamentals</a></li>
+                <li><a class="project-link" href="https://graphacademy.neo4j.com/courses/importing-fundamentals/?ref=docs-nav">Importing Data Fundamentals</a></li>
+                <li><a class="project-link" href="https://graphacademy.neo4j.com/courses/importing-csv-data/?ref=docs-nav">Importing CSV Data</a></li>
+                <li><a class="project-link" href="https://graphacademy.neo4j.com/courses/modeling-fundamentals/?ref=docs-nav">Graph Data Modeling</a></li>
+              </ul>
+            </div>
+            <div class="navbar-item project">
+              <a class="project-name" href="https://graphacademy.neo4j.com/categories/data-scientist/?ref=docs-nav" target="_blank">Data Scientist Courses</a>
+              <ul class="project-links">
+                <li><a class="project-link" href="https://graphacademy.neo4j.com/courses/gds-product-introduction/?ref=docs-nav">Into to Graph Data Science</a></li>
+                <li><a class="project-link" href="https://graphacademy.neo4j.com/courses/graph-data-science-fundamentals/?ref=docs-nav">Graph Data Science Fundamentals</a></li>
+                <li><a class="project-link" href="https://graphacademy.neo4j.com/courses/gds-shortest-paths/?ref=docs-nav">Path Finding</a></li>
+              </ul>
+            </div>
+            <div class="navbar-item project">
+              <a class="project-name" href="https://graphacademy.neo4j.com/categories/llms/?ref=docs-nav" target="_blank">Generative AI Courses</a>
+              <ul class="project-links">
+                <li><a class="project-link" href="https://graphacademy.neo4j.com/courses/llm-fundamentals/?ref=docs-nav">Neo4j &amp; LLM Fundamentals</a></li>
+                <li><a class="project-link" href="https://graphacademy.neo4j.com/courses/llm-vectors-unstructured/?ref=docs-nav">Vector Indexes &amp; Unstructured Data</a></li>
+                <li><a class="project-link" href="https://graphacademy.neo4j.com/courses/llm-chatbot-python/?ref=docs-nav">Build a Chatbot with Python</a></li>
+                <li><a class="project-link" href="https://graphacademy.neo4j.com/courses/llm-chatbot-typescript/?ref=docs-nav">Build a Chatbot with TypeScript</a></li>
+              </ul>
+            </div>
+            <div class="navbar-item project">
+              <a class="project-name" href="https://graphacademy.neo4j.com/certification/?ref=docs-nav" target="_blank">Neo4j Certification</a>
+              <ul class="project-links">
+                <li><a class="project-link" href="https://graphacademy.neo4j.com/certifications/neo4j-certification/?ref=docs-nav">Neo4j Certified Professional</a></li>
+                <li><a class="project-link" href="https://graphacademy.neo4j.com/certifications/gds-certification/?ref=docs-nav">Neo4j Graph Data Science Certification</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="navbar-item is-hoverable getting-started-cta">
+          <a class="navbar-link primary" href="https://console.neo4j.io/?ref=docs-nav-get-started">Get Started Free</a>
+        </div>
+        <div class="navbar-item">
+          <a class="navbar-link search-button" href="#search" id="search_open"><svg width="23px" height="23px" viewBox="0 0 23 23"
+              version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+              class="fill-current float-right" id="search" role="button" title="Search Website">
+              <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round"
+                stroke-linejoin="round">
+                <g transform="translate(-2.000000, -2.000000)" stroke="#a0aec0" stroke-width="1.5">
+                  <circle                     transform="translate(11.389364, 11.388564) rotate(-23.025000) translate(-11.389364, -11.388564) "
+                    cx="11.3893642" cy="11.3885639" r="8.056"></circle>
+                  <path d="M17.0853333,17.0844444 L23.3333333,23.3333333" ></path>
+                </g>
+              </g>
+            </svg><span class="navbar-mobile">Search</span></a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+</header>
+<div class="body">
+    <a class="show-on-focus skip-link" href="#skip-to-content" title="Skip to content">Skip to content</a>
+<div class="nav-container" data-component="apoc" data-version="2026.03">
+  <aside class="nav">
+    <div class="panels">
+      <div class="component">
+  <div class="nav-product">
+    <span class="nav-product-name">APOC Core Documentation</span>
+  </div>
+</div>
+      
+
+<div class="selectors">
+<div class="nav-panel-versions" data-panel="explore">
+
+  <div class="dropdown">
+    <span class="dropdown-label">Product Version</span>
+
+    <select aria-label="Version" id="selector-version" data-current="2026.03" class="version-selector dropdown-styles">
+      <option         data-version="2026.03"
+        
+        value="./"
+         selected
+      >
+        Version 2026.03 (Current)
+      </option>
+      <option         data-version="5.26"
+        
+        value="../5/"
+        
+      >
+        Version 5.26 (LTS)
+      </option>
+    </select>
+  </div>
+</div>
+</div>
+
+
+
+
+      <div class="nav-panel-menu is-active has-feedback" data-panel="menu">
+    <nav class="nav-menu">
+    <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="0">
+        <ul class="nav-list">
+    <li class="nav-item is-current-page" data-module="ROOT" data-depth="1">
+      <a class="nav-link" href="./">Overview</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link" href="introduction/">Introduction</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link nav-item-toggle" href="installation/">Installation</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="installation/#apoc">APOC</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="installation/#neo4j-desktop">Neo4j Desktop</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="installation/#neo4j-server">Neo4j Server</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="installation/#docker">Docker</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="installation/#restricted">Load and Unrestrict</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="installation/#additional_dependencies">Additional Dependencies</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link" href="cypher-versions/">APOC and Cypher versions</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link" href="config/">Configuration Options</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link" href="security-guidelines/">Security Guidelines</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link" href="help/">Built-in Help</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link nav-item-toggle" href="overview/">Procedures &amp; Functions</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc/">apoc</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc/apoc.case/">apoc.case</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc/apoc.help/">apoc.help</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc/apoc.when/">apoc.when</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc/apoc.version/">apoc.version</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.agg/">apoc.agg</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.agg/apoc.agg.first/">apoc.agg.first</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.agg/apoc.agg.graph/">apoc.agg.graph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.agg/apoc.agg.last/">apoc.agg.last</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.agg/apoc.agg.maxItems/">apoc.agg.maxItems</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.agg/apoc.agg.median/">apoc.agg.median</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.agg/apoc.agg.minItems/">apoc.agg.minItems</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.agg/apoc.agg.nth/">apoc.agg.nth</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.agg/apoc.agg.percentiles/">apoc.agg.percentiles</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.agg/apoc.agg.product/">apoc.agg.product</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.agg/apoc.agg.slice/">apoc.agg.slice</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.agg/apoc.agg.statistics/">apoc.agg.statistics</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.algo/">apoc.algo</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.algo/apoc.algo.aStar/">apoc.algo.aStar</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.algo/apoc.algo.aStarConfig/">apoc.algo.aStarConfig</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.algo/apoc.algo.allSimplePaths/">apoc.algo.allSimplePaths</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.algo/apoc.algo.cover/">apoc.algo.cover</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.algo/apoc.algo.dijkstra/">apoc.algo.dijkstra</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.any/">apoc.any</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.any/apoc.any.isDeleted/">apoc.any.isDeleted</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.any/apoc.any.properties/">apoc.any.properties</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.any/apoc.any.property/">apoc.any.property</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.atomic/">apoc.atomic</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.atomic/apoc.atomic.add/">apoc.atomic.add</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.atomic/apoc.atomic.concat/">apoc.atomic.concat</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.atomic/apoc.atomic.insert/">apoc.atomic.insert</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.atomic/apoc.atomic.remove/">apoc.atomic.remove</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.atomic/apoc.atomic.subtract/">apoc.atomic.subtract</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.atomic/apoc.atomic.update/">apoc.atomic.update</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.bitwise/">apoc.bitwise</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.bitwise/apoc.bitwise.op/">apoc.bitwise.op</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.coll/">apoc.coll</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.elements/">apoc.coll.elements</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.partition/">apoc.coll.partition</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.split/">apoc.coll.split</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.zipToRows/">apoc.coll.zipToRows</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.avg/">apoc.coll.avg</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.combinations/">apoc.coll.combinations</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.contains/">apoc.coll.contains</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.containsAll/">apoc.coll.containsAll</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.containsAllSorted/">apoc.coll.containsAllSorted</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.containsDuplicates/">apoc.coll.containsDuplicates</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.containsSorted/">apoc.coll.containsSorted</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.different/">apoc.coll.different</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.disjunction/">apoc.coll.disjunction</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.dropDuplicateNeighbors/">apoc.coll.dropDuplicateNeighbors</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.duplicates/">apoc.coll.duplicates</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.duplicatesWithCount/">apoc.coll.duplicatesWithCount</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.fill/">apoc.coll.fill</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.flatten/">apoc.coll.flatten</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.frequencies/">apoc.coll.frequencies</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.frequenciesAsMap/">apoc.coll.frequenciesAsMap</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.indexOf/">apoc.coll.indexOf</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.insert/">apoc.coll.insert</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.insertAll/">apoc.coll.insertAll</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.intersection/">apoc.coll.intersection</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.isEqualCollection/">apoc.coll.isEqualCollection</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.max/">apoc.coll.max</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.min/">apoc.coll.min</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.occurrences/">apoc.coll.occurrences</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.pairs/">apoc.coll.pairs</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.pairsMin/">apoc.coll.pairsMin</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.partition/">apoc.coll.partition</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.randomItem/">apoc.coll.randomItem</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.randomItems/">apoc.coll.randomItems</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.remove/">apoc.coll.remove</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.removeAll/">apoc.coll.removeAll</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.runningTotal/">apoc.coll.runningTotal</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.set/">apoc.coll.set</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.shuffle/">apoc.coll.shuffle</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.sort/">apoc.coll.sort</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.sortMaps/">apoc.coll.sortMaps</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.sortMulti/">apoc.coll.sortMulti</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.sortNodes/">apoc.coll.sortNodes</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.sortText/">apoc.coll.sortText</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.pairWithOffset/">apoc.coll.pairWithOffset</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.stdev/">apoc.coll.stdev</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.subtract/">apoc.coll.subtract</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.sum/">apoc.coll.sum</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.sumLongs/">apoc.coll.sumLongs</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.toSet/">apoc.coll.toSet</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.union/">apoc.coll.union</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.unionAll/">apoc.coll.unionAll</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.coll/apoc.coll.zip/">apoc.coll.zip</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.convert/">apoc.convert</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.setJsonProperty/">apoc.convert.setJsonProperty</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.toTree/">apoc.convert.toTree</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.fromJsonList/">apoc.convert.fromJsonList</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.fromJsonMap/">apoc.convert.fromJsonMap</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.getJsonProperty/">apoc.convert.getJsonProperty</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.getJsonPropertyMap/">apoc.convert.getJsonPropertyMap</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.toJson/">apoc.convert.toJson</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.toList/">apoc.convert.toList</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.toMap/">apoc.convert.toMap</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.toNode/">apoc.convert.toNode</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.toNodeList/">apoc.convert.toNodeList</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.toRelationship/">apoc.convert.toRelationship</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.toRelationshipList/">apoc.convert.toRelationshipList</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.toSet/">apoc.convert.toSet</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.convert/apoc.convert.toSortedJsonMap/">apoc.convert.toSortedJsonMap</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.create/">apoc.create</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.addLabels/">apoc.create.addLabels</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.clonePathToVirtual/">apoc.create.clonePathToVirtual</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.clonePathsToVirtual/">apoc.create.clonePathsToVirtual</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.node/">apoc.create.node</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.nodes/">apoc.create.nodes</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.relationship/">apoc.create.relationship</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.removeLabels/">apoc.create.removeLabels</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.removeProperties/">apoc.create.removeProperties</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.removeRelProperties/">apoc.create.removeRelProperties</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.setLabels/">apoc.create.setLabels</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.setProperties/">apoc.create.setProperties</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.setProperty/">apoc.create.setProperty</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.setRelProperties/">apoc.create.setRelProperties</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.setRelProperty/">apoc.create.setRelProperty</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.uuids/">apoc.create.uuids</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.vNode/">apoc.create.vNode</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.vNodes/">apoc.create.vNodes</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.vRelationship/">apoc.create.vRelationship</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.virtualPath/">apoc.create.virtualPath</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.uuid/">apoc.create.uuid</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.uuidBase64/">apoc.create.uuidBase64</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.uuidBase64ToHex/">apoc.create.uuidBase64ToHex</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.uuidHexToBase64/">apoc.create.uuidHexToBase64</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.create/apoc.create.virtual.fromNode/">apoc.create.virtual.fromNode</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.cypher/">apoc.cypher</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.cypher/apoc.cypher.doIt/">apoc.cypher.doIt</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.cypher/apoc.cypher.run/">apoc.cypher.run</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.cypher/apoc.cypher.runMany/">apoc.cypher.runMany</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.cypher/apoc.cypher.runManyReadOnly/">apoc.cypher.runManyReadOnly</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.cypher/apoc.cypher.runSchema/">apoc.cypher.runSchema</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.cypher/apoc.cypher.runTimeboxed/">apoc.cypher.runTimeboxed</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.cypher/apoc.cypher.runWrite/">apoc.cypher.runWrite</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.cypher/apoc.cypher.runFirstColumnMany/">apoc.cypher.runFirstColumnMany</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.cypher/apoc.cypher.runFirstColumnSingle/">apoc.cypher.runFirstColumnSingle</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.data/">apoc.data</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.data/apoc.data.url/">apoc.data.url</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.date/">apoc.date</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.date/apoc.date.add/">apoc.date.add</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.date/apoc.date.convert/">apoc.date.convert</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.date/apoc.date.convertFormat/">apoc.date.convertFormat</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.date/apoc.date.currentTimestamp/">apoc.date.currentTimestamp</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.date/apoc.date.field/">apoc.date.field</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.date/apoc.date.fields/">apoc.date.fields</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.date/apoc.date.format/">apoc.date.format</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.date/apoc.date.fromISO8601/">apoc.date.fromISO8601</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.date/apoc.date.parse/">apoc.date.parse</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.date/apoc.date.systemTimezone/">apoc.date.systemTimezone</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.date/apoc.date.toISO8601/">apoc.date.toISO8601</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.date/apoc.date.toYears/">apoc.date.toYears</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.diff/">apoc.diff</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.diff/apoc.diff.nodes/">apoc.diff.nodes</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.do/">apoc.do</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.do/apoc.do.case/">apoc.do.case</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.do/apoc.do.when/">apoc.do.when</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.example/">apoc.example</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.example/apoc.example.movies/">apoc.example.movies</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.export/">apoc.export</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.arrow.all/">apoc.export.arrow.all</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.arrow.graph/">apoc.export.arrow.graph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.arrow.query/">apoc.export.arrow.query</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.arrow.stream.all/">apoc.export.arrow.stream.all</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.arrow.stream.graph/">apoc.export.arrow.stream.graph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.arrow.stream.query/">apoc.export.arrow.stream.query</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.csv.all/">apoc.export.csv.all</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.csv.data/">apoc.export.csv.data</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.csv.graph/">apoc.export.csv.graph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.csv.query/">apoc.export.csv.query</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.cypher.all/">apoc.export.cypher.all</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.cypher.data/">apoc.export.cypher.data</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.cypher.graph/">apoc.export.cypher.graph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.cypher.query/">apoc.export.cypher.query</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.cypher.schema/">apoc.export.cypher.schema</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.graphml.all/">apoc.export.graphml.all</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.graphml.data/">apoc.export.graphml.data</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.graphml.graph/">apoc.export.graphml.graph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.graphml.query/">apoc.export.graphml.query</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.json.all/">apoc.export.json.all</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.json.data/">apoc.export.json.data</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.json.graph/">apoc.export.json.graph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/apoc.export.json.query/">apoc.export.json.query</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.export/compression/">Compression</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.graph/">apoc.graph</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.graph/apoc.graph.from/">apoc.graph.from</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.graph/apoc.graph.fromCypher/">apoc.graph.fromCypher</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.graph/apoc.graph.fromDB/">apoc.graph.fromDB</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.graph/apoc.graph.fromData/">apoc.graph.fromData</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.graph/apoc.graph.fromDocument/">apoc.graph.fromDocument</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.graph/apoc.graph.fromPath/">apoc.graph.fromPath</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.graph/apoc.graph.fromPaths/">apoc.graph.fromPaths</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.graph/apoc.graph.validateDocument/">apoc.graph.validateDocument</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.hashing/">apoc.hashing</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.hashing/apoc.hashing.fingerprint/">apoc.hashing.fingerprint</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.hashing/apoc.hashing.fingerprintGraph/">apoc.hashing.fingerprintGraph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.hashing/apoc.hashing.fingerprinting/">apoc.hashing.fingerprinting</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.import/">apoc.import</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.import/apoc.import.csv/">apoc.import.csv</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.import/apoc.import.graphml/">apoc.import.graphml</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.import/apoc.import.json/">apoc.import.json</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.import/apoc.import.xml/">apoc.import.xml</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.json/">apoc.json</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.json/apoc.json.path/">apoc.json.path</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.label/">apoc.label</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.label/apoc.label.exists/">apoc.label.exists</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.load/">apoc.load</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.load/apoc.load.arrow/">apoc.load.arrow</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.load/apoc.load.arrow.stream/">apoc.load.arrow.stream</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.load/apoc.load.json/">apoc.load.json</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.load/apoc.load.jsonArray/">apoc.load.jsonArray</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.load/apoc.load.jsonParams/">apoc.load.jsonParams</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.load/apoc.load.xml/">apoc.load.xml</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.lock/">apoc.lock</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.lock/apoc.lock.all/">apoc.lock.all</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.lock/apoc.lock.nodes/">apoc.lock.nodes</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.lock/apoc.lock.read.nodes/">apoc.lock.read.nodes</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.lock/apoc.lock.read.rels/">apoc.lock.read.rels</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.lock/apoc.lock.rels/">apoc.lock.rels</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.log/">apoc.log</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.log/apoc.log.stream/">apoc.log.stream</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.map/">apoc.map</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.clean/">apoc.map.clean</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.flatten/">apoc.map.flatten</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.fromLists/">apoc.map.fromLists</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.fromNodes/">apoc.map.fromNodes</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.fromPairs/">apoc.map.fromPairs</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.fromValues/">apoc.map.fromValues</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.get/">apoc.map.get</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.groupBy/">apoc.map.groupBy</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.groupByMulti/">apoc.map.groupByMulti</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.merge/">apoc.map.merge</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.mergeList/">apoc.map.mergeList</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.mget/">apoc.map.mget</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.removeKey/">apoc.map.removeKey</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.removeKeys/">apoc.map.removeKeys</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.setEntry/">apoc.map.setEntry</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.setKey/">apoc.map.setKey</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.setLists/">apoc.map.setLists</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.setPairs/">apoc.map.setPairs</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.setValues/">apoc.map.setValues</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.sortedProperties/">apoc.map.sortedProperties</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.submap/">apoc.map.submap</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.unflatten/">apoc.map.unflatten</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.updateTree/">apoc.map.updateTree</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.map/apoc.map.values/">apoc.map.values</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.math/">apoc.math</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.regr/">apoc.math.regr</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.cosh/">apoc.math.cosh</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.coth/">apoc.math.coth</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.csch/">apoc.math.csch</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.maxByte/">apoc.math.maxByte</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.maxDouble/">apoc.math.maxDouble</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.maxInt/">apoc.math.maxInt</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.maxLong/">apoc.math.maxLong</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.minByte/">apoc.math.minByte</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.minDouble/">apoc.math.minDouble</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.minInt/">apoc.math.minInt</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.minLong/">apoc.math.minLong</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.sech/">apoc.math.sech</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.sigmoid/">apoc.math.sigmoid</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.sigmoidPrime/">apoc.math.sigmoidPrime</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.sinh/">apoc.math.sinh</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.math/apoc.math.tanh/">apoc.math.tanh</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.merge/">apoc.merge</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.merge/apoc.merge.node/">apoc.merge.node</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.merge/apoc.merge.node.eager/">apoc.merge.node.eager</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.merge/apoc.merge.nodeWithStats/">apoc.merge.nodeWithStats</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.merge/apoc.merge.nodeWithStats.eager/">apoc.merge.nodeWithStats.eager</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.merge/apoc.merge.relationship/">apoc.merge.relationship</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.merge/apoc.merge.relationship.eager/">apoc.merge.relationship.eager</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.merge/apoc.merge.relationshipWithStats/">apoc.merge.relationshipWithStats</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.merge/apoc.merge.relationshipWithStats.eager/">apoc.merge.relationshipWithStats.eager</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.meta/">apoc.meta</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.meta/apoc.meta.data/">apoc.meta.data</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.meta/apoc.meta.data.of/">apoc.meta.data.of</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.meta/apoc.meta.graph/">apoc.meta.graph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.meta/apoc.meta.graph.of/">apoc.meta.graph.of</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.meta/apoc.meta.graphSample/">apoc.meta.graphSample</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.meta/apoc.meta.nodeTypeProperties/">apoc.meta.nodeTypeProperties</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.meta/apoc.meta.relTypeProperties/">apoc.meta.relTypeProperties</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.meta/apoc.meta.schema/">apoc.meta.schema</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.meta/apoc.meta.stats/">apoc.meta.stats</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.meta/apoc.meta.subGraph/">apoc.meta.subGraph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.meta/apoc.meta.cypher.isType/">apoc.meta.cypher.isType</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.meta/apoc.meta.cypher.type/">apoc.meta.cypher.type</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.meta/apoc.meta.cypher.types/">apoc.meta.cypher.types</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.meta/apoc.meta.nodes.count/">apoc.meta.nodes.count</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.neighbors/">apoc.neighbors</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.neighbors/apoc.neighbors.athop/">apoc.neighbors.athop</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.neighbors/apoc.neighbors.athop.count/">apoc.neighbors.athop.count</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.neighbors/apoc.neighbors.byhop/">apoc.neighbors.byhop</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.neighbors/apoc.neighbors.byhop.count/">apoc.neighbors.byhop.count</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.neighbors/apoc.neighbors.tohop/">apoc.neighbors.tohop</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.neighbors/apoc.neighbors.tohop.count/">apoc.neighbors.tohop.count</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.node/">apoc.node</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.node/apoc.node.degree/">apoc.node.degree</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.node/apoc.node.degree.in/">apoc.node.degree.in</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.node/apoc.node.degree.out/">apoc.node.degree.out</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.node/apoc.node.id/">apoc.node.id</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.node/apoc.node.labels/">apoc.node.labels</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.node/apoc.node.relationship.exists/">apoc.node.relationship.exists</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.node/apoc.node.relationship.types/">apoc.node.relationship.types</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.node/apoc.node.relationships.exist/">apoc.node.relationships.exist</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.nodes/">apoc.nodes</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.nodes/apoc.nodes.collapse/">apoc.nodes.collapse</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.nodes/apoc.nodes.cycles/">apoc.nodes.cycles</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.nodes/apoc.nodes.delete/">apoc.nodes.delete</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.nodes/apoc.nodes.get/">apoc.nodes.get</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.nodes/apoc.nodes.group/">apoc.nodes.group</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.nodes/apoc.nodes.link/">apoc.nodes.link</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.nodes/apoc.nodes.rels/">apoc.nodes.rels</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.nodes/apoc.nodes.connected/">apoc.nodes.connected</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.nodes/apoc.nodes.isDense/">apoc.nodes.isDense</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.nodes/apoc.nodes.relationship.types/">apoc.nodes.relationship.types</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.nodes/apoc.nodes.relationships.exist/">apoc.nodes.relationships.exist</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.number/">apoc.number</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.number/apoc.number.arabicToRoman/">apoc.number.arabicToRoman</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.number/apoc.number.exact.add/">apoc.number.exact.add</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.number/apoc.number.exact.div/">apoc.number.exact.div</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.number/apoc.number.exact.mul/">apoc.number.exact.mul</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.number/apoc.number.exact.sub/">apoc.number.exact.sub</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.number/apoc.number.exact.toExact/">apoc.number.exact.toExact</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.number/apoc.number.exact.toFloat/">apoc.number.exact.toFloat</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.number/apoc.number.exact.toInteger/">apoc.number.exact.toInteger</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.number/apoc.number.format/">apoc.number.format</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.number/apoc.number.parseFloat/">apoc.number.parseFloat</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.number/apoc.number.parseInt/">apoc.number.parseInt</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.number/apoc.number.romanToArabic/">apoc.number.romanToArabic</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.path/">apoc.path</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.path/apoc.path.expand/">apoc.path.expand</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.path/apoc.path.expandConfig/">apoc.path.expandConfig</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.path/apoc.path.spanningTree/">apoc.path.spanningTree</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.path/apoc.path.subgraphAll/">apoc.path.subgraphAll</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.path/apoc.path.subgraphNodes/">apoc.path.subgraphNodes</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.path/apoc.path.combine/">apoc.path.combine</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.path/apoc.path.create/">apoc.path.create</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.path/apoc.path.elements/">apoc.path.elements</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.path/apoc.path.slice/">apoc.path.slice</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.paths/">apoc.paths</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.paths/apoc.paths.toJsonTree/">apoc.paths.toJsonTree</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.periodic/">apoc.periodic</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.periodic/apoc.periodic.cancel/">apoc.periodic.cancel</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.periodic/apoc.periodic.commit/">apoc.periodic.commit</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.periodic/apoc.periodic.countdown/">apoc.periodic.countdown</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.periodic/apoc.periodic.iterate/">apoc.periodic.iterate</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.periodic/apoc.periodic.list/">apoc.periodic.list</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.periodic/apoc.periodic.repeat/">apoc.periodic.repeat</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.periodic/apoc.periodic.submit/">apoc.periodic.submit</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.periodic/apoc.periodic.truncate/">apoc.periodic.truncate</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.refactor/">apoc.refactor</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.categorize/">apoc.refactor.categorize</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.cloneNodes/">apoc.refactor.cloneNodes</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.cloneSubgraph/">apoc.refactor.cloneSubgraph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.cloneSubgraphFromPaths/">apoc.refactor.cloneSubgraphFromPaths</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.collapseNode/">apoc.refactor.collapseNode</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.deleteAndReconnect/">apoc.refactor.deleteAndReconnect</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.extractNode/">apoc.refactor.extractNode</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.from/">apoc.refactor.from</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.invert/">apoc.refactor.invert</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.mergeNodes/">apoc.refactor.mergeNodes</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.mergeRelationships/">apoc.refactor.mergeRelationships</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.normalizeAsBoolean/">apoc.refactor.normalizeAsBoolean</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.rename.label/">apoc.refactor.rename.label</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.rename.nodeProperty/">apoc.refactor.rename.nodeProperty</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.rename.type/">apoc.refactor.rename.type</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.rename.typeProperty/">apoc.refactor.rename.typeProperty</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.setType/">apoc.refactor.setType</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.refactor/apoc.refactor.to/">apoc.refactor.to</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.rel/">apoc.rel</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.rel/apoc.rel.endNode/">apoc.rel.endNode</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.rel/apoc.rel.id/">apoc.rel.id</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.rel/apoc.rel.startNode/">apoc.rel.startNode</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.rel/apoc.rel.type/">apoc.rel.type</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.schema/">apoc.schema</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.schema/apoc.schema.assert/">apoc.schema.assert</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.schema/apoc.schema.nodes/">apoc.schema.nodes</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.schema/apoc.schema.properties.distinct/">apoc.schema.properties.distinct</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.schema/apoc.schema.properties.distinctCount/">apoc.schema.properties.distinctCount</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.schema/apoc.schema.relationships/">apoc.schema.relationships</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.schema/apoc.schema.node.constraintExists/">apoc.schema.node.constraintExists</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.schema/apoc.schema.node.indexExists/">apoc.schema.node.indexExists</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.schema/apoc.schema.relationship.constraintExists/">apoc.schema.relationship.constraintExists</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.schema/apoc.schema.relationship.indexExists/">apoc.schema.relationship.indexExists</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.scoring/">apoc.scoring</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.scoring/apoc.scoring.existence/">apoc.scoring.existence</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.scoring/apoc.scoring.pareto/">apoc.scoring.pareto</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.search/">apoc.search</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.search/apoc.search.multiSearchReduced/">apoc.search.multiSearchReduced</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.search/apoc.search.node/">apoc.search.node</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.search/apoc.search.nodeAll/">apoc.search.nodeAll</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.search/apoc.search.nodeAllReduced/">apoc.search.nodeAllReduced</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.search/apoc.search.nodeReduced/">apoc.search.nodeReduced</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.spatial/">apoc.spatial</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.spatial/apoc.spatial.geocode/">apoc.spatial.geocode</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.spatial/apoc.spatial.geocodeOnce/">apoc.spatial.geocodeOnce</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.spatial/apoc.spatial.reverseGeocode/">apoc.spatial.reverseGeocode</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.spatial/apoc.spatial.sortByDistance/">apoc.spatial.sortByDistance</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.stats/">apoc.stats</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.stats/apoc.stats.degrees/">apoc.stats.degrees</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.temporal/">apoc.temporal</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.temporal/apoc.temporal.format/">apoc.temporal.format</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.temporal/apoc.temporal.formatDuration/">apoc.temporal.formatDuration</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.temporal/apoc.temporal.toZonedTemporal/">apoc.temporal.toZonedTemporal</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.text/">apoc.text</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.phoneticDelta/">apoc.text.phoneticDelta</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.base64Decode/">apoc.text.base64Decode</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.base64Encode/">apoc.text.base64Encode</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.base64UrlDecode/">apoc.text.base64UrlDecode</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.base64UrlEncode/">apoc.text.base64UrlEncode</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.byteCount/">apoc.text.byteCount</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.bytes/">apoc.text.bytes</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.camelCase/">apoc.text.camelCase</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.capitalize/">apoc.text.capitalize</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.capitalizeAll/">apoc.text.capitalizeAll</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.charAt/">apoc.text.charAt</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.clean/">apoc.text.clean</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.code/">apoc.text.code</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.compareCleaned/">apoc.text.compareCleaned</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.decapitalize/">apoc.text.decapitalize</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.decapitalizeAll/">apoc.text.decapitalizeAll</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.distance/">apoc.text.distance</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.doubleMetaphone/">apoc.text.doubleMetaphone</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.format/">apoc.text.format</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.fuzzyMatch/">apoc.text.fuzzyMatch</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.hammingDistance/">apoc.text.hammingDistance</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.hexCharAt/">apoc.text.hexCharAt</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.hexValue/">apoc.text.hexValue</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.indexOf/">apoc.text.indexOf</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.indexesOf/">apoc.text.indexesOf</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.jaroWinklerDistance/">apoc.text.jaroWinklerDistance</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.join/">apoc.text.join</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.levenshteinDistance/">apoc.text.levenshteinDistance</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.levenshteinSimilarity/">apoc.text.levenshteinSimilarity</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.lpad/">apoc.text.lpad</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.phonetic/">apoc.text.phonetic</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.random/">apoc.text.random</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.regexGroups/">apoc.text.regexGroups</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.regexGroupsByName/">apoc.text.regexGroupsByName</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.regreplace/">apoc.text.regreplace</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.repeat/">apoc.text.repeat</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.replace/">apoc.text.replace</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.rpad/">apoc.text.rpad</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.slug/">apoc.text.slug</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.snakeCase/">apoc.text.snakeCase</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.sorensenDiceSimilarity/">apoc.text.sorensenDiceSimilarity</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.split/">apoc.text.split</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.swapCase/">apoc.text.swapCase</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.toCypher/">apoc.text.toCypher</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.toUpperCase/">apoc.text.toUpperCase</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.upperCamelCase/">apoc.text.upperCamelCase</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.urldecode/">apoc.text.urldecode</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.text/apoc.text.urlencode/">apoc.text.urlencode</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.trigger/">apoc.trigger</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.trigger/apoc.trigger.add/">apoc.trigger.add</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.trigger/apoc.trigger.drop/">apoc.trigger.drop</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.trigger/apoc.trigger.dropAll/">apoc.trigger.dropAll</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.trigger/apoc.trigger.install/">apoc.trigger.install</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.trigger/apoc.trigger.list/">apoc.trigger.list</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.trigger/apoc.trigger.pause/">apoc.trigger.pause</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.trigger/apoc.trigger.remove/">apoc.trigger.remove</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.trigger/apoc.trigger.removeAll/">apoc.trigger.removeAll</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.trigger/apoc.trigger.resume/">apoc.trigger.resume</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.trigger/apoc.trigger.show/">apoc.trigger.show</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.trigger/apoc.trigger.start/">apoc.trigger.start</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.trigger/apoc.trigger.stop/">apoc.trigger.stop</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.util/">apoc.util</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.util/apoc.util.sleep/">apoc.util.sleep</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.util/apoc.util.validate/">apoc.util.validate</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.util/apoc.util.compress/">apoc.util.compress</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.util/apoc.util.decompress/">apoc.util.decompress</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.util/apoc.util.md5/">apoc.util.md5</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.util/apoc.util.sha1/">apoc.util.sha1</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.util/apoc.util.sha256/">apoc.util.sha256</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.util/apoc.util.sha384/">apoc.util.sha384</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.util/apoc.util.sha512/">apoc.util.sha512</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.util/apoc.util.validatePredicate/">apoc.util.validatePredicate</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.xml/">apoc.xml</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.xml/apoc.xml.parse/">apoc.xml.parse</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link nav-item-toggle" href="overview/apoc.warmup/">apoc.warmup</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="3">
+      <a class="nav-link" href="overview/apoc.warmup/apoc.warmup.run/">apoc.warmup.run</a>
+            </li>
+</ul>
+    </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link nav-item-toggle" href="import/">Import</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="import/web-apis/">Load Data from Web-APIs</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="import/load-json/">Load JSON</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="import/import-csv/">Import CSV</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="import/load-xml/">Load XML</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="import/import-graphml/">Import GraphML</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link nav-item-toggle" href="export/">Export</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="export/web-apis/">Export data to S3</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="export/csv/">Export to CSV</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="export/json/">Export to JSON</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="export/cypher/">Export to Cypher Script</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="export/graphml/">Export to GraphML</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link nav-item-toggle" href="graph-refactoring/">Graph Refactoring</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-refactoring/categorize/">Categorize</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-refactoring/clone-nodes/">Clone nodes</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-refactoring/clone-subgraph/">Clone subgraph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-refactoring/collapse-node-to-relationship/">Collapse nodes to relationships</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-refactoring/extract-node-from-relationship/">Extract node from relationships</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-refactoring/invert-relationship/">Invert relationships</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-refactoring/merge-nodes/">Merge nodes</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-refactoring/normalize-boolean/">Normalize as boolean</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-refactoring/property-value-label/">Property value to a label</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-refactoring/redirect-relationship/">Redirect relationships</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-refactoring/rename-label-type-property/">Rename labels, types, and properties</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-refactoring/set-relationship-type/">Set relationship types</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link nav-item-toggle" href="graph-updates/">Graph updates</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-updates/data-creation/">Creating data</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-updates/periodic-execution/">Periodic execution</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-updates/atomic-updates/">Atomic property updates</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-updates/locks/">Locks</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-updates/data-deletion/">Deleting data</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link nav-item-toggle" href="data-structures/">Data Structures</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="data-structures/text-functions/">Text Functions</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="data-structures/spatial/">Spatial Procedures</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link nav-item-toggle" href="temporal/">Temporal (Date Time)</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="temporal/temporal-conversions/">Temporal Functions</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="temporal/datetime-conversions/">Date and Time Conversions</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link nav-item-toggle" href="mathematical/">Mathematical Operations</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="mathematical/bitwise-operations/">Bitwise Operations</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="mathematical/exact-math-functions/">Exact Math</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="mathematical/math-functions/">Mathematical Functions</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="mathematical/number-conversions/">Number Format Conversions</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="mathematical/sigmoid-hyperbolic-operations/">Sigmoid &amp; Hyperbolic Operations</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link nav-item-toggle" href="graph-querying/">Advanced Graph Querying</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-querying/path-expander/">Path Expander Overview</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-querying/expand-paths/">Expand paths</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-querying/expand-paths-config/">Expand paths with config</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-querying/expand-subgraph-nodes/">Expand to nodes in a subgraph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-querying/expand-subgraph/">Expand to subgraph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-querying/expand-spanning-tree/">Expand a spanning tree</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-querying/neighborhood/">Neighbor Functions</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-querying/path-querying/">Path Manipulation</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-querying/relationship-querying/">Relationship Querying</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-querying/node-querying/">Node Querying</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="graph-querying/parallel-node-search/">Parallel Node Search</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link nav-item-toggle" href="comparing-graphs/">Comparing Graphs</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="comparing-graphs/node-difference/">Diff</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="comparing-graphs/fingerprinting/">Fingerprinting</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link" href="conditionals/">Conditional Cypher Execution</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link nav-item-toggle" href="cypher-execution/">Cypher Execution</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="cypher-execution/running-cypher/">Running Cypher fragments</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="cypher-execution/cypher-multiple-statements/">Run multiple statements</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link nav-item-toggle" href="virtual/">Virtual Nodes &amp; Relationships (Graph Projections)</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="virtual/virtual-nodes-rels/">Virtual Nodes/Rels</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="virtual/nodes-collapse/">Collapse Nodes</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="virtual/virtual-graph/">Virtual Graph</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="virtual/graph-grouping/">Graph Grouping</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link nav-item-toggle" href="background-operations/">Background Operations</a>
+        <ul class="nav-list">
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="background-operations/periodic-background/">Background Jobs</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="2">
+      <a class="nav-link" href="background-operations/triggers/">Triggers</a>
+            </li>
+</ul>
+    </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link" href="operational/">Cypher initializer</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link" href="schema/">Schema Information</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link" href="transaction/">List of procedures with its own transaction</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link" href="deprecations-and-additions/">Additions, deprecations, removals, and compatibility</a>
+            </li>
+    <li class="nav-item" data-module="ROOT" data-depth="1">
+      <a class="nav-link" href="migration-guide/">Migration Guide</a>
+            </li>
+</ul>
+    </li>
+</ul>
+
+  </nav>
+</div>
+        <div class="feedback" style="height: var(--feedback-height);">
+    <div class="header question">
+        <p><strong>Is this page helpful?</strong></p>
+
+        <svg width="22px" height="22px" viewBox="0 0 22 22" role="button" class="no" aria-label="No, this page isn't helpful">
+            <path                 d="M6.25,15.8333333 C6.25,13.7622655 7.92893219,12.0833333 10,12.0833333 C12.0710678,12.0833333 13.75,13.7622655 13.75,15.8333333"
+                ></path>
+            <circle  cx="10" cy="10" r="9.58333333"></circle>
+            <path                 d="M12.5,4.58333333 C12.8934466,4.05873783 13.5109223,3.75 14.1666667,3.75 C14.822411,3.75 15.4398867,4.05873783 15.8333333,4.58333333"
+                ></path>
+            <line x1="4.58333333" y1="7.91666667" x2="7.08333333" y2="7.91666667" ></line>
+            <path                 d="M7.08333333,8.54166667 C6.96827401,8.54166667 6.875,8.44839266 6.875,8.33333333 C6.875,8.21827401 6.96827401,8.125 7.08333333,8.125 C7.19839266,8.125 7.29166667,8.21827401 7.29166667,8.33333333 C7.29166667,8.44839266 7.19839266,8.54166667 7.08333333,8.54166667"
+                ></path>
+            <line x1="12.9166667" y1="7.91666667" x2="15.4166667" y2="7.91666667" ></line>
+            <path                 d="M15.4166667,8.54166667 C15.3016073,8.54166667 15.2083333,8.44839266 15.2083333,8.33333333 C15.2083333,8.21827401 15.3016073,8.125 15.4166667,8.125 C15.531726,8.125 15.625,8.21827401 15.625,8.33333333 C15.625,8.44839266 15.531726,8.54166667 15.4166667,8.54166667"
+                ></path>
+            <path                 d="M4.16666667,4.58333333 C4.5601133,4.05873783 5.17758895,3.75 5.83333333,3.75 C6.48907772,3.75 7.10655337,4.05873783 7.5,4.58333333"
+                ></path>
+        </svg>
+
+        <svg width="22px" height="22px" viewBox="0 0 22 22" role="button" class="yes" aria-label="Yes, this page is helpful">
+            <circle  cx="10" cy="10" r="9.58333333"></circle>
+            <path                 d="M5.41666667,8.125 C5.53172599,8.125 5.625,8.21827401 5.625,8.33333333 C5.625,8.44839266 5.53172599,8.54166667 5.41666667,8.54166667 C5.30160734,8.54166667 5.20833333,8.44839266 5.20833333,8.33333333 C5.20833333,8.21827401 5.30160734,8.125 5.41666667,8.125"
+                ></path>
+            <path                 d="M14.5833333,8.125 C14.468274,8.125 14.375,8.21827401 14.375,8.33333333 C14.375,8.44839266 14.468274,8.54166667 14.5833333,8.54166667 C14.6983927,8.54166667 14.7916667,8.44839266 14.7916667,8.33333333 C14.7916667,8.21827401 14.6983927,8.125 14.5833333,8.125"
+                ></path>
+            <path                 d="M13.2275,12.9166657 C13.4853075,12.9162808 13.7287776,13.035241 13.8869095,13.2388563 C14.0450415,13.4424715 14.1000278,13.7078123 14.0358333,13.9575 C13.562901,15.7999679 11.9021969,17.0882321 10,17.0882321 C8.09780311,17.0882321 6.43709903,15.7999679 5.96416667,13.9575 C5.89997223,13.7078123 5.95495852,13.4424715 6.11309045,13.2388563 C6.27122239,13.035241 6.51469246,12.9162808 6.7725,12.9166657 L13.2275,12.9166657 Z"
+                ></path>
+        </svg>
+    </div>
+
+
+</div>
+    </div>
+  </aside>
+</div>
+<main class="article">
+<div class="toolbar is-home" role="navigation">
+  <div class="toolbar-wrapper">
+    <button class="nav-toggle" aria-label="Toggle Table of Contents"></button>
+    
+    
+
+    
+    <a href="https://neo4j.com/docs" class="home-link" aria-label="Go to docs home page"></a>
+    
+
+
+    <nav class="breadcrumbs" aria-label="breadcrumbs menu">
+  <ul>
+
+    <li><a href="./">APOC Core Documentation</a></li>
+
+    <li><a href="./">
+        Overview
+    </a></li>
+  </ul>
+</nav>
+      </div>
+</div>
+
+  
+  <div class="content">
+    <div id="skip-to-content"></div>
+<article class="doc">
+<div class="sect-header">
+  <h1 class="page">APOC Core 2026.03 Documentation</h1>
+</div>
+
+
+
+
+
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+<div class="paragraph">
+<p>This manual covers the documentation for APOC Core.
+For APOC Extended, go to the <a href="https://neo4j.com/labs/apoc/5/overview">APOC Extended manual</a>.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>The guide covers the following areas:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="introduction/" class="xref page">Introduction</a>&#8201;&#8212;&#8201;An Introduction to the APOC library.</p>
+</li>
+<li>
+<p><a href="installation/" class="xref page">Installation</a>&#8201;&#8212;&#8201;Installation instructions for the library.</p>
+</li>
+<li>
+<p><a href="cypher-versions/" class="xref page">APOC and Cypher versions</a>&#8201;&#8212;&#8201;APOC and different Cypher versions.</p>
+</li>
+<li>
+<p><a href="help/" class="xref page">Built-in Help</a>&#8201;&#8212;&#8201;Built-in help in the library.</p>
+</li>
+<li>
+<p><a href="config/" class="xref page">Configuration Options</a>&#8201;&#8212;&#8201;Configuration options used by the library.</p>
+</li>
+<li>
+<p><a href="security-guidelines/" class="xref page">Security Guidelines</a>&#8201;&#8212;&#8201;Guidelines on securing the APOC library, and its environment.</p>
+</li>
+<li>
+<p><a href="overview/" class="xref page">Procedures &amp; Functions</a>&#8201;&#8212;&#8201;A list of all APOC procedures and functions.</p>
+</li>
+<li>
+<p><a href="import/" class="xref page">Import</a>&#8201;&#8212;&#8201;A detailed guide to procedures that can be used to import data from different formats including JSON, CSV, and XLS.</p>
+</li>
+<li>
+<p><a href="export/" class="xref page">Export</a>&#8201;&#8212;&#8201;A detailed guide to procedures that can be used to export data to different formats including JSON, CSV, GraphML, and Gephi.</p>
+</li>
+<li>
+<p><a href="graph-refactoring/" class="xref page">Graph Refactoring</a>&#8201;&#8212;&#8201;A detailed guide to procedures that can be used to refactor graphs.</p>
+</li>
+<li>
+<p><a href="graph-updates/" class="xref page">Graph updates</a>&#8201;&#8212;&#8201;A detailed guide to procedures that can be used to apply graph updates.</p>
+</li>
+<li>
+<p><a href="data-structures/" class="xref page">Data Structures</a>&#8201;&#8212;&#8201;A detailed guide to procedures and functions, that can be used to work with data structures.</p>
+</li>
+<li>
+<p><a href="temporal/" class="xref page">Temporal (Date Time)</a>&#8201;&#8212;&#8201;A detailed guide to procedures that can be used to format temporal types.</p>
+</li>
+<li>
+<p><a href="mathematical/" class="xref page">Mathematical Operations</a>&#8201;&#8212;&#8201;A detailed guide to procedures and functions that can be used for mathematical operations.</p>
+</li>
+<li>
+<p><a href="graph-querying/" class="xref page">Advanced Graph Querying</a>&#8201;&#8212;&#8201;A detailed guide to procedures that can be used for advanced graph querying.</p>
+</li>
+<li>
+<p><a href="comparing-graphs/" class="xref page">Comparing Graphs</a>&#8201;&#8212;&#8201;A detailed guide to procedures that can be used to compare graphs.</p>
+</li>
+<li>
+<p><a href="conditionals/" class="xref page">Conditional Cypher Execution</a>&#8201;&#8212;&#8201;A detailed guide to procedures that can be used for to execute Cypher conditionally.</p>
+</li>
+<li>
+<p><a href="cypher-execution/" class="xref page">Cypher Execution</a>&#8201;&#8212;&#8201;A detailed guide to procedures that can be used for Cypher scripting.</p>
+</li>
+<li>
+<p><a href="virtual/" class="xref page">Virtual Nodes &amp; Relationships (Graph Projections)</a>&#8201;&#8212;&#8201;A detailed guide to procedures that can be used to create virtual nodes and relationships.</p>
+</li>
+<li>
+<p><a href="background-operations/" class="xref page">Background Operations</a>&#8201;&#8212;&#8201;A detailed guide to procedures that can be used for background job management.</p>
+</li>
+<li>
+<p><a href="operational/" class="xref page">Cypher initializer</a>&#8201;&#8212;&#8201;A detailed guide to operational procedures.</p>
+</li>
+<li>
+<p><a href="schema/" class="xref page">Schema Information</a>&#8201;&#8212;&#8201;A detailed guide to indexing procedures.</p>
+</li>
+</ul>
+</div>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.13/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#table-all').DataTable();
+} );
+</script>
+<nav class="pagination" aria-label="pagination links">
+
+  <span class="next"><a href="introduction/" aria-label="Next: Introduction">Introduction</a></span>
+</nav>
+</article>
+    <aside class="toc sidebar" data-title="Contents"
+  data-levels="2">
+  <div class="toc-menu">
+    <div class="toc-menu-placeholder"></div>
+
+      </div>
+  </aside>  </div>
+  
+</main>
+</div>
+<footer class="footer">
+  <div class="wrapper">
+
+  <div class="column logo">
+    <div class="logo-footer"></div>
+  </div>
+  
+  <div class="column links">
+    <h2>Learn</h2>
+    <ul>
+      <li><i class="fa fa-wrench" aria-hidden="true"></i> <a rel="noopener" href="https://neo4j.com/sandbox/?ref=developer-footer">Sandbox</a></li>
+      <li><i class="fa fa-comments-o" aria-hidden="true"></i> <a rel="noopener" href="https://community.neo4j.com?ref=developer-footer" target="_blank">Neo4j Community Site</a></li>
+      <li><i class="fa fa-book" aria-hidden="true"></i> <a rel="noopener" href="https://medium.com/neo4j" target="_blank">Neo4j Developer Blog</a></li>
+      <li><i class="fa fa-youtube" aria-hidden="true"></i> <a rel="noopener" href="https://www.youtube.com/neo4j" target="_blank">Neo4j Videos</a></li>
+      <li><i class="fa fa-graduation-cap" aria-hidden="true"></i> <a rel="noopener" href="https://neo4j.com/graphacademy/?ref=developer-footer">GraphAcademy</a></li>
+      <li><i class="fa fa-flask" aria-hidden="true"></i> <a href="https://neo4j.com/labs/?ref=developer-footer">Neo4j Labs</a></li>
+    </ul>
+  </div>
+  <div class="column links">
+    <h2>Social</h2>
+    <ul>
+      <li><i class="fa fa-twitter" aria-hidden="true"></i> <a rel="noopener" href="https://twitter.com/neo4j" target="_blank">Twitter</a></li>
+      <li><i class="fa fa-meetup" aria-hidden="true"></i> <a rel="noopener" href="https://www.meetup.com/Neo4j-Online-Meetup/" target="_blank">Meetups</a></li>
+      <li><i class="fa fa-github" aria-hidden="true"></i> <a rel="noopener" href="https://github.com/neo4j/neo4j" target="_blank">Github</a></li>
+      <li><i class="fa fa-stack-overflow" aria-hidden="true"></i> <a rel="noopener" href="https://stackoverflow.com/questions/tagged/neo4j" target="_blank">Stack Overflow</a></li>
+
+      <li class="speaker-program"><a href="https://docs.google.com/forms/d/e/1FAIpQLSdEcNnMruES5iwvOVYovmS1D_P1ZL_HdUOitFrwrvruv5PZvA/viewform">Want to Speak?</a></li>
+    </ul>
+  </div>
+  <div class="column links">
+    <h2><a href="https://neo4j.com/contact-us/?ref=footer">Contact Us →</a></h2>
+    <ul>
+      <li>US: 1-855-636-4532</li>
+      <li>Sweden +46 171 480 113</li>
+      <li>UK: +44 20 3868 3223</li>
+      <li>France: +33 (0) 1 88 46 13 20</li>
+    </ul>
+  </div>
+
+    <div class="column">
+    <p>© <span id="footer-copyright-year">2026</span> Neo4j, Inc.<br>
+      <a href="https://neo4j.com/terms/">Terms</a> | <a href="https://neo4j.com/privacy-policy/">Privacy </a> | <a href="https://neo4j.com/sitemap/">Sitemap</a></p>
+    <p>Neo4j<sup>®</sup>, Neo Technology<sup>®</sup>, Cypher<sup>®</sup>, Neo4j<sup>®</sup> Bloom<sup>™</sup> and
+      Neo4j<sup>®</sup> Aura<sup>™</sup> are registered trademarks
+      of Neo4j, Inc. All other marks are owned by their respective companies.</p>
+  </div>
+
+  
+</div>
+</footer>
+
+  <script src="../../assets/js/vendor/auth0.js"></script>
+  <script src="../../assets/js/site.js"></script>
+  <script async src="../../assets/js/vendor/highlight.js"></script>
+  <script async src="../../assets/js/vendor/image-zoom.js"></script>
+
+
+<div id="docs_chatbot"></div>
+<script type="module" crossorigin src="https://neo4j.com/docs/assets/chatbot/index.js"></script>
+
+<div id="neo4j-algolia-search-v2"></div>
+<script src="https://neo4j.com/wp-content/themes/neo4jweb/assets/neo4j-react-modules-assets/search-preact/chunkless/bundle.js"></script>
+<script src="https://neo4j.com/wp-content/themes/neo4jweb/assets/neo4j-react-modules-assets/search-preact/chunkless/polyfill.js"></script>
+<script>window.algoliaSearchOptions = {indexName: "docs",placeholder: "Search Documentation",template: "docs"}</script>
+  </body>
+</html>

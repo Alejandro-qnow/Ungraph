@@ -59,6 +59,7 @@ from ungraph.domain.entities.relation import Relation
 from ungraph.domain.services.document_context_service import DocumentContextService
 from ungraph.domain.services.domain_question_service import DomainQuestionService
 from ungraph.domain.services.inference_service import InferenceService
+from ungraph.domain.value_objects.entity_quality import filter_low_value_entities
 from ungraph.domain.value_objects.ontology_profile import OntologyProfile
 
 
@@ -276,6 +277,7 @@ class LLMInferenceService(InferenceService):
         context_addon_max_chars: int = 6000,
         ontology_profile: Optional[OntologyProfile] = None,
         spacy_lexical_service: Any = None,
+        filter_low_value_entities: bool = True,
     ) -> None:
         """
         Initialize LLMInferenceService with LLM and schema configuration.
@@ -313,6 +315,7 @@ class LLMInferenceService(InferenceService):
         self.allowed_relationships = allowed_relationships or []
 
         self._ontology_profile = ontology_profile
+        self._filter_low_value = bool(filter_low_value_entities)
 
         from ungraph.infrastructure.agents.inference_state_graph import (
             build_llm_extraction_graph,
@@ -405,6 +408,8 @@ class LLMInferenceService(InferenceService):
             nodes=graph_document.nodes,
             chunk_id=chunk.id,
         )
+        if self._filter_low_value:
+            entities = filter_low_value_entities(entities)
         self._enrich_entities_ontology(entities)
         return entities
     
@@ -482,6 +487,8 @@ class LLMInferenceService(InferenceService):
             nodes=graph_document.nodes,
             chunk_id=chunk.id,
         )
+        if self._filter_low_value:
+            built = filter_low_value_entities(built)
         self._enrich_entities_ontology(built)
 
         return self.adapter.entities_to_facts(

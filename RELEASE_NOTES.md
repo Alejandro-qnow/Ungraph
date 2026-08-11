@@ -61,7 +61,7 @@ facts = service.infer_facts(chunk)
 
 **Supported Modes:**
 - `inference_mode="ner"`: SpaCy NER-based (default, stable)
-- `inference_mode="llm"`: LLM-based with Ollama (experimental)
+- `inference_mode="llm"`: LLM-based with OpenAI (experimental; factory in `create_inference_service`)
 - `inference_mode="hybrid"`: Planned for v0.2.0
 
 **Default Schema (LLM mode):**
@@ -71,7 +71,7 @@ facts = service.infer_facts(chunk)
 **Limitations:**
 - Basic extraction only (no dynamic examples, confidence scoring, or evaluation)
 - Higher latency than NER (~2-5s per chunk)
-- Requires Ollama or compatible LLM endpoint
+- Requires an OpenAI API key (`UNGRAPH_OPENAI_*` or `OPENAI_*` env); local LLM (e.g. Ollama) is not wired in the default factory today
 - Not recommended for production without evaluation
 
 **Roadmap:**

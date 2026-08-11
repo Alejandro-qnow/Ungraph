@@ -260,6 +260,7 @@ def create_inference_service(
     
     Creates appropriate inference service based on configuration:
     - inference_mode="ner": SpacyInferenceService (NER-based, default)
+    - inference_mode="pattern": LexicalPatternInferenceService (symbolic / lexical)
     - inference_mode="llm": LLMInferenceService (LLM-based, experimental)
     - inference_mode="hybrid": NotImplementedError (planned for v0.2.0)
     
@@ -316,6 +317,13 @@ def create_inference_service(
             )
             return None
     
+    elif inference_mode == "pattern":
+        from ungraph.infrastructure.services.lexical_pattern_inference_service import (
+            LexicalPatternInferenceService,
+        )
+
+        return LexicalPatternInferenceService()
+
     # LLM mode (new, experimental)
     elif inference_mode == "llm":
         try:
@@ -367,7 +375,7 @@ def create_inference_service(
     else:
         raise ValueError(
             f"Invalid inference_mode: '{inference_mode}'. "
-            "Valid options: 'ner', 'llm', 'hybrid'"
+            "Valid options: 'ner', 'pattern', 'llm', 'hybrid'"
         )
 
 

@@ -1,0 +1,23 @@
+name: Documentación
+description: Mejoras o correcciones en docs (usuario o desarrollador)
+title: "[docs] "
+labels: ["docs", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Rama: `docs/<nombre>`. Commits: `docs(scope): …`
+  - type: textarea
+    id: summary
+    attributes:
+      label: Qué hay que documentar o corregir
+    validations:
+      required: true
+  - type: dropdown
+    id: audience
+    attributes:
+      label: Audiencia principal
+      options:
+        - Usuarios de la librería
+        - Contribuidores / desarrollo
+        - Ambos

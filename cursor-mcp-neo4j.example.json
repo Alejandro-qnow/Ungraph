@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "neo4j-ungraph": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "run",
+        "--project",
+        "${workspaceFolder}",
+        "--extra",
+        "mcp",
+        "python",
+        "${workspaceFolder}/mcp_servers/neo4j_ungraph/server.py"
+      ],
+      "envFile": "${workspaceFolder}/ungraph/.env"
+    }
+  }
+}

@@ -6,19 +6,22 @@ __pycache__/
 # C extensions
 *.so
 
-
+# MkDocs site build (sources under docs/ are versioned — canon científico)
+# docs/_build/ and /site remain ignored below
 
 article/
 aticle/notebooks/
 article/experiments/
 src/
-scripts/
+# scripts/*.py are versioned (CI / DoE runner); keep secrets local
+scripts/.env
+scripts/.env.*
+scripts/**/__pycache__/
 
 
 lab/*
 lab
 .cursor/
-tests/
 
 project/
 project/*

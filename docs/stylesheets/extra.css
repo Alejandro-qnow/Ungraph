@@ -1,0 +1,145 @@
+/* Ungraph docs — capa de estilo sobre tokens Qnow */
+@import url("qnow-tokens.css");
+
+/* Chrome unificado: mismo fondo + tipografía con contraste */
+.md-header,
+.md-tabs,
+.md-banner,
+.md-nav__title,
+.md-footer,
+.md-footer-meta {
+  background-color: var(--qnow-surface);
+  background-image: none;
+  color: var(--qnow-ink);
+}
+
+.md-header__button,
+.md-header__topic,
+.md-tabs__link,
+.md-nav__title,
+.md-nav__button,
+.md-footer__link {
+  color: var(--qnow-ink);
+}
+
+.md-tabs__link {
+  opacity: 0.72;
+}
+
+.md-tabs__link--active,
+.md-tabs__link:focus,
+.md-tabs__link:hover {
+  color: var(--qnow-ink);
+  opacity: 1;
+}
+
+.md-header__button:hover,
+.md-nav__button:hover {
+  opacity: 0.75;
+}
+
+/* Header page title (active topic ellipsis) */
+.md-header__topic .md-ellipsis {
+  background-color: rgba(239, 11, 11, 1);
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgba(0, 0, 0, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.ungraph-announce {
+  text-align: center;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  color: var(--qnow-ink-muted);
+}
+
+.md-typeset {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--qnow-ink);
+}
+
+.md-typeset h1 {
+  color: var(--qnow-primary-deep);
+  font-weight: 700;
+}
+
+.md-typeset h2 {
+  color: var(--qnow-ink);
+  border-bottom: 1px solid var(--qnow-line);
+  padding-bottom: 0.2em;
+}
+
+.md-typeset a {
+  color: var(--qnow-accent-deep);
+}
+
+.md-typeset a:hover {
+  color: var(--qnow-primary);
+}
+
+/* Admonitions: mapear a lavados Qnow */
+.md-typeset .admonition.note,
+.md-typeset details.note {
+  border-color: var(--qnow-primary-light);
+}
+
+.md-typeset .admonition.tip,
+.md-typeset details.tip {
+  border-color: var(--qnow-accent);
+}
+
+.md-typeset .admonition.warning,
+.md-typeset details.warning {
+  border-color: var(--qnow-amber);
+}
+
+.md-typeset .admonition.danger,
+.md-typeset details.danger {
+  border-color: var(--qnow-rose);
+}
+
+/* Tablas: mismo fondo de superficie + texto con contraste */
+.md-typeset table:not([class]) th {
+  background-color: var(--qnow-surface);
+  color: var(--qnow-ink);
+  border-bottom-color: var(--qnow-line);
+}
+
+[data-md-color-scheme="slate"] .md-header,
+[data-md-color-scheme="slate"] .md-tabs,
+[data-md-color-scheme="slate"] .md-banner,
+[data-md-color-scheme="slate"] .md-nav__title,
+[data-md-color-scheme="slate"] .md-footer,
+[data-md-color-scheme="slate"] .md-footer-meta {
+  background-color: var(--qnow-primary-deeper);
+  color: var(--qnow-primary-wash);
+}
+
+[data-md-color-scheme="slate"] .md-header__button,
+[data-md-color-scheme="slate"] .md-header__topic,
+[data-md-color-scheme="slate"] .md-tabs__link,
+[data-md-color-scheme="slate"] .md-nav__title,
+[data-md-color-scheme="slate"] .md-nav__button,
+[data-md-color-scheme="slate"] .md-footer__link,
+[data-md-color-scheme="slate"] .ungraph-announce {
+  color: var(--qnow-primary-wash);
+}
+
+[data-md-color-scheme="slate"] .md-typeset h1 {
+  color: var(--qnow-primary-mist);
+}
+
+[data-md-color-scheme="slate"] .md-typeset h2 {
+  color: var(--qnow-primary-wash);
+  border-bottom-color: color-mix(in srgb, var(--qnow-primary-light) 35%, transparent);
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background-color: var(--qnow-primary-deeper);
+  color: var(--qnow-primary-wash);
+}

@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "design_id": "family-wave-3",
+    "capa0_run_id": "68ffecb7-b7cc-46a7-8b0c-892291ae0a65",
+    "families": [
+      "ner",
+      "pattern"
+    ],
+    "method": "infer_family_contrast"
+  },
+  "rows": [
+    {
+      "chunking": "recursive",
+      "chunk_size": 1000,
+      "chunk_overlap": 200,
+      "rag": "text",
+      "top_k": 5,
+      "mode": "online",
+      "inference": "ner",
+      "design_row_id": "fam-ner"
+    },
+    {
+      "chunking": "recursive",
+      "chunk_size": 1000,
+      "chunk_overlap": 200,
+      "rag": "text",
+      "top_k": 5,
+      "mode": "online",
+      "inference": "pattern",
+      "design_row_id": "fam-pattern"
+    }
+  ]
+}

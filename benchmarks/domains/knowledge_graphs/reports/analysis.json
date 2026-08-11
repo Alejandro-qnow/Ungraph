@@ -1,0 +1,41 @@
+{
+  "design_meta": {
+    "design_id": "D-optimal-b8-s0",
+    "method": "D-optimal",
+    "rationale": "To identify influential factors with 4 factors with a budget of 8 runs and a 'linear' model, the best compromise under your priorities is D-optimal (8 runs, D-efficiency 43.5%, G-efficiency 100.0%).",
+    "summary": "Recommendation: D-optimal\n----------------------------------------------\nTo identify influential factors with 4 factors with a budget of 8 runs and a 'linear' model, the best compromise under your priorities is D-optimal (8 runs, D-efficiency 43.5%, G-efficiency 100.0%).\n\nEvaluated alternatives:\n        method  runs  D_eff  G_eff  SPV_mean  in_budget  supports_model\nFull factorial    16  100.0   14.1     16.91      False            True\n     D-optimal     8   43.5  100.0      4.33       True            True\n\nCaveats:\n  - Recommendation is conditional on model_order='linear' (and effect_size=1.0 for power).\n  - \"Best\" is a multi-objective trade-off (runs vs precision vs prediction): adjust 'priorities' for your case.\n  - After the first experimental wave, use propose_next_runs / augment_design to choose the next batch (sequential DoE) instead of restarting from scratch.\n  - Categorical factors present: RSM designs (Box-Behnken/CCD) assume continuous factors; prefer full factorial or D-optimal.",
+    "budget": 8,
+    "seed": 0,
+    "n_runs": 8,
+    "factor_names": [
+      "chunking",
+      "chunk_size",
+      "inference",
+      "rag"
+    ]
+  },
+  "analysis": {
+    "response": "composite_score",
+    "main_effects": {
+      "chunking_recursive": 0.143780769230769,
+      "chunk_size": 0.0008088716947115257,
+      "inference_none": -0.2994692307692308,
+      "rag_vector": 0.13128076923076912
+    },
+    "pvalues": {
+      "chunking_recursive": 3.0314315072921724e-35,
+      "chunk_size": 1.987434011142139e-33,
+      "inference_none": 8.868363815157295e-41,
+      "rag_vector": 3.031431507293465e-35
+    },
+    "retained_factors": [
+      "chunking",
+      "chunk_size",
+      "inference",
+      "rag"
+    ],
+    "r_squared": 1.0,
+    "n_runs": 8,
+    "notes": ""
+  }
+}

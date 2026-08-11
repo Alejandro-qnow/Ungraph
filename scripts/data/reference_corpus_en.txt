@@ -1,0 +1,7 @@
+Alice Chen is a staff research engineer at Acme Robotics, a startup based in
+Mountain View, California. She reports to Dr. Sam Okonkwo, VP of Engineering.
+Acme Robotics specializes in autonomous warehouse systems and signed a pilot
+contract with Northwind Logistics in March 2024.
+
+Mountain View is part of the San Francisco Bay Area. Alice previously worked on
+perception pipelines at Google before joining Acme in 2022.

@@ -117,6 +117,28 @@ class ChunkRepository(ABC):
         pass
 
     @abstractmethod
+    def list_all_chunk_ids(self, *, min_content_chars: int = 1) -> List[str]:
+        """
+        Identificadores de TODOS los :Chunk con texto mínimo, tengan o no facts
+        derivados. Se usa para re-minado forzado (``kmining --force``), p. ej. para
+        actualizar una extracción NER previa con extracción LLM.
+        """
+        pass
+
+    @abstractmethod
+    def delete_derived_facts_for_chunk(self, chunk_id: str) -> int:
+        """
+        Elimina las derivaciones ``Extracted`` previas de un chunk para permitir
+        re-minado limpio: :Fact-[:DERIVED_FROM]->(chunk), sus :MENTIONS y las
+        relaciones :Entity->:Entity con ``provenance_ref = chunk_id``.
+
+        Respeta lo revisado por humanos: NO borra facts/relaciones cuyo
+        ``curation_state`` sea ``Curated`` o ``Invalid``. Tampoco borra nodos
+        :Entity (son compartidos). Devuelve el número de :Fact eliminados.
+        """
+        pass
+
+    @abstractmethod
     def save_facts(self, facts: List[Fact]) -> None:
         """Persiste hechos inferidos (Neo4j: Fact + Entity + MENTIONS)."""
         pass

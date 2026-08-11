@@ -1,0 +1,26 @@
+name: Feature
+description: Nueva capacidad (producto / API)
+title: "[feat] "
+labels: ["feature", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Convención de rama: `feature/<nombre-kebab>`. Commits: `feat(scope): …` — ver `docs/ops/DEVELOPMENT_WORKFLOW.md`.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Resumen
+      description: Qué problema de usuario o capacidad falta.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Criterios de aceptación
+      description: Cómo sabremos que está hecho (tests, comportamiento).
+  - type: textarea
+    id: scope
+    attributes:
+      label: Alcance y no-objetivos (opcional)
+      description: Qué queda fuera de este issue.

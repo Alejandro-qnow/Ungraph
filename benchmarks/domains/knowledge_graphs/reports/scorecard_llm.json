@@ -1,0 +1,36 @@
+{
+  "domain": "knowledge_graphs",
+  "scorecards": [
+    {
+      "domain": "knowledge_graphs",
+      "architecture": {
+        "chunking": "recursive",
+        "inference": "llm",
+        "rag": "hybrid"
+      },
+      "extract": {
+        "chunking_quality_score": 0.7077,
+        "strategy": "recursive",
+        "n_chunks": 3
+      },
+      "transform": {
+        "available": false,
+        "reason": "create_inference_service(ner) returned None — install spaCy model and ungraph[infer]."
+      },
+      "reasoning": {
+        "f1": 0.6667,
+        "hallucination_rate": 0.0321,
+        "real_recall": 0.7778,
+        "acceptance_precision": 0.5833,
+        "distractor_rejection_rate": 0.9679,
+        "llm_critic": true,
+        "n_candidates": 165
+      },
+      "rag_qa": {},
+      "efficiency": {
+        "latency_s": 238.92
+      },
+      "composite_score": 0.831
+    }
+  ]
+}

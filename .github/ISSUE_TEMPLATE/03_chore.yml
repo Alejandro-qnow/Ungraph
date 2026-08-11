@@ -1,0 +1,24 @@
+name: Chore
+description: CI, dependencias, tooling, housekeeping (sin cambio de producto)
+title: "[chore] "
+labels: ["chore", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Rama: `chore/<nombre>`. Commits: `chore(scope): …` o `ci:` para solo pipelines.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Qué hay que hacer
+    validations:
+      required: true
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Área
+      options:
+        - label: CI / GitHub Actions
+        - label: Empaquetado / pyproject / uv
+        - label: Lint / formato
+        - label: Otro

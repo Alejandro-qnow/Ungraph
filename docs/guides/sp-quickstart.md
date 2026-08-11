@@ -1,18 +1,25 @@
-# Guía de Inicio Rápido
+# Inicio rápido
 
-Esta guía te ayudará a empezar con Ungraph en minutos.
+Recorrido mínimo: instalar → configurar Neo4j → ingerir → buscar.  
+Audiencia: developer. Espina ETI: [`../concepts/eti-spine.md`](../concepts/eti-spine.md). Contrato: [`../api/sp-public-api.md`](../api/sp-public-api.md).
 
-## Instalación
+## Prerrequisitos
+
+1. Python 3.10+ y Neo4j accesible (Bolt).
+2. Credenciales Neo4j (`.env` o `ungraph.configure`).
+3. Paquete instalado:
 
 ```bash
 pip install ungraph
+# opcional: CLI
+pip install ungraph[cli]
 ```
 
-## Configuración Inicial
+**Resultado observable:** `import ungraph` sin error; `ungraph.__version__` imprime la versión del paquete.
 
-### Opción 1: Variables de Entorno
+## Configuración
 
-Crea un archivo `.env` en la raíz del proyecto:
+### Variables de entorno
 
 ```env
 UNGRAPH_NEO4J_URI=bolt://localhost:7687
@@ -22,7 +29,9 @@ UNGRAPH_NEO4J_DATABASE=neo4j
 UNGRAPH_EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 ```
 
-### Opción 2: Configuración Programática
+También se admiten alias sin prefijo (`NEO4J_URI`, `NEO4J_PASSWORD`, …). Detalle: [`../api/sp-configuration.md`](../api/sp-configuration.md).
+
+### Programática
 
 ```python
 import ungraph
@@ -32,153 +41,147 @@ ungraph.configure(
     neo4j_user="neo4j",
     neo4j_password="tu_contraseña",
     neo4j_database="neo4j",
-    embedding_model="sentence-transformers/all-MiniLM-L6-v2"
+    embedding_model="sentence-transformers/all-MiniLM-L6-v2",
 )
 ```
 
-## Primer Ejemplo: Ingerir un Documento
+## CLI (opcional)
+
+Con Neo4j configurado:
+
+```bash
+ungraph --help
+ungraph setup --database-init
+ungraph graph --ping
+ungraph ingest --path ruta/al/archivo.md
+ungraph ingest --folder ./documentos
+```
+
+**Resultado observable:** `graph --ping` confirma conexión; `ingest` deja nodos File/Page/Chunk consultables en Neo4j.
+
+## Ingerir un documento
 
 ```python
 import ungraph
-from pathlib import Path
 
-# Ingerir un documento
 chunks = ungraph.ingest_document(
     "mi_documento.md",
     chunk_size=1000,
-    chunk_overlap=200
+    chunk_overlap=200,
 )
 
-print(f"✅ Documento ingerido exitosamente!")
-print(f"   Total de chunks: {len(chunks)}")
+print(len(chunks))
+print(chunks[0].id, chunks[0].page_content[:120])
 ```
 
-## Segundo Ejemplo: Buscar Información
+**is:** carga → limpieza opcional → chunks → embeddings → persistencia léxica (`FILE_PAGE_CHUNK` por defecto). El slot Inference (NER/LLM/…) se activa según `UNGRAPH_INFERENCE_MODE`; ver [`../concepts/inference-slot.md`](../concepts/inference-slot.md).
+
+**Resultado observable:** `len(chunks) > 0` y chunks con `id` / `page_content`.
+
+## Buscar
+
+Texto:
 
 ```python
-# Búsqueda simple por texto
 results = ungraph.search("computación cuántica", limit=5)
-
-for result in results:
-    print(f"Score: {result.score:.3f}")
-    print(f"Contenido: {result.content[:200]}...")
-    print("---")
+for r in results:
+    print(r.score, r.chunk_id, r.content[:160])
 ```
 
-## Tercer Ejemplo: Búsqueda Híbrida
+Híbrida (texto + vector):
 
 ```python
-# Búsqueda híbrida (texto + vectorial)
 results = ungraph.hybrid_search(
     "inteligencia artificial",
     limit=10,
-    weights=(0.3, 0.7)  # 30% texto, 70% vectorial
+    weights=(0.3, 0.7),  # (texto, vector)
 )
-
-for result in results:
-    print(f"Score combinado: {result.score:.3f}")
-    print(f"Contenido: {result.content}")
-    
-    # Contexto adicional
-    if result.previous_chunk_content:
-        print(f"Contexto anterior: {result.previous_chunk_content[:100]}...")
-    if result.next_chunk_content:
-        print(f"Contexto siguiente: {result.next_chunk_content[:100]}...")
-    print("=" * 80)
+for r in results:
+    print(r.score, r.content[:160])
+    if r.previous_chunk_content:
+        print("prev:", r.previous_chunk_content[:80])
+    if r.next_chunk_content:
+        print("next:", r.next_chunk_content[:80])
 ```
 
-## Cuarto Ejemplo: Obtener Recomendaciones de Chunking
+Vectorial:
 
 ```python
-# Obtener recomendación de estrategia de chunking
-recommendation = ungraph.suggest_chunking_strategy("mi_documento.md")
-
-print(f"Estrategia recomendada: {recommendation.strategy}")
-print(f"Chunk size: {recommendation.chunk_size}")
-print(f"Chunk overlap: {recommendation.chunk_overlap}")
-print(f"Explicación: {recommendation.explanation}")
-print(f"Score de calidad: {recommendation.quality_score:.2f}")
+results = ungraph.vector_search("aprendizaje automático", limit=5)
 ```
 
-## Ejemplo Completo: Pipeline End-to-End
+**is:** búsqueda = **interfaz** sobre el grafo (retrieval), no definición de conocimiento. GraphRAG / patrones: [`search.md`](search.md), [`../api/sp-search-patterns.md`](../api/sp-search-patterns.md).
+
+**Resultado observable:** lista de `SearchResult` con `score`, `content`, `chunk_id`.
+
+## Chunking sugerido (opcional)
+
+```python
+rec = ungraph.suggest_chunking_strategy("mi_documento.md")
+print(rec.strategy, rec.chunk_size, rec.chunk_overlap)
+print(rec.explanation)
+
+chunks = ungraph.ingest_document(
+    "mi_documento.md",
+    chunk_size=rec.chunk_size,
+    chunk_overlap=rec.chunk_overlap,
+)
+```
+
+`quality_score` es heurística del recomendador, no scorecard experimental (PRODUCT [§5](../product/PRODUCT.md)).
+
+## Pipeline mínimo
 
 ```python
 import ungraph
-from pathlib import Path
 
-# 1. Configurar (si no usas variables de entorno)
 ungraph.configure(
     neo4j_uri="bolt://localhost:7687",
-    neo4j_password="tu_contraseña"
+    neo4j_password="tu_contraseña",
 )
 
-# 2. Obtener recomendación de chunking
-recommendation = ungraph.suggest_chunking_strategy("documento.md")
-print(f"Usando estrategia: {recommendation.strategy}")
-
-# 3. Ingerir documento con parámetros recomendados
+rec = ungraph.suggest_chunking_strategy("documento.md")
 chunks = ungraph.ingest_document(
     "documento.md",
-    chunk_size=recommendation.chunk_size,
-    chunk_overlap=recommendation.chunk_overlap
+    chunk_size=rec.chunk_size,
+    chunk_overlap=rec.chunk_overlap,
 )
-print(f"✅ {len(chunks)} chunks creados")
+print("chunks:", len(chunks))
 
-# 4. Buscar información
-results = ungraph.hybrid_search(
-    "tema de interés",
-    limit=5
-)
-
-# 5. Procesar resultados
-for result in results:
-    contexto_completo = ""
-    if result.previous_chunk_content:
-        contexto_completo += f"[Anterior] {result.previous_chunk_content}\n\n"
-    contexto_completo += f"[Principal] {result.content}\n\n"
-    if result.next_chunk_content:
-        contexto_completo += f"[Siguiente] {result.next_chunk_content}"
-    
-    print(contexto_completo)
-    print("=" * 80)
+results = ungraph.hybrid_search("tema de interés", limit=5)
+for r in results:
+    print(r.score, r.content[:200])
 ```
 
-## Siguientes Pasos
+## Qué no promete este quickstart
 
-- [Guía de Ingesta](sp-ingestion.md) - Aprende más sobre ingesta de documentos
-- [Guía de Búsqueda](../guides/search.md) - Explora patrones de búsqueda avanzados
-- [Patrones Personalizados](sp-custom-patterns.md) - Crea tus propios patrones
-- [Ejemplos Avanzados](../examples/advanced-examples.md) - Casos de uso complejos
+| | |
+|--|--|
+| **is** | Ingesta léxica + búsqueda text/vector/hybrid vía API pública en `main` |
+| **will be** | Depuración EVI, creencias first-class, validación PRODUCT §5 — ver [`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md), [`../product/PRODUCT.md`](../product/PRODUCT.md) |
 
-## Solución de Problemas
+## Solución de problemas
 
-### Error: AuthError al conectar a Neo4j
+### AuthError / fallo de conexión Neo4j
 
-**Solución:** Verifica que:
-1. Neo4j está corriendo
-2. Las credenciales son correctas
-3. La URI es accesible (puerto 7687 por defecto)
+1. Neo4j en ejecución; URI y puerto correctos.
+2. Usuario/contraseña válidos.
 
 ```python
-# Verificar configuración
 from ungraph.core.configuration import get_settings
-settings = get_settings()
-print(f"URI: {settings.neo4j_uri}")
-print(f"User: {settings.neo4j_user}")
+
+s = get_settings()
+print(s.neo4j_uri, s.neo4j_user, s.neo4j_database)
 ```
 
-### Error: UnicodeDecodeError al cargar archivo
+### UnicodeDecodeError al cargar archivo
 
-**Solución:** El sistema detecta automáticamente el encoding, pero si persiste:
+La carga prueba varios encodings (utf-8, windows-1252, latin-1, …). Si falla, normaliza el archivo a UTF-8.
 
-```python
-# El sistema intenta automáticamente múltiples encodings:
-# utf-8, windows-1252, latin-1, iso-8859-1, cp1252
-# Si falla, verifica el archivo manualmente
-```
+## Siguientes pasos
 
-## Referencias
-
-- [README Principal](../../README.md)
-- [Documentación de API](../api/sp-public-api.md)
-- [Configuración](../api/sp-configuration.md)
+- [Ingesta](sp-ingestion.md)
+- [Búsqueda](search.md)
+- [Patrones personalizados](sp-custom-patterns.md)
+- [API pública](../api/sp-public-api.md) · [configuración](../api/sp-configuration.md)
+- Conceptos: [espina ETI](../concepts/eti-spine.md) · [patrones de grafo](../concepts/sp-graph-patterns.md)

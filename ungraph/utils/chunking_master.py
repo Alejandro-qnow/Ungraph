@@ -13,7 +13,7 @@ import logging
 import re
 from typing import List, Dict, Optional, Tuple, Any
 from pathlib import Path
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 
 from langchain_core.documents import Document
@@ -84,6 +84,9 @@ class ChunkingResult:
     chunks: List[Document]
     metrics: ChunkingMetrics
     config: Dict[str, Any]
+    # Todas las estrategias evaluadas (solo se llena con evaluate_all=True):
+    # [{"strategy", "score", "num_chunks", "avg_chunk_size"}], ordenadas por score desc.
+    evaluated_alternatives: List[Dict[str, Any]] = field(default_factory=list)
 
 
 class DocumentAnalyzer:
@@ -580,10 +583,26 @@ class ChunkingMaster:
         
         # Seleccionar la mejor estrategia basándose en el score
         best_result = max(results, key=lambda r: self.evaluator.score_strategy(r.metrics))
-        
+
+        # Exponer TODAS las alternativas evaluadas (antes se descartaban → evaluate_all
+        # no permitía comparar de verdad). Ordenadas por score desc.
+        best_result.evaluated_alternatives = sorted(
+            (
+                {
+                    "strategy": r.strategy.value,
+                    "score": self.evaluator.score_strategy(r.metrics),
+                    "num_chunks": r.metrics.num_chunks,
+                    "avg_chunk_size": r.metrics.avg_chunk_size,
+                }
+                for r in results
+            ),
+            key=lambda d: d["score"],
+            reverse=True,
+        )
+
         logger.info(f"Mejor estrategia seleccionada: {best_result.strategy.value} "
                    f"(score: {self.evaluator.score_strategy(best_result.metrics):.2f})")
-        
+
         return best_result
     
     def _apply_strategy(

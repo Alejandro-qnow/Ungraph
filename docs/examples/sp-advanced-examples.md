@@ -1,263 +1,225 @@
-# Ejemplos Avanzados
+# Ejemplos avanzados
 
-Ejemplos avanzados de uso de Ungraph.
+Mínimos reproductibles que combinan varios documentos, patrones de grafo y `search_with_pattern`.  
+Audiencia: developer. Básicos primero: [`sp-basic-examples.md`](sp-basic-examples.md). Contratos: [`../api/sp-public-api.md`](../api/sp-public-api.md), [`../api/sp-search-patterns.md`](../api/sp-search-patterns.md). How-to: [`../guides/search.md`](../guides/search.md), [`../guides/sp-custom-patterns.md`](../guides/sp-custom-patterns.md).
 
-## Ejemplo 1: Ingerir Múltiples Documentos
+Retrieval / GraphRAG = **interfaz** sobre el almacén — [`../concepts/eti-spine.md`](../concepts/eti-spine.md), [`../theory/sp-graphrag.md`](../theory/sp-graphrag.md). No son métricas PRODUCT [§5](../product/PRODUCT.md).
+
+## Prerrequisitos
+
+1. Los de [`sp-basic-examples.md`](sp-basic-examples.md) (Neo4j + `ungraph` configurado).
+2. Fixtures del repo o archivos locales equivalentes.
+3. Para el ejemplo de patrón personalizado: imports desde el paquete `ungraph` (no rutas `domain` / `infrastructure` sueltas).
+
+**Resultado observable global:** listas `SearchResult` o `Chunk` no vacías; para patrones, campos proyectados (`content`, `score`, `next_chunk_content` cuando aplique).
+
+## Fixture / datos
+
+| Archivo | Uso |
+|---------|-----|
+| [`../../tests/fixtures/topology_alpha.md`](../../tests/fixtures/topology_alpha.md) | Documento A (término **topology**) |
+| [`../../tests/fixtures/topology_beta.md`](../../tests/fixtures/topology_beta.md) | Documento B |
+
+```python
+ALPHA = "tests/fixtures/topology_alpha.md"
+BETA = "tests/fixtures/topology_beta.md"
+```
+
+## 1. Ingerir varios documentos
 
 ```python
 import ungraph
 from pathlib import Path
 
-# Lista de archivos
-archivos = ["doc1.md", "doc2.txt", "doc3.docx"]
-
-# Ingerir todos
-for archivo in archivos:
-    try:
-        chunks = ungraph.ingest_document(archivo)
-        print(f"✅ {archivo}: {len(chunks)} chunks")
-    except Exception as e:
-        print(f"❌ Error con {archivo}: {e}")
+for path in (ALPHA, BETA):
+    chunks = ungraph.ingest_document(path, chunk_size=400, chunk_overlap=80)
+    print(Path(path).name, len(chunks))
 ```
 
-## Ejemplo 2: Reconstruir Contexto Completo
+**Resultado observable:** dos líneas con `len(chunks) > 0`. Si un path falta: `FileNotFoundError`.
+
+## 2. Reconstruir contexto adyacente
 
 ```python
-import ungraph
-
-# Buscar
-results = ungraph.hybrid_search("tema", limit=3)
-
-# Reconstruir contexto completo para cada resultado
-for result in results:
-    contexto_completo = ""
-    
-    if result.previous_chunk_content:
-        contexto_completo += f"[Anterior]\n{result.previous_chunk_content}\n\n"
-    
-    contexto_completo += f"[Principal]\n{result.content}\n\n"
-    
-    if result.next_chunk_content:
-        contexto_completo += f"[Siguiente]\n{result.next_chunk_content}"
-    
-    print(contexto_completo)
-    print("=" * 80)
+results = ungraph.hybrid_search("topology", limit=3)
+for r in results:
+    parts = []
+    if r.previous_chunk_content:
+        parts.append(f"[Anterior]\n{r.previous_chunk_content}")
+    parts.append(f"[Principal]\n{r.content}")
+    if r.next_chunk_content:
+        parts.append(f"[Siguiente]\n{r.next_chunk_content}")
+    print("\n\n".join(parts))
+    print("---")
 ```
 
-## Ejemplo 3: Crear Patrón Personalizado
+**Resultado observable:** bloques con etiqueta Principal; vecinos solo si el grafo léxico los aporta.
+
+## 3. Declarar y validar un `GraphPattern`
+
+Patrón = forma de Transform, no motor de Inference. Guía: [`../guides/sp-custom-patterns.md`](../guides/sp-custom-patterns.md). Concepto: [`../concepts/sp-graph-patterns.md`](../concepts/sp-graph-patterns.md).
 
 ```python
-from domain.value_objects.graph_pattern import (
+from ungraph.domain.value_objects.graph_pattern import (
     GraphPattern,
     NodeDefinition,
-    RelationshipDefinition
 )
-from infrastructure.services.neo4j_pattern_service import Neo4jPatternService
+from ungraph.infrastructure.services.neo4j_pattern_service import Neo4jPatternService
 
-# Crear patrón simple
 chunk_node = NodeDefinition(
     label="Chunk",
     required_properties={"chunk_id": str, "content": str},
-    indexes=["chunk_id"]
+    indexes=["chunk_id"],
 )
-
 simple_pattern = GraphPattern(
     name="SIMPLE_CHUNK",
     description="Solo chunks",
     node_definitions=[chunk_node],
-    relationship_definitions=[]
+    relationship_definitions=[],
 )
 
-# Validar
 service = Neo4jPatternService()
-is_valid = service.validate_pattern(simple_pattern)
-print(f"Patrón válido: {is_valid}")
-
-# Generar query Cypher
-cypher = service.generate_cypher(simple_pattern, "create")
-print(f"Query generado:\n{cypher}")
+print("válido:", service.validate_pattern(simple_pattern))
+print(service.generate_cypher(simple_pattern, "create")[:400])
 ```
 
-## Ejemplo 4: Análisis de Resultados
-
-```python
-import ungraph
-from collections import Counter
-
-# Buscar
-results = ungraph.hybrid_search("machine learning", limit=20)
-
-# Analizar resultados
-print(f"Total de resultados: {len(results)}")
-print(f"Score promedio: {sum(r.score for r in results) / len(results):.3f}")
-print(f"Score máximo: {max(r.score for r in results):.3f}")
-print(f"Score mínimo: {min(r.score for r in results):.3f}")
-
-# Contar chunks con contexto
-con_contexto = sum(1 for r in results if r.previous_chunk_content or r.next_chunk_content)
-print(f"Resultados con contexto: {con_contexto}/{len(results)}")
-```
-
-## Ejemplo 5: Comparar Estrategias de Búsqueda
+Uso en ingesta (`is`):
 
 ```python
 import ungraph
 
-query = "deep learning"
-
-# Búsqueda por texto
-text_results = ungraph.search(query, limit=5)
-
-# Búsqueda híbrida con diferentes pesos
-hybrid_1 = ungraph.hybrid_search(query, limit=5, weights=(0.7, 0.3))  # Más texto
-hybrid_2 = ungraph.hybrid_search(query, limit=5, weights=(0.3, 0.7))  # Más vectorial
-
-print("Búsqueda por texto:")
-for r in text_results[:3]:
-    print(f"  Score: {r.score:.3f}")
-
-print("\nHíbrida (más texto):")
-for r in hybrid_1[:3]:
-    print(f"  Score: {r.score:.3f}")
-
-print("\nHíbrida (más vectorial):")
-for r in hybrid_2[:3]:
-    print(f"  Score: {r.score:.3f}")
+chunks = ungraph.ingest_document(ALPHA, pattern=simple_pattern)
+print(len(chunks))
 ```
 
-## Ejemplo 6: Parent-Child Retriever
+**Resultado observable:** `válido: True` (o error de forma); Cypher no vacío; `len(chunks) > 0` si la persistencia acepta el patrón.
 
-El Parent-Child Retriever mejora la calidad de los resultados cuando necesitas contexto completo. Busca en chunks pequeños (hijos) y recupera el chunk padre (contexto completo).
+Declarar labels de entidad en el patrón **no** rellena Inference sola — [`../concepts/inference-slot.md`](../concepts/inference-slot.md).
+
+## 4. Comparar modos de búsqueda (sin afirmar “mejor”)
 
 ```python
 import ungraph
-from ungraph.infrastructure.services.neo4j_search_service import Neo4jSearchService
 
-# 1. Crear estructura padre-hijo (ingerir documento)
-print("📄 Ingiriendo documento largo...")
-chunks = ungraph.ingest_document(
-    "documento_tecnico.md",
-    chunk_size=500,  # Chunks pequeños para mejor matching
-    chunk_overlap=100
+query = "topology"
+text = ungraph.search(query, limit=5)
+hybrid_text = ungraph.hybrid_search(query, limit=5, weights=(0.7, 0.3))
+hybrid_vec = ungraph.hybrid_search(query, limit=5, weights=(0.3, 0.7))
+
+print("text:", [round(r.score, 4) for r in text[:3]])
+print("hybrid_text:", [round(r.score, 4) for r in hybrid_text[:3]])
+print("hybrid_vec:", [round(r.score, 4) for r in hybrid_vec[:3]])
+```
+
+**Resultado observable:** tres listas de scores. Los scores son ranking relativo del modo, **no** confianza epistémica ni precisión medida.
+
+## 5. Metadata filtering
+
+Tras ingerir fixtures (el `filename` en nodos suele reflejar el nombre del archivo):
+
+```python
+results = ungraph.search_with_pattern(
+    "topology",
+    pattern_type="metadata_filtering",
+    metadata_filters={"filename": "topology_alpha.md"},
+    limit=10,
 )
-print(f"✅ {len(chunks)} chunks creados\n")
+for r in results:
+    print(r.score, r.content[:160])
+```
 
-# 2. Buscar usando Parent-Child Retriever
-query = "arquitectura de redes neuronales profundas"
-print(f"🔍 Buscando: '{query}'\n")
+**Resultado observable:** hits acotados al archivo filtrado (o lista vacía si la propiedad/filename no coincide — comprobar metadata en Neo4j).
 
-search_service = Neo4jSearchService()
-results = search_service.search_with_pattern(
-    query_text=query,
+## 6. Parent–child (proyección pública)
+
+API pública: `ungraph.search_with_pattern`. Tipo de retorno: `SearchResult` — padre en `content`/`score`; hijos concatenados en `next_chunk_content` (no hay `parent_content` / `children` en el tipo público).
+
+```python
+import ungraph
+
+results = ungraph.search_with_pattern(
+    "topology",
     pattern_type="parent_child",
     parent_label="Page",
     child_label="Chunk",
     relationship_type="HAS_CHUNK",
-    limit=3
+    limit=3,
 )
-
-# 3. Mostrar resultados con contexto completo
-print(f"📊 Encontrados {len(results)} resultados:\n")
-for i, result in enumerate(results, 1):
-    print(f"{'='*80}")
-    print(f"Resultado {i}")
-    print(f"{'='*80}")
-    print(f"📄 Page (Padre) - Score: {result.parent_score:.4f}")
-    print(f"\n{result.parent_content[:400]}...")
-    print(f"\n📦 Chunks relacionados: {len(result.children)}")
-    
-    # Mostrar primeros 3 hijos
-    for j, child in enumerate(result.children[:3], 1):
-        print(f"\n  Chunk {j}:")
-        print(f"  {child['content'][:250]}...")
-    
-    print(f"\n{'='*80}\n")
-
-search_service.close()
+for r in results:
+    print(r.score, r.chunk_id, r.content[:160])
+    print("hijos/contexto:", (r.next_chunk_content or "")[:200])
 ```
 
-**Cuándo usar Parent-Child Retriever:**
-- ✅ Muchos temas en un chunk afectan negativamente la calidad de los vectores
-- ✅ Necesitas contexto completo de una sección para generar respuestas
-- ✅ Los chunks pequeños tienen mejor representación vectorial pero falta contexto
+**Resultado observable:** `content` del padre y, si hay expansión, texto en `next_chunk_content`.
 
-## Ejemplo 7: Patrones de Búsqueda GraphRAG (Metadata Filtering)
+Topología léxica: [`../concepts/sp-lexical-graphs.md`](../concepts/sp-lexical-graphs.md).
 
-Búsqueda con filtros por metadatos. Útil para buscar solo en documentos específicos.
+## 7. Comparar basic vs parent–child vs filtro
 
 ```python
 import ungraph
 
-# Buscar solo en un archivo específico
-results = ungraph.search_with_pattern(
-    "machine learning",
-    pattern_type="metadata_filtering",
-    metadata_filters={
-        "filename": "ai_paper.md"
-    },
-    limit=10
-)
-
-# Buscar en una página específica
-results = ungraph.search_with_pattern(
-    "deep learning",
-    pattern_type="metadata_filtering",
-    metadata_filters={
-        "filename": "ai_paper.md",
-        "page_number": 1
-    },
-    limit=5
-)
-
-# Procesar resultados
-for result in results:
-    print(f"Score: {result.score:.3f}")
-    print(f"Contenido: {result.content[:200]}...")
-    print("---")
-```
-
-## Ejemplo 8: Comparación de Patrones de Búsqueda
-
-```python
-import ungraph
-
-query = "computación cuántica"
-
-# Búsqueda normal (sin filtros)
-results_normal = ungraph.search(query, limit=5)
-print(f"Búsqueda normal: {len(results_normal)} resultados")
-
-# Búsqueda con filtro de metadatos
-results_filtered = ungraph.search_with_pattern(
+query = "topology"
+basic = ungraph.search_with_pattern(query, pattern_type="basic", limit=3)
+filtered = ungraph.search_with_pattern(
     query,
     pattern_type="metadata_filtering",
-    metadata_filters={"filename": "quantum_computing.md"},
-    limit=5
+    metadata_filters={"filename": "topology_alpha.md"},
+    limit=3,
 )
-print(f"Búsqueda filtrada: {len(results_filtered)} resultados")
-
-# Comparación: Basic vs Parent-Child
-print("\n--- Basic Retriever ---")
-basic_results = ungraph.search(query, limit=3)
-for r in basic_results:
-    print(f"Score: {r.score:.3f} - Solo chunk")
-
-print("\n--- Parent-Child Retriever ---")
-search_service = Neo4jSearchService()
-parent_child_results = search_service.search_with_pattern(
+parent = ungraph.search_with_pattern(
     query,
     pattern_type="parent_child",
     parent_label="Page",
     child_label="Chunk",
-    limit=3
+    relationship_type="HAS_CHUNK",
+    limit=3,
 )
-for r in parent_child_results:
-    print(f"Score: {r.parent_score:.3f} - Page + {len(r.children)} chunks hijos")
-search_service.close()
+
+print("basic:", len(basic), [round(r.score, 4) for r in basic])
+print("filtered:", len(filtered), [round(r.score, 4) for r in filtered])
+print(
+    "parent_child:",
+    len(parent),
+    [(round(r.score, 4), bool(r.next_chunk_content)) for r in parent],
+)
 ```
+
+**Resultado observable:** conteos y scores por patrón. No interpretar diferencias como “ganador” sin protocolo en [`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md).
+
+## 8. Patrones avanzados (extras; opcional)
+
+Requieren `pip install ungraph[gds]` y, según patrón, plugin GDS / entidades `MENTIONS`. Contrato: [`../api/sp-advanced-search-patterns.md`](../api/sp-advanced-search-patterns.md).
+
+```python
+# Solo si el extra y el grafo cumplen prerequisitos; si no, ImportError / RuntimeError
+results = ungraph.search_with_pattern(
+    "topology",
+    pattern_type="graph_enhanced",
+    limit=5,
+    max_traversal_depth=2,
+)
+for r in results:
+    print(r.score, r.content[:160])
+    print("contexto:", (r.next_chunk_content or "")[:160])
+```
+
+**is con prerequisitos:** firmas existen en `main` bajo extras. Sin extra → no afirmar el patrón como capacidad instalada por defecto.
+
+## is / will be
+
+| | |
+|--|--|
+| **is** | Multi-ingest; `hybrid_search` con vecinos; `GraphPattern` + `ingest_document(..., pattern=)`; `search_with_pattern` básicos (`basic`, `metadata_filtering`, `parent_child`) con proyección a `SearchResult` |
+| **will be** | Scorecards confrontables entre modos; depuración EVI; patrones de conocimiento estables desde Infer — [PRODUCT §5](../product/PRODUCT.md), plan maestro |
+
+## Open claims
+
+N/A. Claims medibles de ranking/ET vs ETI → experiment/research, no este archivo.
 
 ## Referencias
 
-- [Guía de Patrones Personalizados](../guides/sp-custom-patterns.md)
-- [Patrones de Búsqueda GraphRAG](../api/sp-search-patterns.md)
-- [Lexical Graphs](../concepts/sp-lexical-graphs.md)
+- [Básicos](sp-basic-examples.md) · [Notebooks](sp-notebooks.md)
+- [Búsqueda](../guides/search.md) · [Patrones personalizados](../guides/sp-custom-patterns.md)
+- [API pública](../api/sp-public-api.md) · [Patrones de búsqueda](../api/sp-search-patterns.md) · [Avanzados](../api/sp-advanced-search-patterns.md)
+- [Léxicos](../concepts/sp-lexical-graphs.md) · [Patrones de grafo](../concepts/sp-graph-patterns.md)

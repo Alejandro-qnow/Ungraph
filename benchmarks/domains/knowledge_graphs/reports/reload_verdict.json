@@ -1,0 +1,100 @@
+{
+  "ok": true,
+  "frozen_run_id": "68ffecb7-b7cc-46a7-8b0c-892291ae0a65",
+  "reload_run_id": "f894299a-1eb0-4467-8664-204bd4364e38",
+  "gate_compare": {
+    "ok": true,
+    "atol": 0.0001,
+    "diffs": {
+      "entity_recall": {
+        "frozen": 0.4737,
+        "observed": 0.4737,
+        "match": true
+      },
+      "relation_pair_recall": {
+        "frozen": 0.3333,
+        "observed": 0.3333,
+        "match": true
+      },
+      "evidence_coverage": {
+        "frozen": 1.0,
+        "observed": 1.0,
+        "match": true
+      },
+      "answer_correctness": {
+        "frozen": 1.0,
+        "observed": 1.0,
+        "match": true
+      }
+    }
+  },
+  "graph_stats_diff": {
+    "nodes": {
+      "BibliographicArticle": {
+        "baseline": 0,
+        "current": 1,
+        "delta": 1
+      },
+      "Chunk": {
+        "baseline": 0,
+        "current": 3,
+        "delta": 3
+      },
+      "Entity": {
+        "baseline": 0,
+        "current": 12,
+        "delta": 12
+      },
+      "Fact": {
+        "baseline": 0,
+        "current": 17,
+        "delta": 17
+      },
+      "File": {
+        "baseline": 0,
+        "current": 1,
+        "delta": 1
+      },
+      "Page": {
+        "baseline": 0,
+        "current": 1,
+        "delta": 1
+      }
+    },
+    "relationships": {
+      "CONTAINS": {
+        "baseline": 0,
+        "current": 1,
+        "delta": 1
+      },
+      "CO_OCCURS_WITH": {
+        "baseline": 0,
+        "current": 39,
+        "delta": 39
+      },
+      "DERIVED_FROM": {
+        "baseline": 0,
+        "current": 17,
+        "delta": 17
+      },
+      "HAS_CHUNK": {
+        "baseline": 0,
+        "current": 3,
+        "delta": 3
+      },
+      "MENTIONS": {
+        "baseline": 0,
+        "current": 16,
+        "delta": 16
+      },
+      "NEXT_CHUNK": {
+        "baseline": 0,
+        "current": 2,
+        "delta": 2
+      }
+    }
+  },
+  "reload_protocol": "wipe_reingest_pinned",
+  "experiment_run_path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\reports\\f894299a-1eb0-4467-8664-204bd4364e38.json",
+  "note": "PASS: gate Y matched freeze after wipe\u2192re-ingest"
+}

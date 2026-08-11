@@ -1,0 +1,31 @@
+domain: knowledge_graphs
+priority: P0
+description: >
+  Dominio de dogfooding: Ungraph mina y razona sobre papers de grafos de conocimiento
+  (su propio dominio). Gold curable con conocimiento experto -> autovalidación.
+
+corpus:
+  - corpus/kg_survey.md                          # seed gold-aligned (referencia para extracción vs gold)
+  - corpus/2404.16130_graphrag.md                # Edge et al. 2024 (GraphRAG)
+  - corpus/2003.02320_knowledge_graphs_hogan.md  # Hogan et al. 2021 (KG survey)
+  - corpus/2002.00388_kg_survey_ji.md            # Ji et al. 2021 (representation/acquisition)
+  - corpus/2306.08302_llm_kg_roadmap.md          # Pan et al. 2023 (LLM + KG roadmap)
+gold: gold.json
+
+# Espacio de arquitecturas a comparar (factores del DoE end-to-end).
+architectures:
+  chunking: [recursive, markdown_header, semantic]
+  inference: [ner, llm]
+  rag: [text, vector, hybrid]
+
+defaults:
+  chunk_size: 1000
+  chunk_overlap: 200
+  top_k: 5
+  model: gpt-4o-mini
+  temperature: 0.0
+
+# Fuentes para ampliar el corpus con papers reales (mix por dominio).
+sources:
+  - type: web
+    note: "arxiv KG (GraphRAG, KG embeddings, KG construction) via WebFetch, normalizar a Markdown."

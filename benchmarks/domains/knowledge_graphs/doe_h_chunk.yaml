@@ -1,0 +1,36 @@
+# DoE H_chunk / H_T — screening con doekit (Infer bloqueado)
+# Presupuesto: mismo corpus seed, same Infer (ner), wipe entre celdas.
+# Factores: chunk_size × top_k × rag. Respuesta primaria: answer_correctness @ top-k.
+domain: knowledge_graphs
+wave: h_chunk
+goal: screening
+budget: 8
+seed: 1
+response_primary: answer_correctness
+responses:
+  - answer_correctness
+  - entity_recall
+  - relation_pair_recall
+  - evidence_coverage
+  - latency_s
+fixed:
+  inference: ner
+  chunking: recursive
+  chunk_overlap: 200
+  mode: online
+factors:
+  - name: chunk_size
+    kind: categorical
+    levels: [256, 512, 1000, 1500]
+  - name: top_k
+    kind: categorical
+    levels: [1, 3]
+  - name: rag
+    kind: categorical
+    levels: [text, vector]
+retain:
+  alpha: 0.15
+  effect_abs_min: 0.05
+notes: >
+  Infer fijo (ner). Y de tarea/retrieval deben variar (probes localizados + top_k bajo).
+  H_T: mirar si entity_recall co-varía con answer_correctness en results.csv.

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <title>Demo documentación local | Ungraph</title>
+</head>
+<body>
+  <main>
+    <h1>Guía rápida</h1>
+    <p>Esta página simula documentación con jerarquía y código para probar el CIR y el patrón FILE_PAGE_CHUNK.</p>
+    <h2>Instalación</h2>
+    <p>Instala el paquete con pip o uv en un entorno virtual.</p>
+    <pre><code>uv pip install -e ".[crawl]"
+python -c "import ungraph; print(ungraph.__version__)"</code></pre>
+    <h2>Configuración Neo4j</h2>
+    <p>Configura la URI y la contraseña antes de ingerir.</p>
+    <ul>
+      <li>Variable <code>UNGRAPH_NEO4J_URI</code></li>
+      <li>Variable <code>UNGRAPH_NEO4J_PASSWORD</code></li>
+    </ul>
+    <h3>Verificación</h3>
+    <p>Tras la ingesta deberías ver nodos File, Page y Chunk conectados.</p>
+  </main>
+</body>
+</html>

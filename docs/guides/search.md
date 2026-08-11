@@ -1,68 +1,53 @@
-# Guía de Búsqueda en el Grafo
+# Búsqueda en el grafo
 
-Esta guía explica cómo buscar información en el grafo de conocimiento usando Ungraph.
+**Canónico ES (excepción de prefijo):** how-to único de búsqueda en el sitio; no existe `sp-search.md`. Stubs de tutoriales / `en-*` apuntan aquí.
 
-## Tipos de Búsqueda
+Audiencia: developer. Retrieval = **interfaz** sobre el almacén (no definición de conocimiento). Espina: [`../concepts/eti-spine.md`](../concepts/eti-spine.md). Contrato: [`../api/sp-public-api.md`](../api/sp-public-api.md), patrones [`../api/sp-search-patterns.md`](../api/sp-search-patterns.md).
 
-Ungraph soporta tres tipos principales de búsqueda:
+## Prerrequisitos
 
-1. **Búsqueda por Texto**: Usa índice full-text de Neo4j
-2. **Búsqueda Vectorial**: Usa similitud semántica con embeddings
-3. **Búsqueda Híbrida**: Combina texto y vectorial
+1. Documento(s) ya ingeridos ([`sp-ingestion.md`](sp-ingestion.md)).
+2. Índices full-text / vector creados por la ingesta (o `ungraph setup --database-init` vía CLI).
+3. Neo4j configurado.
 
-## Búsqueda por Texto
+**Resultado observable:** `List[SearchResult]` con `content`, `score`, `chunk_id` (y contexto adyacente cuando el query lo aporta).
 
-La búsqueda más simple y rápida:
+## Modos de la API pública (`is`)
+
+| Función | Señal | Uso típico |
+|---------|-------|------------|
+| `ungraph.search` | full-text Neo4j | palabras clave |
+| `ungraph.vector_search` | similitud de embeddings | semántica |
+| `ungraph.hybrid_search` | texto + vector con pesos | combinación |
+| `ungraph.search_with_pattern` | patrón GraphRAG nombrado | topología / filtros |
+
+GraphRAG aquí es **consumidor** del grafo léxico/KG; no sustituye Inference ni depuración de creencias ([`../theory/sp-graphrag.md`](../theory/sp-graphrag.md)).
+
+## Búsqueda por texto
 
 ```python
 import ungraph
 
 results = ungraph.search("computación cuántica", limit=5)
-
-for result in results:
-    print(f"Score: {result.score:.3f}")
-    print(f"Contenido: {result.content[:200]}...")
-    print(f"Chunk ID: {result.chunk_id}")
-    print("---")
+for r in results:
+    print(r.score, r.chunk_id, r.content[:200])
 ```
 
-**Características:**
-- ⚡ Muy rápida
-- 🎯 Buena para búsquedas por palabras clave
-- 📝 Usa índice full-text de Neo4j
+**Errores:** `ValueError` si `query_text` vacío; `RuntimeError` si Neo4j falla.
 
-## Búsqueda Vectorial
-
-Búsqueda por similitud semántica:
+## Búsqueda vectorial
 
 ```python
 import ungraph
-from ungraph import HuggingFaceEmbeddingService
 
-# Generar embedding de la query
-embedding_service = HuggingFaceEmbeddingService()
-query_embedding = embedding_service.generate_embedding("inteligencia artificial")
-
-# Buscar usando el embedding
-from ungraph.infrastructure.services.neo4j_search_service import Neo4jSearchService
-
-search_service = Neo4jSearchService()
-results = search_service.vector_search(query_embedding, limit=5)
-search_service.close()
-
-for result in results:
-    print(f"Score: {result.score:.3f}")
-    print(f"Contenido: {result.content}")
+results = ungraph.vector_search("inteligencia artificial", limit=5)
+for r in results:
+    print(r.score, r.content[:200])
 ```
 
-**Características:**
-- 🧠 Entiende significado semántico
-- 🎯 Mejor para conceptos abstractos
-- 📊 Usa similitud de coseno entre embeddings
+Usa el `embedding_model` de configuración (o el argumento opcional de la firma).
 
-## Búsqueda Híbrida
-
-Combina texto y vectorial para mejores resultados:
+## Búsqueda híbrida
 
 ```python
 import ungraph
@@ -70,131 +55,97 @@ import ungraph
 results = ungraph.hybrid_search(
     "deep learning",
     limit=10,
-    weights=(0.3, 0.7)  # 30% texto, 70% vectorial
+    weights=(0.3, 0.7),  # (texto, vector)
 )
-
-for result in results:
-    print(f"Score combinado: {result.score:.3f}")
-    print(f"Contenido: {result.content}")
-    
-    # Contexto adicional
-    if result.previous_chunk_content:
-        print(f"Contexto anterior: {result.previous_chunk_content[:100]}...")
-    if result.next_chunk_content:
-        print(f"Contexto siguiente: {result.next_chunk_content[:100]}...")
-    print("=" * 80)
+for r in results:
+    print(r.score, r.content[:200])
+    if r.previous_chunk_content:
+        print("prev:", r.previous_chunk_content[:100])
+    if r.next_chunk_content:
+        print("next:", r.next_chunk_content[:100])
 ```
 
-**Características:**
-- 🎯 Mejor precisión que búsqueda simple
-- 🔄 Combina señales de texto y semántica
-- 📈 Ajustable con pesos personalizados
-
-## Reconstruir Contexto Completo
-
-Los resultados incluyen contexto de chunks adyacentes:
+Ajuste de pesos:
 
 ```python
-import ungraph
+# más peso a texto (términos exactos)
+ungraph.hybrid_search("palabra clave", weights=(0.7, 0.3))
 
+# más peso a vector (conceptos)
+ungraph.hybrid_search("concepto abstracto", weights=(0.2, 0.8))
+```
+
+Default documentado en API: `(0.3, 0.7)`.
+
+## Contexto adyacente
+
+Cuando el resultado trae vecinos léxicos:
+
+```python
 results = ungraph.hybrid_search("tema de interés", limit=3)
-
-for result in results:
-    contexto_completo = ""
-    
-    if result.previous_chunk_content:
-        contexto_completo += f"[Anterior]\n{result.previous_chunk_content}\n\n"
-    
-    contexto_completo += f"[Principal]\n{result.content}\n\n"
-    
-    if result.next_chunk_content:
-        contexto_completo += f"[Siguiente]\n{result.next_chunk_content}"
-    
-    print(contexto_completo)
-    print("=" * 80)
+for r in results:
+    parts = []
+    if r.previous_chunk_content:
+        parts.append(f"[Anterior]\n{r.previous_chunk_content}")
+    parts.append(f"[Principal]\n{r.content}")
+    if r.next_chunk_content:
+        parts.append(f"[Siguiente]\n{r.next_chunk_content}")
+    print("\n\n".join(parts))
 ```
 
-## Ajustar Pesos en Búsqueda Híbrida
-
-Los pesos determinan qué tan importante es cada tipo de búsqueda:
-
-```python
-# Más peso a texto (mejor para palabras clave exactas)
-results = ungraph.hybrid_search(
-    "palabra clave exacta",
-    weights=(0.7, 0.3)  # 70% texto, 30% vectorial
-)
-
-# Más peso a vectorial (mejor para conceptos)
-results = ungraph.hybrid_search(
-    "concepto abstracto",
-    weights=(0.2, 0.8)  # 20% texto, 80% vectorial
-)
-
-# Balanceado (default)
-results = ungraph.hybrid_search(
-    "consulta general",
-    weights=(0.3, 0.7)  # Default
-)
-```
-
-## Ejemplo Completo
+## Patrones GraphRAG (`search_with_pattern`)
 
 ```python
 import ungraph
 
-# 1. Buscar información
-query = "machine learning applications"
-results = ungraph.hybrid_search(query, limit=5)
+# básico (full-text tipado como patrón)
+results = ungraph.search_with_pattern(
+    "inteligencia artificial",
+    pattern_type="basic",
+    limit=5,
+)
 
-# 2. Procesar resultados
-print(f"Encontrados {len(results)} resultados para: '{query}'\n")
+# filtros de metadatos
+results = ungraph.search_with_pattern(
+    "machine learning",
+    pattern_type="metadata_filtering",
+    metadata_filters={"filename": "ai_paper.md"},
+    limit=10,
+)
 
-for i, result in enumerate(results, 1):
-    print(f"Resultado {i}:")
-    print(f"  Score: {result.score:.4f}")
-    print(f"  Chunk ID: {result.chunk_id}")
-    print(f"  Contenido: {result.content[:300]}...")
-    
-    # Mostrar contexto si está disponible
-    if result.previous_chunk_content or result.next_chunk_content:
-        print("\n  Contexto:")
-        if result.previous_chunk_content:
-            print(f"    Anterior: {result.previous_chunk_content[:150]}...")
-        if result.next_chunk_content:
-            print(f"    Siguiente: {result.next_chunk_content[:150]}...")
-    
-    print("\n" + "-" * 80 + "\n")
+# parent–child (Page → Chunk); hijos van en next_chunk_content
+results = ungraph.search_with_pattern(
+    "computación cuántica",
+    pattern_type="parent_child",
+    parent_label="Page",
+    child_label="Chunk",
+    relationship_type="HAS_CHUNK",
+    limit=5,
+)
+for r in results:
+    print(r.score, r.content[:160])
+    print("hijos/contexto:", (r.next_chunk_content or "")[:200])
 ```
 
-## Patrones de Búsqueda GraphRAG (Próximamente)
+Patrones avanzados (`graph_enhanced`, `local`, `community_summary`) requieren extras (`ungraph[gds]`, plugin GDS, entidades/`MENTIONS` según patrón). Contrato y kwargs: [`../api/sp-search-patterns.md`](../api/sp-search-patterns.md), [`../api/sp-advanced-search-patterns.md`](../api/sp-advanced-search-patterns.md).
 
-En desarrollo: patrones avanzados de búsqueda basados en GraphRAG:
+| | |
+|--|--|
+| **is** | Firmas anteriores en `main`; resultados normalizados a `SearchResult` |
+| **will be** | Ranking/scorecards confrontables (PRODUCT §5); más patrones de interface — [`../experiment/PLAN_MAESTRO.md`](../experiment/PLAN_MAESTRO.md) |
 
-- **Parent-Child Retriever**: Busca en nodos padre y expande a hijos
-- **Community Summary**: Encuentra comunidades de nodos relacionados
-- **Graph-Enhanced Vector Search**: Combina vectorial con estructura del grafo
-- **Metadata Filtering**: Filtra por metadatos específicos
+No afirmar “mejor precisión” sin ExperimentRun en `validation/`.
 
-Ver [documentación de patrones GraphRAG](../api/sp-search-patterns.md) para más detalles.
+## Práctica operativa
 
-## Mejores Prácticas
-
-1. **Empezar con búsqueda híbrida**: Generalmente da mejores resultados
-2. **Ajustar pesos según necesidad**: Más texto para palabras clave, más vectorial para conceptos
-3. **Usar límites razonables**: `limit=5-10` suele ser suficiente
-4. **Reconstruir contexto**: Usa chunks adyacentes para mejor comprensión
-5. **Iterar sobre resultados**: Los primeros resultados suelen ser los más relevantes
+1. Verificar ingesta antes de buscar.
+2. Empezar por `search` o `hybrid_search`; subir a `search_with_pattern` si hace falta topología/filtros.
+3. `limit` pequeño (5–10) para inspección humana.
+4. Tratar scores como ranking relativo del modo, no como confianza epistémica.
 
 ## Referencias
 
-- [Guía de Inicio Rápido](sp-quickstart.md)
-- [Patrones de Búsqueda GraphRAG](../api/sp-search-patterns.md)
-- [API Pública](../api/sp-public-api.md)
-
-
-
-
-
-
-
+- [Inicio rápido](sp-quickstart.md) · [Ingesta](sp-ingestion.md)
+- [API pública](../api/sp-public-api.md)
+- [Patrones de búsqueda](../api/sp-search-patterns.md) · [Avanzados](../api/sp-advanced-search-patterns.md)
+- [Grafos léxicos](../concepts/sp-lexical-graphs.md)

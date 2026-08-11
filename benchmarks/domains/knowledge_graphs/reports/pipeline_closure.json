@@ -1,0 +1,54 @@
+{
+  "schema": "ungraph.pipeline_closure/v1",
+  "domain": "knowledge_graphs",
+  "closed_at_utc": "2026-08-10T22:30:00Z",
+  "instrument": {
+    "probes": "localized hard+easy in gold.json",
+    "containment": "exact for answers with >=4 tokens",
+    "doe": "doe_h_chunk.yaml (doekit D-optimal)",
+    "fixed": {"inference": "ner", "chunking": "recursive", "chunk_overlap": 200}
+  },
+  "gates": {
+    "H_I": {
+      "status": "PASS",
+      "evidence": "hi_wave_verdict.json",
+      "entity_recall_none": 0.0,
+      "entity_recall_ner": 0.4737,
+      "answer_correctness": 1.0
+    },
+    "capa0": {
+      "status": "FROZEN",
+      "evidence": "capa0_artifact.json",
+      "reload_protocol": "wipe_reingest_pinned"
+    },
+    "oleada3_families": {
+      "status": "COMPARED",
+      "evidence": "family_wave_verdict.json",
+      "families": ["ner", "pattern"]
+    },
+    "H_chunk": {
+      "status": "MEASURED_WEAK_AC_STRONG_LATENCY",
+      "evidence": [
+        "results_h_chunk.csv",
+        "analysis_h_chunk.json",
+        "analysis_h_chunk_latency.json"
+      ],
+      "answer_correctness_range": [0.875, 1.0],
+      "retained_on_answer_correctness": [],
+      "retained_on_latency_s": ["chunk_size"],
+      "latency_r_squared": 0.981,
+      "note": "AC only drops on 256+vector+top_k=1; doekit retains chunk_size for latency (budget/covariable), not for task Y at alpha=0.15."
+    },
+    "H_T": {
+      "status": "MEASURED_FLAT",
+      "note": "entity_recall constant 0.4737 across H_chunk cells (Infer fixed); cannot claim transform→QA causality on this seed."
+    }
+  },
+  "pipeline_loop": {
+    "ExperimentRun": true,
+    "DomainScorecard": true,
+    "doekit_screening_analyze": true,
+    "online_wipe_ingest_eval": true,
+    "closure": "MVP medible ETI closed for seed knowledge_graphs; expand probes/domains before product claims on H_chunk/H_T."
+  }
+}

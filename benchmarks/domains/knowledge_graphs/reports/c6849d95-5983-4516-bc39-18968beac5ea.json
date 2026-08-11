@@ -1,0 +1,85 @@
+{
+  "run_id": "c6849d95-5983-4516-bc39-18968beac5ea",
+  "created_at_utc": "2026-08-10T17:24:42Z",
+  "domain": "knowledge_graphs",
+  "architecture": {
+    "chunking": "recursive",
+    "chunk_size": 512,
+    "chunk_overlap": 200,
+    "inference": "none",
+    "rag": "vector",
+    "top_k": 5
+  },
+  "pipeline_params": {
+    "chunking": "recursive",
+    "chunk_size": 512,
+    "chunk_overlap": 200,
+    "inference": "none",
+    "rag": "vector",
+    "top_k": 5
+  },
+  "scorecard": {
+    "domain": "knowledge_graphs",
+    "architecture": {
+      "chunking": "recursive",
+      "chunk_size": 512,
+      "chunk_overlap": 200,
+      "inference": "none",
+      "rag": "vector",
+      "top_k": 5
+    },
+    "extract": {
+      "chunking_quality_score": 0.875,
+      "n_chunks": 8,
+      "mrr": 0.7083
+    },
+    "transform": {
+      "entity_recall": 0.0,
+      "relation_pair_recall": 0.0,
+      "n_entities": 0,
+      "n_relations": 0,
+      "evidence_coverage": 0.0,
+      "n_facts": 0,
+      "n_with_provenance": 0
+    },
+    "reasoning": {
+      "f1": 0.0,
+      "hallucination_rate": 0.0,
+      "distractor_rejection_rate": 0.9744,
+      "real_recall": 0.0
+    },
+    "rag_qa": {
+      "answer_correctness": 1.0,
+      "n_probes": 4,
+      "n_correct": 4,
+      "mrr": 0.7083
+    },
+    "efficiency": {
+      "latency_s": 0.0897,
+      "latency_extract_s": 0.0,
+      "latency_transform_s": 0.0,
+      "latency_reasoning_s": 0.0888,
+      "latency_rag_s": 0.0004
+    },
+    "composite_score": 0.4585
+  },
+  "retrieval_metrics": [],
+  "efficiency": {
+    "latency_s": 0.0897,
+    "latency_extract_s": 0.0,
+    "latency_transform_s": 0.0,
+    "latency_reasoning_s": 0.0888,
+    "latency_rag_s": 0.0004
+  },
+  "git_sha": "33af9d7",
+  "seed": 0,
+  "gold_path": "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\gold.json",
+  "corpus_paths": [
+    "D:\\projects\\Ungraph\\benchmarks\\domains\\knowledge_graphs\\corpus\\kg_survey.md"
+  ],
+  "design_id": "D-optimal-b8-s0",
+  "design_row_id": "6",
+  "notes": "offline domain pipeline",
+  "composite_score": 0.4585,
+  "graph_stats": null
+}
